@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Hello!</h1>
+<h1>Welcome to Wendy Works!</h1>
 
-<p>For a greeting by name, visit this <a href="{{ url_for('greet') }}">greeting</a> page.</p>
+<p>Are you new here? Go to our <a href="{{ url_for('join') }}">Create an Account</a> page.</p>
+
+
+<p>Already have an account. Go here to Login page</p>
+
+
 
 {% endblock %}
