@@ -65,6 +65,10 @@ def testform():
     # these forms go to the formecho route
     return render_template('testform.html')
 
+@app.route('/profile/<int:uid>')
+def profile(uid):
+    ...
+
 
 if __name__ == '__main__':
     import sys, os
