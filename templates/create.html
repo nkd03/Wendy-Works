@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Welcome to Wendy Works!</h1>
+
+<form method=post action="{{url_for('join')}}"">
+  <p> Sign up using this form:</p>
+ 
+  <table>
+    <p>Contact Info:</p>
+    <tr><label for="email"><b>Wellesley Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" required></tr>
+    <br>
+    <tr><label for="f_name"><b>First name: </b></label>
+        <input type="text" placeholder="Enter first name" name="f_name" required></tr>
+        <br>
+    <tr><label for="l_name"><b>Last name: </b></label>
+        <input type="text" placeholder="Enter last name" name="l_name" required></tr>
+        <br>
+
+
+    <p>Account Info:</p>
+    
+    <tr><label for="username"><b>Username</b></label>
+    <input type="text" placeholder="Username" name="username" required></tr>
+    <br>
+    <tr> <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="pswrd" required></tr>
+    <br>
+    <tr><label for="psw-repeat"><b>Repeat Password</b></label>
+    <input type="password" placeholder="Repeat Password" name="pswrd-repeat" required></tr>
+    <br> 
+    <p>Please check off any skills you are interested in providing.</p>
+        <label>
+            <input type="checkbox" name="skills" value="cooking"> Cooking
+        </label>
+        <br>
+        <label>
+            <input type="checkbox" name="skills" value="crafts" > Crafts
+        </label><br>
+        <label>
+            <input type="checkbox"  name="skills" value="fitness" > Fitness
+        </label><br>
+        <label>
+            <input type="checkbox"  name="skills" value="sewing" > Sewing
+        </label><br>
+        <label>
+            <input type="checkbox"  name="skills" name="transportation" > Tranportation
+        </label><br>
+    
+    <p>Are you looking to provide any skills we don't have listed? Please enter any skills you have seperated by a comma (e.g cooking, sewing)</p>
+    <tr><label for="skills"><b>Other</b></label>
+    <input type="text" placeholder="Enter skills" name="other_skills" required></tr>
+    </table>
+
+    <label>
+      <input type="checkbox" checked="checked" name="remember" > Remember me
+    </label>
+
+    <p> <input type='submit' value='Submit'> </p>
+
+
+</form>
+
+
+
+{% endblock %}
