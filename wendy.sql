@@ -33,6 +33,7 @@ CREATE TABLE post (
   `body` TEXT NOT NULL, 
   `post_date` DATE NOT NULL,
   `categories` SET('clothing', 'fitness', 'beauty', 'crafts', 'transportation', 'photography', 'other') NOT NULL,
+  `type` ENUM('request', 'provision'), 
   `status` ENUM('open', 'closed', 'in progress') NOT NULL, 
   foreign key (`uid`) references user(`uid`) 
         on update restrict 
