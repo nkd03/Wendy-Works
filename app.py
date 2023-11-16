@@ -55,6 +55,18 @@ def join():
         #      flash('form submission error'+str(err))
         #      return redirect( url_for('index') )
 
+@app.route('/login/', methods = ["GET", "POST"])
+def login(): 
+    if request.method == 'GET': 
+        return render_template('login.html', title = 'Login')
+    else: 
+        user = ...
+        return redirect(url_for('profile', uid = user))
+    
+@app.route('/profile/<int:uid>')
+def profile(uid):
+    ...
+
 # @app.route('/formecho/', methods=['GET','POST'])
 # def formecho():
 #     if request.method == 'GET':
@@ -76,9 +88,6 @@ def join():
 #     # these forms go to the formecho route
 #     return render_template('testform.html')
 
-@app.route('/profile/<int:uid>')
-def profile(uid):
-    ...
 
 
 if __name__ == '__main__':
