@@ -2,10 +2,10 @@
 */
 
 HTML {
-    --color-header: #007ea9;  /* color for H1-H6 and others. was deepskyblue but poor contrast. */
+    --color-header: rgb(48, 117, 140);  /* color for H1-H6 and others. was deepskyblue but poor contrast. */
     --color-hilite: #b50000;  /* was red, but this avoids WAVE contrast errors */ 
     --color-focus: #56B929;
-    --font-family: Verdana;
+    --font-family: Serif;
     font-family: var(--font-family)
 }
 
@@ -17,10 +17,14 @@ HTML {
 }
 
 
+   
 h1 {
+    text-align: center;
     font-size: 200%;
     color: var(--color-header);
-}
+ }
+
+
 
 h2, h3 {
     color: var(--color-header);
