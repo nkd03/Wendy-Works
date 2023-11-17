@@ -13,10 +13,9 @@ create table session (
     )
     engine = InnoDB;
 
--- so for some reason this isn't working -- 
 CREATE TABLE user (
   `uid` INT AUTO_INCREMENT PRIMARY KEY,
-  id char(32)
+  id char(32),
   username VARCHAR(25) NOT NULL ,
   email VARCHAR(25) NOT NULL,
   f_name VARCHAR(20),
@@ -25,7 +24,6 @@ CREATE TABLE user (
   foreign key (id) references session(id)
 ) 
 engine=InnoDB;
-
 
 
 CREATE TABLE skills (
