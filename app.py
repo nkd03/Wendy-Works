@@ -74,7 +74,7 @@ def join():
 @app.route('/login/', methods = ["GET", "POST"])
 def login(): 
     if request.method == 'GET': 
-        return render_template('login.html', title = 'Login')
+        return render_template('login.html', title = 'Login to Wendy Works!')
     else: 
         user = ...
         return redirect(url_for('profile', uid = user))
@@ -82,6 +82,12 @@ def login():
 @app.route('/profile/<int:uid>')
 def profile(uid):
     ...
+
+
+@app.route('/logout/')
+def after_logout():
+    flash("you've successfully logged out!")
+    return redirect( url_for('index') )
 
 # @app.route('/formecho/', methods=['GET','POST'])
 # def formecho():
