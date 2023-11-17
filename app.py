@@ -31,33 +31,40 @@ def index():
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
-     if request.method == 'GET':
-         return render_template('create.html', header='Create an Account')
-     if request.method == 'POST': 
-         if request.form.get('email') and request.form.get('username') not in ...:
-             ...
-             
-       
-         #return redirect(url_for('profile', uid = ))
-        # if username not in the database: 
-            #reroute to the profile page 
-    #  else:
-    #      try:
-    #         #getting account information first 
-    #          username = request.form.get("username") 
-    #          pass1=request.form.get("pswrd") 
-    #          pass2=request.form.get("pswrd-repeat")
-    #         #getting contact information
-    #          email=request.form.get("email")
+    conn = dbi.connect()
+    if request.method == 'GET':
+        return render_template('create.html', title='Create an Account')
+    else:
+        #getting account information first 
+            username = request.form.get("username") 
+            pass1=request.form.get("pswrd") 
+            pass2=request.form.get("pswrd-repeat")
+        #getting contact information
+            email=request.form.get("email")
 
 
-    #          if pass1 != pass2:
-    #             flash('passwords do not match')
-    #             return redirect( url_for('index'))
-#             flash('form submission successful')
-#             return render_template('greet.html',
-#                                    title='Welcome '+username,
-#                                    name=username)
+            #checking if passwords match before creating account 
+            #or inserting anything 
+
+            if pass1 != pass2:
+                flash('passwords do not match')
+                return redirect( url_for('index'))
+            
+            hashed = bcrypt.hashpw(pass1.encode('utf-8'),
+                        bcrypt.gensalt())
+            stored = hashed.decode('utf-8')
+
+            
+
+
+
+
+
+
+            flash('form submission successful')
+            return render_template('greet.html',
+                                title='Welcome '+username,
+                                name=username)
 
         #  except Exception as err:
         #      flash('form submission error'+str(err))
