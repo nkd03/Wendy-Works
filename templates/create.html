@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Welcome to Wendy Works!</h1>
+<h1>{{header}}</h1>
 
-<form method=post action="{{url_for('join')}}"">
+<form method=post action="{{url_for('join')}}">
   <p> Sign up using this form:</p>
  
   <table>
@@ -52,10 +52,6 @@
     <tr><label for="skills"><b>Other</b></label>
     <input type="text" placeholder="Enter skills" name="other_skills" required></tr>
     </table>
-
-    <label>
-      <input type="checkbox" checked="checked" name="remember" > Remember me
-    </label>
 
     <p> <input type='submit' value='Submit'> </p>
 

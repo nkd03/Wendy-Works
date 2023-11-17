@@ -24,7 +24,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    return render_template('main.html',title='Hello')
+    return render_template('main.html', header ='Welcome to Wendy Works')
 
 # You will probably not need the routes below, but they are here
 # just in case. Please delete them if you are not using them
@@ -32,7 +32,15 @@ def index():
 @app.route('/join/', methods=["GET", "POST"])
 def join():
      if request.method == 'GET':
-         return render_template('create.html', title='Create an Account')
+         return render_template('create.html', header='Create an Account')
+     if request.method == 'POST': 
+         if request.form.get('email') and request.form.get('username') not in ...:
+             ...
+             
+       
+         #return redirect(url_for('profile', uid = ))
+        # if username not in the database: 
+            #reroute to the profile page 
     #  else:
     #      try:
     #         #getting account information first 
@@ -60,7 +68,9 @@ def login():
     if request.method == 'GET': 
         return render_template('login.html', title = 'Login to Wendy Works!')
     else: 
+        #sessvalue = request.cookies.get('session') working on this more
         user = ...
+
         return redirect(url_for('profile', uid = user))
     
 @app.route('/profile/<int:uid>')
@@ -71,6 +81,7 @@ def profile(uid):
 @app.route('/logout/')
 def after_logout():
     flash("you've successfully logged out!")
+    #end the session here 
     return redirect( url_for('index') )
 
 # @app.route('/formecho/', methods=['GET','POST'])
