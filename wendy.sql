@@ -20,7 +20,7 @@ CREATE TABLE user (
   email VARCHAR(25) NOT NULL,
   f_name VARCHAR(20),
   l_name VARCHAR(50),
-  `password` VARCHAR(50) NOT NULL, 
+  `password` VARCHAR(60) NOT NULL, 
   foreign key (id) references session(id)
 ) 
 engine=InnoDB;
