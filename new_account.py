@@ -30,7 +30,7 @@ def get_uid(conn):
     return uid 
 
 
-def insert_skills():
+def insert_skills(conn):
     """This function intends to insert any skills users have checked
     or have added in as other"""
     curs = dbi.dict_cursor(conn)
@@ -45,8 +45,18 @@ def insert_skills():
 
 def login_user(conn, username, pw): 
     curs = dbi.dict_cursor(conn)
-    hashed = bcrypt.hashpw(pw.encode('utf-8'),
-                        bcrypt.gensalt())
+    curs.execute('''
+                 select person, `password` from user 
+                 where username = %s
+                 ''', [username])
+    element = curs.fetchone() 
+    if element is not None: 
+        passw = element['password']
+        return bcrypt.checkpw(pw.encode('utf-8'), passw)
+    else:
+        return None
+
+
     
 
 
