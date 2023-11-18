@@ -63,8 +63,11 @@ def join():
                         bcrypt.gensalt())
             stored = hashed.decode('utf-8')
 
+            #potentially add a check to ensure a user with that username is not 
+            #already in the db? 
+
         #inserting into database
-            pyqueries.insert_new_user(conn,username,email,f_name,l_name,hashed)
+            pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
             row = pyqueries.get_uid(conn)
             uid = row.get("last_insert_id()")
@@ -76,41 +79,51 @@ def join():
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
-
-            flash('Account created! Now log in')
+            #might change this once figure sessions out
+            flash('Account created! Please log in')
             return redirect(url_for("login"))
 
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
 
+
 @app.route('/login/', methods = ["GET", "POST"])
 def login(): 
     if request.method == 'GET': 
         return render_template('login.html', header = 'Login to Wendy Works')
     else: 
+        uname = request.form.get('username')
+        in_pw = request.form.get('passw')
         conn = dbi.connect()
         #sessvalue = request.cookies.get('session') working on this more
-        user_info = ...
-        result = pyqueries.login_user(conn, username, password)
-        if result is True:
+        #user_info = ...
+        result = pyqueries.login_user(conn, uname, in_pw)
+        print("Result", result)
+        if result >=1:
             flash('Welcome!')
-            return redirect(url_for('profile', uid = user))
-
+            return redirect(url_for('profile', uid = result))
         elif result is False:
             flash('Sorry, your password is incorrect, try again')
-
-        else:
-            flash("No user found with the given username, please create an account")
+            return redirect(url_for('login'))
+        elif result is None: 
+             flash('Sorry, no username found, create an account')
+             return redirect(url_for('join'))
+            
+      
        
-
-        
-    
 
 
 @app.route('/profile/<int:uid>')
 def profile(uid):
-    return render_template("account_page.html")
+    conn = dbi.connect() 
+    information = pyqueries.get_account_info(conn, uid)
+    skills = pyqueries.get_skills(conn, uid) #not sure if this is the most efficient way but its a start
+    print("Skills", skills)
+    fname = information['f_name']
+    usernm = information['username']
+    mail = information['email']
+    return render_template("account_page.html", name = fname, username = usernm, email = mail, all_skills = skills)
 
 
 @app.route('/logout/')
@@ -150,7 +163,6 @@ if __name__ == '__main__':
         assert(port>1024)
     else:
         port = os.getuid()
-    # set this local variable to 'wmdb' or your personal or team db
     db_to_use = 'wworks_db' 
     print('will connect to {}'.format(db_to_use))
     dbi.conf(db_to_use)

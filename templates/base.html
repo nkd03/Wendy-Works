@@ -11,6 +11,14 @@
 </head>
 <body>
 
+            
+{% block nav %}
+<nav>
+  <ul>
+    <li><a href="{{url_for('index')}}">home</a></li>
+  </ul>
+</nav>
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 <div id="messages">
@@ -20,13 +28,6 @@
 </div>
 {% endif %}
 {% endwith %}
-            
-{% block nav %}
-<nav>
-  <ul>
-    <li><a href="{{url_for('index')}}">home</a></li>
-  </ul>
-</nav>
 {% endblock %}
 
 {% block main_content %}

@@ -27,7 +27,7 @@ h1 {
 
 
 h2, h3 {
-    color: var(--color-header);
+    color:rgb(35, 7, 119);
 }
     
 
@@ -126,26 +126,49 @@ label {
 
 .button {
     display: inline-block;
-    background-color: rgb(216, 222, 255);
-    width: 60%;
+    background-color: rgb(185, 215, 254);
+    width: 150px; 
     height: 35px;
-    padding: 10px;
-    padding-bottom: 5px;
-    font-size: 12 rem;
-    border: 2px solid rgb(0, 0, 0);
+    padding: 5px;
+    font-size: 1.25rem; 
+    border: 1px solid rgb(0, 0, 0);
     border-radius: 5px;
+    text-align: center; 
 }
 
-/* space between the sets */
 .button-container {
-    display: inline-block;
-    margin: 5 30px; 
+    display: inline-flex;
+    width: auto; 
 }
 
-/* space between text and button (sides) */
 .button-container p {
     margin-bottom: 10px; 
 }
 
+
+.information-box {
+    border: 1px solid rgb(51, 103, 103); 
+    padding: 20px;
+    margin: 20px 0; 
+    border-radius: 10px; /* Rounded corners */
+    background-color:rgb(166, 210, 225) ; 
+    max-width: 400px; 
+    margin-right: auto;
+}
+
+.your-information {
+    text-align: center; 
+    color: #000000; 
+    margin-bottom: 10px;
+}
+
+ul {
+    list-style: none; /* Removes the default list bullet points */
+    padding: 1; /* Removes default padding */
+}
+
+li {
+    padding: 5px 0; 
+}
 
 
