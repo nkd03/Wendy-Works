@@ -1,27 +1,7 @@
-from flask import (Flask, render_template, make_response, url_for, request,
-                   redirect, flash, session, send_from_directory, jsonify)
-from werkzeug.utils import secure_filename
-import bcrypt
-app = Flask(__name__)
-
-# one or the other of these. Defaults to MySQL (PyMySQL)
-# change comment characters to switch to SQLite
 
 import cs304dbi as dbi
+import bcrypt
 # import cs304dbi_sqlite3 as dbi
-
-import random
-
-app.secret_key = 'your secret here'
-# replace that with a random key
-app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
-                                          'abcdefghijklmnopqrstuvxyz' +
-                                          '0123456789'))
-                           for i in range(20) ])
-
-# This gets us better error messages for certain common request errors
-app.config['TRAP_BAD_REQUEST_ERRORS'] = True
-
 
 def insert_new_user(conn,username,email,f_name,l_name,hashed):
     '''
@@ -40,7 +20,6 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
         flash('Error: {}'.format(repr(err)))
         return
     
-
 
 
 def get_uid(conn):
@@ -86,7 +65,20 @@ def get_account_info(conn,uid):
                     [uid])
     return curs.fetchone
 
+    
 
+def login_user(conn, username, pw): 
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 select person, `password` from user 
+                 where username = %s
+                 ''', [username])
+    element = curs.fetchone() 
+    if element is not None: 
+        passw = element['password']
+        return bcrypt.checkpw(pw.encode('utf-8'), passw)
+    else:
+        return None
 
 if __name__ == '__main__':
     import sys, os

@@ -2,6 +2,7 @@ from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
 import bcrypt
+import new_account as pyqueries
 app = Flask(__name__)
 
 # one or the other of these. Defaults to MySQL (PyMySQL)
@@ -25,7 +26,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    return render_template('main.html',title='Hello')
+    return render_template('main.html', header ='Welcome to Wendy Works')
 
 # You will probably not need the routes below, but they are here
 # just in case. Please delete them if you are not using them
@@ -34,10 +35,10 @@ def index():
 def join():
     conn = dbi.connect()
     if request.method == 'GET':
-        return render_template('create.html', title='Create an Account')
+        return render_template('create.html', header ='Create an Account')
     else: #request method is POST
-        try:
-        #getting account information first 
+       
+        try: #getting account information first 
             username = request.form.get("username") 
             pass1=request.form.get("pswrd") 
             pass2=request.form.get("pswrd-repeat")
@@ -86,10 +87,24 @@ def join():
 @app.route('/login/', methods = ["GET", "POST"])
 def login(): 
     if request.method == 'GET': 
-        return render_template('login.html', title = 'Login to Wendy Works!')
+        return render_template('login.html', header = 'Login to Wendy Works')
     else: 
-        user = ...
-        return redirect(url_for('profile', uid = user))
+        conn = dbi.connect()
+        #sessvalue = request.cookies.get('session') working on this more
+        user_info = ...
+        result = pyqueries.login_user(conn, username, password)
+        if result is True:
+            flash('Welcome!')
+            return redirect(url_for('profile', uid = user))
+
+        elif result is False:
+            flash('Sorry, your password is incorrect, try again')
+
+        else:
+            flash("No user found with the given username, please create an account")
+       
+
+        
     
 
 
@@ -101,6 +116,7 @@ def profile(uid):
 @app.route('/logout/')
 def after_logout():
     flash("you've successfully logged out!")
+    #end the session here 
     return redirect( url_for('index') )
 
 # @app.route('/formecho/', methods=['GET','POST'])
