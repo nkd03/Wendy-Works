@@ -76,8 +76,6 @@ def join():
                 new_account.insert_other_skills(conn, uid, other_skills)
 
 
-
-
             flash('Account created! Now log in')
             return redirect(url_for("login"))
 
