@@ -56,6 +56,14 @@ def insert_other_skills(conn, uid, other_skills):
     return 
 
 
+def get_skills(conn, uid): 
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                select * from skills where uid= (%s)
+                 ''', [uid]) 
+    return curs.fetchall()
+
+
 def get_account_info(conn,uid):
     """This function returns users information using uid """
     curs = dbi.dict_cursor(conn)
@@ -63,34 +71,27 @@ def get_account_info(conn,uid):
                     select * from user where uid= (%s)
                     ''',
                     [uid])
-    return curs.fetchone
+    return curs.fetchone()
 
     
 
-def login_user(conn, username, pw): 
+def login_user(conn, username, pass1): 
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 select person, `password` from user 
-                 where username = %s
+                 select f_name, `uid`, `password` from user 
+                 where username= (%s)
                  ''', [username])
     element = curs.fetchone() 
+    print("Element", element)
     if element is not None: 
         passw = element['password']
-        return bcrypt.checkpw(pw.encode('utf-8'), passw)
+
+        hashed2 = bcrypt.hashpw(pass1.encode('utf-8'), passw.encode('utf-8'))
+        hashed2_str = hashed2.decode('utf-8')
+        if hashed2_str == passw:
+            return element['uid']
+        else: 
+            return False
     else:
         return None
 
-if __name__ == '__main__':
-    import sys, os
-    if len(sys.argv) > 1:
-        # arg, if any, is the desired port number
-        port = int(sys.argv[1])
-        assert(port>1024)
-    else:
-        port = os.getuid()
-    # set this local variable to 'wmdb' or your personal or team db
-    db_to_use = 'wworks_db' 
-    print('will connect to {}'.format(db_to_use))
-    dbi.conf(db_to_use)
-    app.debug = True
-    app.run('0.0.0.0',port)

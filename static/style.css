@@ -27,7 +27,7 @@ h1 {
 
 
 h2, h3 {
-    color: var(--color-header);
+    color:rgb(35, 7, 119);
 }
     
 
@@ -81,10 +81,10 @@ nav button:hover, button:focus, nav a:hover, nav a:focus {
 }
 
 form {
-    background-color: #a8a7a7; 
+    background-color: #e3e3e3; 
     padding: 20px;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px rgba(181, 179, 179, 0.2);
     max-width: 400px;
     margin: auto;
 }
@@ -119,6 +119,56 @@ label {
     margin-top: 10px;
 }
 
+.centered-buttons {
+    text-align: center;
+    margin-top: 20px;
+}
 
+.button {
+    display: inline-block;
+    background-color: rgb(185, 215, 254);
+    width: 150px; 
+    height: 35px;
+    padding: 5px;
+    font-size: 1.25rem; 
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 5px;
+    text-align: center; 
+}
+
+.button-container {
+    display: inline-flex;
+    width: auto; 
+}
+
+.button-container p {
+    margin-bottom: 10px; 
+}
+
+
+.information-box {
+    border: 1px solid rgb(51, 103, 103); 
+    padding: 20px;
+    margin: 20px 0; 
+    border-radius: 10px; /* Rounded corners */
+    background-color:rgb(166, 210, 225) ; 
+    max-width: 400px; 
+    margin-right: auto;
+}
+
+.your-information {
+    text-align: center; 
+    color: #000000; 
+    margin-bottom: 10px;
+}
+
+ul {
+    list-style: none; /* Removes the default list bullet points */
+    padding: 1; /* Removes default padding */
+}
+
+li {
+    padding: 5px 0; 
+}
 
 

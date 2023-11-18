@@ -1,10 +1,28 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Welcome !</h1>
+<body>
+    <h1>Welcome {{ name }}!</h1>
 
-<p>testing to see if the form works </p>
+    <div class="information-box">
+        <h2>Your information:</h2>
+        <p>Username: {{ username }}</p>
+        <p>Email: {{ email }}</p>
 
+        <h3 class="your-skills">Skills:</h3>
+        <ul>
+            {% for task in all_skills %}
+            <li>{{ task.skill }}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+    <div class="photobox">
+    <h3> Your current photo: </h3>
+    
+</div>
+</body>
 
 
 
