@@ -11,13 +11,14 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
     try:
         curs.execute('''
                  INSERT INTO user(username,email,f_name,l_name,`password`) 
-                 VALUES (%s,%s,%s,%s)
+                 VALUES (%s,%s,%s,%s,%s)
                  ''',
                  [username,email,f_name,l_name,hashed])
         conn.commit()
         return  
     except Exception as err:
-        flash('That username is taken: {}'.format(repr(err)))
+        flash('Error: {}'.format(repr(err)))
+        return
     
 
 
@@ -25,23 +26,46 @@ def get_uid(conn):
     """A quick helper function to get uid using last-insert"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''select last_insert_id()''')
-    row = curs.fetchone()
-    uid = row[0]
-    return uid 
+    return curs.fetchone()
 
 
-def insert_skills(conn):
+def insert_skills(conn, uid,skills):
     """This function intends to insert any skills users have checked
     or have added in as other"""
     curs = dbi.dict_cursor(conn)
-    curs.execute('''
-                 INSERT INTO movie(tt,title,`release`,addedby) 
-                 VALUES (%s,%s,%s,%s)
-                 ''',
-                 [])
-    conn.commit()
+    for skill in skills:
+        curs.execute('''
+                    INSERT INTO skills(uid,skill) 
+                    VALUES (%s,%s)
+                    ''',
+                    [uid,skill])
+        conn.commit()
     return 
 
+def insert_other_skills(conn, uid, other_skills):
+    """This function intends to insert any skills users have checked
+    or have added in as other"""
+    curs = dbi.dict_cursor(conn)
+    for skill in other_skills:
+        curs.execute('''
+                    INSERT INTO skills(uid,skill) 
+                    VALUES (%s,%s)
+                    ''',
+                    [uid,skill])
+        conn.commit()
+    return 
+
+
+def get_account_info(conn,uid):
+    """This function returns users information using uid """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                    select * from user where uid= (%s)
+                    ''',
+                    [uid])
+    return curs.fetchone
+
+    
 
 def login_user(conn, username, pw): 
     curs = dbi.dict_cursor(conn)
@@ -55,10 +79,6 @@ def login_user(conn, username, pw):
         return bcrypt.checkpw(pw.encode('utf-8'), passw)
     else:
         return None
-
-
-    
-
 
 if __name__ == '__main__':
     import sys, os

@@ -2,13 +2,14 @@ from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
 import bcrypt
-import new_account as pyqueries
+import pyqueries
 app = Flask(__name__)
 
 # one or the other of these. Defaults to MySQL (PyMySQL)
 # change comment characters to switch to SQLite
 
 import cs304dbi as dbi
+
 # import cs304dbi_sqlite3 as dbi
 
 import random
@@ -35,18 +36,25 @@ def join():
     conn = dbi.connect()
     if request.method == 'GET':
         return render_template('create.html', header ='Create an Account')
-    else:
-        #getting account information first 
+    else: #request method is POST
+       
+        try: #getting account information first 
             username = request.form.get("username") 
             pass1=request.form.get("pswrd") 
             pass2=request.form.get("pswrd-repeat")
         #getting contact information
             email=request.form.get("email")
+            f_name=request.form.get("f_name")
+            l_name=request.form.get("l_name")
+        #getting checked skills as a list 
+            skills=request.form.getlist("skills")
+        #getting other skills, changing into a list 
+            other_skills = request.form.get("other_skills").split(",")
 
+            print(other_skills)
 
-            #checking if passwords match before creating account 
-            #or inserting anything 
-
+        #checking if passwords match before creating account 
+        #or inserting anything 
             if pass1 != pass2:
                 flash('passwords do not match')
                 return redirect( url_for('index'))
@@ -55,21 +63,26 @@ def join():
                         bcrypt.gensalt())
             stored = hashed.decode('utf-8')
 
+        #inserting into database
+            pyqueries.insert_new_user(conn,username,email,f_name,l_name,hashed)
+        #getting last uid
+            row = pyqueries.get_uid(conn)
+            uid = row.get("last_insert_id()")
             
+            
+        #inserting skills 
+            pyqueries.insert_skills(conn,uid,skills)
+
+            if len(other_skills) > 0:
+                pyqueries.insert_other_skills(conn, uid, other_skills)
 
 
+            flash('Account created! Now log in')
+            return redirect(url_for("login"))
 
-
-
-
-            flash('form submission successful')
-            return render_template('greet.html',
-                                title='Welcome '+username,
-                                name=username)
-
-        #  except Exception as err:
-        #      flash('form submission error'+str(err))
-        #      return redirect( url_for('index') )
+        except Exception as err:
+            flash('form submission error'+ str(err))
+            return redirect( url_for('index') )
 
 @app.route('/login/', methods = ["GET", "POST"])
 def login(): 
@@ -93,9 +106,11 @@ def login():
 
         
     
+
+
 @app.route('/profile/<int:uid>')
 def profile(uid):
-    ...
+    return render_template("account_page.html")
 
 
 @app.route('/logout/')
