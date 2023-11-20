@@ -94,4 +94,13 @@ def login_user(conn, username, pass1):
             return False
     else:
         return None
+    
+
+def setsession(conn, result, timestamp, uip): 
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    INSERT INTO session (`uid`, st, ip) 
+    VALUES (%s, %s, %s)
+     ''', [result,timestamp, uip])
+    conn.commit() 
 

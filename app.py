@@ -1,5 +1,6 @@
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
+from datetime import datetime
 from werkzeug.utils import secure_filename
 import bcrypt
 import pyqueries
@@ -80,7 +81,7 @@ def join():
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
-            #might change this once figure sessions out
+            #might change this once figure sessions out ==> think its okay to leave
             flash('Account created! Please log in')
             return redirect(url_for("login"))
 
@@ -97,19 +98,25 @@ def login():
         uname = request.form.get('username')
         in_pw = request.form.get('passw')
         conn = dbi.connect()
-        #sessvalue = request.cookies.get('session') working on this more
-        #user_info = ...
         result = pyqueries.login_user(conn, uname, in_pw)
         print("Result", result)
-        if result >=1:
-            flash('Welcome!')
-            return redirect(url_for('profile', uid = result))
-        elif result is False:
-            flash('Sorry, your password is incorrect, try again')
-            return redirect(url_for('login'))
-        elif result is None: 
-             flash('Sorry, no username found, create an account')
-             return redirect(url_for('join'))
+        try: 
+            #if the user is in the database
+            if result >=1:
+                timestamp = datetime.now() #not sure if we need this
+                ip = str(request.remote_addr) #not sure if we need this
+                session['uid'] = result #we do need this
+                pyqueries.setsession(conn,result, timestamp, ip)
+                flash('Welcome!')
+                return redirect(url_for('profile', uid = result))
+            #if no user 
+            elif result is False:
+                flash('Sorry, your password is incorrect, try again')
+                return redirect(url_for('login'))
+        except Exception as e: 
+            print("Exception occurred:", e)
+            flash('Sorry, no username found, create an account')
+            return(redirect(url_for('join')))
             
       
 @app.route('/search/')
@@ -172,14 +179,19 @@ def profile(uid):
     fname = information['f_name']
     usernm = information['username']
     mail = information['email']
-    return render_template("account_page.html", name = fname, username = usernm, email = mail, all_skills = skills)
+    return render_template("account_page.html", name = fname,
+                            username = usernm, email = mail, all_skills = skills)
 
+@app.route('/posts')
+def posts():
+    return render_template("create.html") #just a tester for the sessions, we can workshop this when there's a new template
 
 @app.route('/logout/')
-def after_logout():
-    flash("you've successfully logged out!")
+def logout():
+    session.pop('uid', None)
+    flash("You've logged out, please visit again soon!")
     #end the session here 
-    return redirect( url_for('index') )
+    return redirect(url_for('index'))
 
 # @app.route('/formecho/', methods=['GET','POST'])
 # def formecho():
