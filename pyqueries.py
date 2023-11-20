@@ -17,8 +17,26 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
         conn.commit()
         return  
     except Exception as err:
-        flash('Error: {}'.format(repr(err)))
-        return
+        return ('Error: {}'.format(repr(err)))
+ 
+
+def check_usern(conn,username):
+    '''
+    Checks if user name is already in the database 
+    '''
+    curs = dbi.dict_cursor(conn)
+    try:
+        curs.execute('''
+                Select * from user where username = [%s]
+                 ''',
+                 [username])
+        user = curs.fetchone
+        if user == None: 
+            return False
+        return True
+    except Exception as err:
+        return ('Error: {}'.format(repr(err)))
+
     
 
 
