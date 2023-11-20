@@ -1,5 +1,6 @@
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
+from datetime import datetime
 from werkzeug.utils import secure_filename
 import bcrypt
 import pyqueries
@@ -98,21 +99,26 @@ def login():
         conn = dbi.connect()
         #sessvalue = request.cookies.get('session') working on this more
         #user_info = ...
+        #not sure how to begin a session 
         result = pyqueries.login_user(conn, uname, in_pw)
         print("Result", result)
-        if result >=1:
-            flash('Welcome!')
-            return redirect(url_for('profile', uid = result))
-        elif result is False:
-            flash('Sorry, your password is incorrect, try again')
-            return redirect(url_for('login'))
-        elif result is None: 
-             flash('Sorry, no username found, create an account')
-             return redirect(url_for('join'))
+        try: 
+            if result >=1:
+                timestamp = datetime.now()
+                ip = str(request.remote_addr) 
+                session['uid'] = result
+                pyqueries.setsession(conn,result, timestamp, ip)
+                flash('Welcome!')
+                return redirect(url_for('profile', uid = result))
+            elif result is False:
+                flash('Sorry, your password is incorrect, try again')
+                return redirect(url_for('login'))
+        except Exception as e: 
+            print("Exception occurred:", e)
+            flash('Sorry, no username found, create an account')
+            return(redirect(url_for('join')))
             
       
-       
-
 
 @app.route('/profile/<int:uid>')
 def profile(uid):
@@ -125,12 +131,17 @@ def profile(uid):
     mail = information['email']
     return render_template("account_page.html", name = fname, username = usernm, email = mail, all_skills = skills)
 
+@app.route('/posts')
+def posts():
+    return render_template("create.html") #just a tester for the sessions, we can workshop this when there's a new template
 
 @app.route('/logout/')
-def after_logout():
-    flash("you've successfully logged out!")
+def logout():
+    #uid = request.args.get('uid')
+    session.pop('uid', None)
+    flash("you've logged out, please visit again soon!")
     #end the session here 
-    return redirect( url_for('index') )
+    return redirect(url_for('index'))
 
 # @app.route('/formecho/', methods=['GET','POST'])
 # def formecho():
