@@ -146,6 +146,19 @@ label {
 }
 
 
+.photobox input[type="submit"] {
+    width: 120px; 
+    height: 40px; 
+    text-align: center;
+}
+
+.photobox input[type="file"] {
+    display: inline-block; 
+}
+.photobox p{
+    text-align: center;
+}
+
 .information-box {
     border: 1px solid rgb(51, 103, 103); 
     padding: 20px;
