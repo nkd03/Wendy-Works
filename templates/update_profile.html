@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<form method="POST" action="/update/{{user}}">
+    <table>
+        <tr>
+          <td><label for="fname"> First Name </label></td>
+          <td><input id="fname" name='fname' value="{{account.f_name}}"></td> 
+        </tr>
+        <tr>
+          <td><label for="lname">Last Name </label></td>
+          <td><input id="lname" name='lname' value={{account.l_name}}></td>
+        </tr>
+        <tr>
+          <td><label for="email">Email </label></td>
+          <td><input id="email" name='email' value={{account.email}}></td>
+        </tr>
+        <tr>
+            <td><label for="username">Username </label></td>
+            <td><input id="username" name='username' value={{account.username}}></td>
+        </tr>
+        <tr>
+            <td><label for="skills">Skills: </label></td>
+            <td>
+                <p>Please update the skills you are currently interested in providing (separated by comma)</p>
+                <input type="text" name="skills" id="skills" value="{% for entry in skills %}{{ entry.skill }}{% if not loop.last %}, {% endif %}{% endfor %}">
+            </td>
+
+            </td>
+        </tr>
+        <tr>
+          <td><label>UID</label></td>
+          <td>value = {{user}}</td>
+        </tr>
+      </table>
+      <input type="submit" name="submit" value="update">
+  </form>
+  {% endblock %}

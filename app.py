@@ -119,7 +119,7 @@ def login():
             
       
 
-@app.route('/profile/<int:uid>')
+@app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
     if session['uid'] == uid: 
         conn = dbi.connect() 
@@ -129,11 +129,41 @@ def profile(uid):
         fname = information['f_name']
         usernm = information['username']
         mail = information['email']
-        return render_template("account_page.html", name = fname,
-                                username = usernm, email = mail, all_skills = skills)
+        usid = information['uid']
+        if request.method == 'GET': 
+            return render_template("account_page.html", name = fname,
+                                username = usernm, email = mail, all_skills = skills, user = usid)
+        else:  
+            return redirect(url_for('update', user = uid))
     else: 
         flash('Sorry, you cannot access this page')
         return(redirect(url_for('login')))
+  
+@app.route('/update/<int:user>', methods = ["GET","POST"])
+def update(user):
+    conn = dbi.connect() 
+    if request.method == "POST": 
+        firstnm = request.form.get('fname')
+        lastnm = request.form.get('lname')
+        mail = request.form.get('email')
+        username = request.form.get('username')
+        skills_input = request.form.get('skills')
+        #remove old skills from the db
+        pyqueries.delSkills(conn, user)
+        updated_skills = [skill.strip() for skill in skills_input.split(',')]
+        #add new skills to the db
+        pyqueries.insert_other_skills(conn, user, updated_skills)
+        #userid stays the same so this is just updating additional info
+        pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
+        return redirect(url_for('profile', uid = user))
+    else: 
+        info = pyqueries.get_account_info(conn, user)
+        uskills = pyqueries.get_skills(conn, user)
+        print("Skills ", uskills)
+        return render_template("update_profile.html", account = info, skills = uskills, user = user)
+
+
+
 
 @app.route('/posts')
 def posts():
