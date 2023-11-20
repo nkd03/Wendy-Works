@@ -1,7 +1,27 @@
 import wworks_db as dbi
 
 
+def insert_post(conn, title, body, categories, type):
+    '''
+    Helper function to insert a created post into the database
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 INSERT INTO post(title, body, categories, type)
+                 VALUES (%s, %s, %s, %s)
+                 ''', [title, body, categories, type])
+    conn.commit()
 
+def get_post(conn, pid):
+    '''
+    Helper function to get a post given its pid
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 SELECT * from post 
+                 WHERE pid = %s
+                 ''', [pid])
+    return curs.fetchone()
 
 def find_service(conn, key_phrase):
     '''
@@ -13,10 +33,11 @@ def find_service(conn, key_phrase):
     curs.execute('''
                  select *
                  from post
-                 where body like %s
+                 where body like %s and type = 'request'
                  ''', [key_phrase])
     results = curs.fetchall()
     return results
+
 
 def find_provider(conn, key_phrase):
     '''
@@ -29,7 +50,7 @@ def find_provider(conn, key_phrase):
     curs.execute('''
                  select *
                  from post
-                 where body like %s
+                 where body like %s and type = 'provision'
                  ''', [key_phrase])
     results = curs.fetchall()
     return results

@@ -13,6 +13,7 @@ import cs304dbi as dbi
 # import cs304dbi_sqlite3 as dbi
 
 import random
+import helper
 
 app.secret_key = 'your secret here'
 # replace that with a random key
@@ -111,8 +112,56 @@ def login():
              return redirect(url_for('join'))
             
       
-       
+@app.route('/search/')
+def search():
+    conn = dbi.connect() 
+    u_input = request.args['query']
+    u_kind = request.args['kind']
+    if u_kind == 'provision':
+        key_phrase = u_input
+        helper.find_service(conn, key_phrase)
+        return render_template('search_results.html', key_phrase=key_phrase)
+    if u_kind == 'request':
+        helper.find_provider(conn, key_phrase)
+        return render_template('search_results.html', key_phrase=key_phrase)
 
+@app.route('/insert/', methods=["GET", "POST"])
+def insert_post():
+    '''
+    This function is for a user to create a post
+    '''
+    conn = dbi.connect()
+    
+    if request.method == 'GET':
+        return render_template('post.html')
+    else:
+        # Collect relevant form information into variables
+        title = request.form.get('title')
+        body = request.form.get('body')
+        categories = request.form.getlist('categories')
+        type = request.form.get('type')
+        # Flash messages accordingly for missing inputs
+        if not body:
+            flash('missing input: no body text')
+        if not title:
+            flash('missing input: no title')
+        if not categories:
+            flash('missing input: no category selected')
+        # If any one of the inputs or combination of inputs is missing, 
+        # redirect them to fill out the form again.
+        if not body or not title or not categories or str(title).isnumeric():
+            return redirect(url_for('insert'))
+        helper.insert_post(conn, title, body, categories, type)
+
+        flash('Your post was inserted successfully')
+        return redirect(url_for('post', pid=pid)) #how do we get the pid??
+        
+# @app.route('/post/<int:pid>')
+# def post(pid):
+#     conn = dbi.connect() 
+#     post_info = helper.get_post(pid)
+    
+#     return render_template("post.html", pid=pid)
 
 @app.route('/profile/<int:uid>')
 def profile(uid):
