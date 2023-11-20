@@ -124,8 +124,7 @@ def profile(uid):
     if session['uid'] == uid: 
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
-        skills = pyqueries.get_skills(conn, uid) #not sure if this is the most efficient way but its a start
-        print("Skills", skills)
+        skills = pyqueries.get_skills(conn, uid) 
         fname = information['f_name']
         usernm = information['username']
         mail = information['email']
