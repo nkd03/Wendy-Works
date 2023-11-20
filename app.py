@@ -121,15 +121,19 @@ def login():
 
 @app.route('/profile/<int:uid>')
 def profile(uid):
-    conn = dbi.connect() 
-    information = pyqueries.get_account_info(conn, uid)
-    skills = pyqueries.get_skills(conn, uid) #not sure if this is the most efficient way but its a start
-    print("Skills", skills)
-    fname = information['f_name']
-    usernm = information['username']
-    mail = information['email']
-    return render_template("account_page.html", name = fname,
-                            username = usernm, email = mail, all_skills = skills)
+    if session['uid'] == uid: 
+        conn = dbi.connect() 
+        information = pyqueries.get_account_info(conn, uid)
+        skills = pyqueries.get_skills(conn, uid) #not sure if this is the most efficient way but its a start
+        print("Skills", skills)
+        fname = information['f_name']
+        usernm = information['username']
+        mail = information['email']
+        return render_template("account_page.html", name = fname,
+                                username = usernm, email = mail, all_skills = skills)
+    else: 
+        flash('Sorry, you cannot access this page')
+        return(redirect(url_for('login')))
 
 @app.route('/posts')
 def posts():
