@@ -29,8 +29,6 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 def index():
     return render_template('main.html', header ='Welcome to Wendy Works')
 
-# You will probably not need the routes below, but they are here
-# just in case. Please delete them if you are not using them
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
@@ -106,12 +104,12 @@ def login():
                 ip = str(request.remote_addr) #not sure if we need this
                 session['uid'] = result #we do need this
                 pyqueries.setsession(conn,result, timestamp, ip)
-                flash('Welcome!')
                 return redirect(url_for('profile', uid = result))
-            #if no user 
+            #if incorrect password
             elif result is False:
                 flash('Sorry, your password is incorrect, try again')
                 return redirect(url_for('login'))
+        #if that username is not in the db
         except Exception as e: 
             print("Exception occurred:", e)
             flash('Sorry, no username found, create an account')
