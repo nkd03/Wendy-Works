@@ -80,7 +80,7 @@ def join():
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
-            #might change this once figure sessions out
+            #might change this once figure sessions out ==> think its okay to leave
             flash('Account created! Please log in')
             return redirect(url_for("login"))
 
@@ -97,19 +97,18 @@ def login():
         uname = request.form.get('username')
         in_pw = request.form.get('passw')
         conn = dbi.connect()
-        #sessvalue = request.cookies.get('session') working on this more
-        #user_info = ...
-        #not sure how to begin a session 
         result = pyqueries.login_user(conn, uname, in_pw)
         print("Result", result)
         try: 
+            #if the user is in the database
             if result >=1:
-                timestamp = datetime.now()
-                ip = str(request.remote_addr) 
-                session['uid'] = result
+                timestamp = datetime.now() #not sure if we need this
+                ip = str(request.remote_addr) #not sure if we need this
+                session['uid'] = result #we do need this
                 pyqueries.setsession(conn,result, timestamp, ip)
                 flash('Welcome!')
                 return redirect(url_for('profile', uid = result))
+            #if no user 
             elif result is False:
                 flash('Sorry, your password is incorrect, try again')
                 return redirect(url_for('login'))
@@ -129,7 +128,8 @@ def profile(uid):
     fname = information['f_name']
     usernm = information['username']
     mail = information['email']
-    return render_template("account_page.html", name = fname, username = usernm, email = mail, all_skills = skills)
+    return render_template("account_page.html", name = fname,
+                            username = usernm, email = mail, all_skills = skills)
 
 @app.route('/posts')
 def posts():
@@ -137,9 +137,8 @@ def posts():
 
 @app.route('/logout/')
 def logout():
-    #uid = request.args.get('uid')
     session.pop('uid', None)
-    flash("you've logged out, please visit again soon!")
+    flash("You've logged out, please visit again soon!")
     #end the session here 
     return redirect(url_for('index'))
 
