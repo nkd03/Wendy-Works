@@ -14,6 +14,7 @@ import cs304dbi as dbi
 # import cs304dbi_sqlite3 as dbi
 
 import random
+import helper
 
 app.secret_key = 'your secret here'
 # replace that with a random key
@@ -29,8 +30,6 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 def index():
     return render_template('main.html', header ='Welcome to Wendy Works')
 
-# You will probably not need the routes below, but they are here
-# just in case. Please delete them if you are not using them
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
@@ -110,34 +109,114 @@ def login():
                 ip = str(request.remote_addr) #not sure if we need this
                 session['uid'] = result #we do need this
                 pyqueries.setsession(conn,result, timestamp, ip)
-                flash('Welcome!')
                 return redirect(url_for('profile', uid = result))
-            #if no user 
+            #if incorrect password
             elif result is False:
                 flash('Sorry, your password is incorrect, try again')
                 return redirect(url_for('login'))
+        #if that username is not in the db
         except Exception as e: 
             print("Exception occurred:", e)
             flash('Sorry, no username found, create an account')
             return(redirect(url_for('join')))
             
       
+@app.route('/search/')
+def search():
+    conn = dbi.connect() 
+    u_input = request.args['query']
+    u_kind = request.args['kind']
+    if u_kind == 'provision':
+        key_phrase = u_input
+        helper.find_service(conn, key_phrase)
+        return render_template('search_results.html', key_phrase=key_phrase)
+    if u_kind == 'request':
+        helper.find_provider(conn, key_phrase)
+        return render_template('search_results.html', key_phrase=key_phrase)
 
-@app.route('/profile/<int:uid>')
+@app.route('/insert/', methods=["GET", "POST"])
+def insert_post():
+    '''
+    This function is for a user to create a post
+    '''
+    conn = dbi.connect()
+    
+    if request.method == 'GET':
+        return render_template('post.html')
+    else:
+        # Collect relevant form information into variables
+        print(request.form)
+        title = request.form.get('title')
+        body = request.form.get('body')
+        categories = request.form.getlist('categories')
+        print(categories)
+        type = request.form.get('type')
+        # Flash messages accordingly for missing inputs
+        if not body:
+            flash('missing input: no body text')
+        if not title:
+            flash('missing input: no title')
+        if not categories:
+            flash('missing input: no category selected')
+        # If any one of the inputs or combination of inputs is missing, 
+        # redirect them to fill out the form again.
+        if not body or not title or not categories or str(title).isnumeric():
+            return redirect(url_for('insert_post'))
+        helper.insert_post(conn, title, body, categories, type)
+        pid = helper.get_pid(conn)
+        flash('Your post was inserted successfully')
+        return redirect(url_for('post', pid=pid)) #how do we get the pid??
+        
+@app.route('/post/<int:pid>')
+def post(pid):
+    conn = dbi.connect() 
+    post_info = helper.get_post(conn, pid)
+    return render_template("post.html", pid=post_info.get('pid'))
+
+@app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
     if session['uid'] == uid: 
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
-        skills = pyqueries.get_skills(conn, uid) #not sure if this is the most efficient way but its a start
-        print("Skills", skills)
+        skills = pyqueries.get_skills(conn, uid) 
         fname = information['f_name']
         usernm = information['username']
         mail = information['email']
-        return render_template("account_page.html", name = fname,
-                                username = usernm, email = mail, all_skills = skills)
+        usid = information['uid']
+        if request.method == 'GET': 
+            return render_template("account_page.html", name = fname,
+                                username = usernm, email = mail, all_skills = skills, user = usid)
+        else:  
+            return redirect(url_for('update', user = uid))
     else: 
         flash('Sorry, you cannot access this page')
         return(redirect(url_for('login')))
+  
+@app.route('/update/<int:user>', methods = ["GET","POST"])
+def update(user):
+    conn = dbi.connect() 
+    if request.method == "POST": 
+        firstnm = request.form.get('fname')
+        lastnm = request.form.get('lname')
+        mail = request.form.get('email')
+        username = request.form.get('username')
+        skills_input = request.form.get('skills')
+        #remove old skills from the db
+        pyqueries.delSkills(conn, user)
+        updated_skills = [skill.strip() for skill in skills_input.split(',')]
+        #add new skills to the db
+        pyqueries.insert_other_skills(conn, user, updated_skills)
+        #userid stays the same so this is just updating additional info
+        pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
+        return redirect(url_for('profile', uid = user))
+    else: 
+        info = pyqueries.get_account_info(conn, user)
+        uskills = pyqueries.get_skills(conn, user)
+        print("Skills ", uskills)
+        return render_template("update_profile.html", account = info, skills = uskills, user = user)
+
+
+
 
 @app.route('/posts')
 def posts():

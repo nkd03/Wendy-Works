@@ -3,24 +3,26 @@
 {% block main_content %}
 <body>
     <h1>Welcome {{ name }}!</h1>
+    <form method ="POST" action="/update/{{user}}">
+        <div class="information-box">
+            <h2>Your information:</h2>
+            <p>Username: {{ username }}</p>
+            <p>Email: {{ email }}</p>
 
-    <div class="information-box">
-        <h2>Your information:</h2>
-        <p>Username: {{ username }}</p>
-        <p>Email: {{ email }}</p>
 
-        <h3 class="your-skills">Skills:</h3>
-        <ul>
-            {% for task in all_skills %}
-            <li>{{ task.skill }}</li>
-            {% endfor %}
-        </ul>
-
-    </div>
+            <h3 class="your-skills">Skills:</h3>
+            <ul>
+                {% for task in all_skills %}
+                <li>{{ task.skill }}</li>
+                {% endfor %}
+            </ul>
+            <a href="{{ url_for('update', user=user) }}" class="button">Update</a>
+        </div>
+    </form>
 
     <div class="photobox">
         <p>Your profile photo:</p>
-        <form method="post" action="" enctype="multipart/form-data">
+        <form method="POST" action="" enctype="multipart/form-data">
             <p><label>Change Photo: <input type="file" name="pic"></label></p>
             <p><input type="submit" value="upload"></p>
         </form>
