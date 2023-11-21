@@ -1,4 +1,4 @@
-import wworks_db as dbi
+import cs304dbi as dbi
 
 
 def insert_post(conn, title, body, categories, type):
@@ -6,11 +6,35 @@ def insert_post(conn, title, body, categories, type):
     Helper function to insert a created post into the database
     '''
     curs = dbi.dict_cursor(conn)
+    # how would we get the username?
+    uid = get_user(conn, username)
     curs.execute('''
                  INSERT INTO post(title, body, categories, type)
                  VALUES (%s, %s, %s, %s)
                  ''', [title, body, categories, type])
     conn.commit()
+
+
+# pid INT AUTO_INCREMENT PRIMARY KEY,
+#   `uid` INT NOT NULL, 
+#   title VARCHAR(40) NOT NULL, 
+#   body TEXT NOT NULL, 
+#   post_date DATE NOT NULL,
+#   categories SET('clothing', 'fitness', 'beauty', 'crafts', 'transportation', 'photography', 'other') NOT NULL,
+#   `type` ENUM('request', 'provision'), 
+#   `status` ENUM('open', 'closed', 'in progress') NOT NULL, 
+
+def get_user(conn, username):
+    '''
+    Helper function to insert a created post into the database
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 SELECT uid 
+                 from user
+                 where username = %s
+                 ''', [username])
+    return curs.fetchone()
 
 def get_post(conn, pid):
     '''
@@ -21,6 +45,12 @@ def get_post(conn, pid):
                  SELECT * from post 
                  WHERE pid = %s
                  ''', [pid])
+    return curs.fetchone()
+
+def get_pid(conn):
+    """A quick helper function to get uid using last-insert"""
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select last_insert_id()''')
     return curs.fetchone()
 
 def find_service(conn, key_phrase):
@@ -68,3 +98,20 @@ def find_service_by_cat(conn, cat):
     results = curs.fetchall()
     return results
 
+if __name__ == '__main__':
+    import sys, os
+    if len(sys.argv) > 1:
+        # arg, if any, is the desired port number
+        port = int(sys.argv[1])
+        assert(port>1024)
+    else:
+        port = os.getuid()
+    # set this local variable to 'wmdb' or your personal or team db
+    db_to_use = 'wworks_db' 
+    print('will connect to {}'.format(db_to_use))
+    conn = dbi.connect()
+    uid_test = get_user(conn, 'test1')
+    print(uid_test)
+    dbi.conf(db_to_use)
+    app.debug = True
+    app.run('0.0.0.0',port)

@@ -143,9 +143,11 @@ def insert_post():
         return render_template('post.html')
     else:
         # Collect relevant form information into variables
+        print(request.form)
         title = request.form.get('title')
         body = request.form.get('body')
         categories = request.form.getlist('categories')
+        print(categories)
         type = request.form.get('type')
         # Flash messages accordingly for missing inputs
         if not body:
@@ -157,18 +159,17 @@ def insert_post():
         # If any one of the inputs or combination of inputs is missing, 
         # redirect them to fill out the form again.
         if not body or not title or not categories or str(title).isnumeric():
-            return redirect(url_for('insert'))
+            return redirect(url_for('insert_post'))
         helper.insert_post(conn, title, body, categories, type)
-
+        pid = helper.get_pid(conn)
         flash('Your post was inserted successfully')
         return redirect(url_for('post', pid=pid)) #how do we get the pid??
         
-# @app.route('/post/<int:pid>')
-# def post(pid):
-#     conn = dbi.connect() 
-#     post_info = helper.get_post(pid)
-    
-#     return render_template("post.html", pid=pid)
+@app.route('/post/<int:pid>')
+def post(pid):
+    conn = dbi.connect() 
+    post_info = helper.get_post(conn, pid)
+    return render_template("post.html", pid=post_info.get('pid'))
 
 @app.route('/profile/<int:uid>')
 def profile(uid):
