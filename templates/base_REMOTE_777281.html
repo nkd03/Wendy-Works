@@ -17,18 +17,10 @@
   <ul>
     {% if 'uid' not in session %}
       <li><a href="{{ url_for('index') }}">Home</a></li>
-<<<<<<< HEAD
-      
-    {% else %}
-      <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
-      <li><a href="{{url_for('posts')}}"> Posts</a></li>
-=======
     {% else %}
       <li><a href="{{ url_for('logout') }}">Logout</a></li>
       <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
       <li><a href="{{url_for('posts')}}"> Recent Posts</a></li>
->>>>>>> d5857cdb5e47bd34595a81680cec3cd55382f730
       <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
       
     {% endif %}

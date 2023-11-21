@@ -65,7 +65,11 @@ def join():
 
             #potentially add a check to ensure a user with that username is not 
             #already in the db? 
-
+            if pyqueries.check_usern(conn,username):
+                flash("Username is taken. Please enter a unique username")
+                return render_template('create.html', header ='Create an Account')
+       
+       #if usernam does not exist, continue inserting 
         #inserting into database
             pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
