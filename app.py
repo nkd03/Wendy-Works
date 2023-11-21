@@ -249,12 +249,6 @@ def update(user):
         return render_template("update_profile.html", account = info, skills = uskills, user = user)
 
 
-
-
-@app.route('/posts')
-def posts():
-    return render_template("create.html") #just a tester for the sessions, we can workshop this when there's a new template
-
 @app.route('/logout/')
 def logout():
     session.pop('uid', None)
