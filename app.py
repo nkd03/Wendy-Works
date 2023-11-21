@@ -142,24 +142,37 @@ def insert_post():
     else:
         # Collect relevant form information into variables
         print(request.form)
+        username = request.form.get('u_name')
+        user_id = helper.get_user(conn, username)
+        uid = user_id['uid']
+        date = datetime.now()
+        print(uid)
         title = request.form.get('title')
         body = request.form.get('body')
-        categories = request.form.getlist('categories')
+        categories = request.form.getlist('category')
         print(categories)
         type = request.form.get('type')
         # Flash messages accordingly for missing inputs
         if not body:
             flash('missing input: no body text')
+        if not type:
+            flash('missing input: no type')
         if not title:
             flash('missing input: no title')
         if not categories:
             flash('missing input: no category selected')
         # If any one of the inputs or combination of inputs is missing, 
         # redirect them to fill out the form again.
-        if not body or not title or not categories or str(title).isnumeric():
+        if not body or not title or not categories or not type or str(title).isnumeric():
             return redirect(url_for('insert_post'))
-        helper.insert_post(conn, title, body, categories, type)
-        pid = helper.get_pid(conn)
+        
+        helper.insert_post(conn, uid, title, body, categories, type, date)
+        post_id = helper.get_pid(conn)
+        
+        print(post_id)
+        pid = post_id['last_insert_id()']
+        print(pid)
+       
         flash('Your post was inserted successfully')
         return redirect(url_for('post', pid=pid)) #how do we get the pid??
         

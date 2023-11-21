@@ -1,17 +1,16 @@
 import cs304dbi as dbi
 
 
-def insert_post(conn, title, body, categories, type):
+def insert_post(conn, uid, title, body, categories, type, date):
     '''
     Helper function to insert a created post into the database
     '''
     curs = dbi.dict_cursor(conn)
     # how would we get the username?
-    uid = get_user(conn, username)
     curs.execute('''
-                 INSERT INTO post(title, body, categories, type)
-                 VALUES (%s, %s, %s, %s)
-                 ''', [title, body, categories, type])
+                 INSERT INTO post(uid, title, body, categories, type, post_date)
+                 VALUES (%s, %s, %s, %s, %s, %s)
+                 ''', [uid, title, body, categories, type, date])
     conn.commit()
 
 

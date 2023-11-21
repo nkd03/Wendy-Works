@@ -29,6 +29,8 @@ def get_uid(conn):
     return curs.fetchone()
 
 
+
+
 def insert_skills(conn, uid,skills):
     """This function intends to insert any skills users have checked
     or have added in as other"""
