@@ -30,8 +30,6 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 def index():
     return render_template('main.html', header ='Welcome to Wendy Works')
 
-# You will probably not need the routes below, but they are here
-# just in case. Please delete them if you are not using them
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
@@ -107,12 +105,12 @@ def login():
                 ip = str(request.remote_addr) #not sure if we need this
                 session['uid'] = result #we do need this
                 pyqueries.setsession(conn,result, timestamp, ip)
-                flash('Welcome!')
                 return redirect(url_for('profile', uid = result))
-            #if no user 
+            #if incorrect password
             elif result is False:
                 flash('Sorry, your password is incorrect, try again')
                 return redirect(url_for('login'))
+        #if that username is not in the db
         except Exception as e: 
             print("Exception occurred:", e)
             flash('Sorry, no username found, create an account')
@@ -171,17 +169,50 @@ def post(pid):
     post_info = helper.get_post(conn, pid)
     return render_template("post.html", pid=post_info.get('pid'))
 
-@app.route('/profile/<int:uid>')
+@app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
+    if session['uid'] == uid: 
+        conn = dbi.connect() 
+        information = pyqueries.get_account_info(conn, uid)
+        skills = pyqueries.get_skills(conn, uid) 
+        fname = information['f_name']
+        usernm = information['username']
+        mail = information['email']
+        usid = information['uid']
+        if request.method == 'GET': 
+            return render_template("account_page.html", name = fname,
+                                username = usernm, email = mail, all_skills = skills, user = usid)
+        else:  
+            return redirect(url_for('update', user = uid))
+    else: 
+        flash('Sorry, you cannot access this page')
+        return(redirect(url_for('login')))
+  
+@app.route('/update/<int:user>', methods = ["GET","POST"])
+def update(user):
     conn = dbi.connect() 
-    information = pyqueries.get_account_info(conn, uid)
-    skills = pyqueries.get_skills(conn, uid) #not sure if this is the most efficient way but its a start
-    print("Skills", skills)
-    fname = information['f_name']
-    usernm = information['username']
-    mail = information['email']
-    return render_template("account_page.html", name = fname,
-                            username = usernm, email = mail, all_skills = skills)
+    if request.method == "POST": 
+        firstnm = request.form.get('fname')
+        lastnm = request.form.get('lname')
+        mail = request.form.get('email')
+        username = request.form.get('username')
+        skills_input = request.form.get('skills')
+        #remove old skills from the db
+        pyqueries.delSkills(conn, user)
+        updated_skills = [skill.strip() for skill in skills_input.split(',')]
+        #add new skills to the db
+        pyqueries.insert_other_skills(conn, user, updated_skills)
+        #userid stays the same so this is just updating additional info
+        pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
+        return redirect(url_for('profile', uid = user))
+    else: 
+        info = pyqueries.get_account_info(conn, user)
+        uskills = pyqueries.get_skills(conn, user)
+        print("Skills ", uskills)
+        return render_template("update_profile.html", account = info, skills = uskills, user = user)
+
+
+
 
 @app.route('/posts')
 def posts():

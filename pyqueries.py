@@ -47,12 +47,13 @@ def insert_other_skills(conn, uid, other_skills):
     or have added in as other"""
     curs = dbi.dict_cursor(conn)
     for skill in other_skills:
-        curs.execute('''
+        if skill!= '':
+            curs.execute('''
                     INSERT INTO skills(uid,skill) 
                     VALUES (%s,%s)
                     ''',
                     [uid,skill])
-        conn.commit()
+            conn.commit()
     return 
 
 
@@ -94,7 +95,22 @@ def login_user(conn, username, pass1):
             return False
     else:
         return None
+
+def updateUser(conn, user, firstnm, lastnm, mail, username):
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                    update user set username = %s, email = %s, f_name = %s, l_name = %s
+                    where `uid`=(%s)
+                 ''', [username, mail, firstnm, lastnm, user])   
+    conn.commit() 
     
+
+def delSkills(conn, user): 
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                delete from skills where uid =(%s)
+                 ''', [user])
+    conn.commit() 
 
 def setsession(conn, result, timestamp, uip): 
     curs = dbi.dict_cursor(conn)
@@ -103,4 +119,6 @@ def setsession(conn, result, timestamp, uip):
     VALUES (%s, %s, %s)
      ''', [result,timestamp, uip])
     conn.commit() 
+
+
 

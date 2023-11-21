@@ -11,7 +11,6 @@ DROP TABLE IF EXISTS user;
 
 CREATE TABLE user (
   `uid` INT AUTO_INCREMENT PRIMARY KEY,
-  id char(32),
   username VARCHAR(25) NOT NULL ,
   email VARCHAR(25) NOT NULL,
   f_name VARCHAR(20),

@@ -159,6 +159,7 @@ label {
     text-align: center;
 }
 
+
 .information-box {
     border: 1px solid rgb(51, 103, 103); 
     padding: 20px;
@@ -169,6 +170,14 @@ label {
     margin-right: auto;
 }
 
+.information-box .button{
+    width: 105px; 
+    height: 30px; 
+    text-align: center;
+    line-height: 25px;
+    font-size: 15px;
+    
+}
 .your-information {
     text-align: center; 
     color: #000000; 
@@ -183,5 +192,7 @@ ul {
 li {
     padding: 5px 0; 
 }
+
+
 
 
