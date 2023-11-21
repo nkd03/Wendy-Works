@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<p>This page is displaying all requests for services. This page is for providers looking to give a service</p>
+<p>Request posts matching {{key_phrase}}:</p>
+<body>
+    {%for request in requests%}
+    <ul>
+         <li> <a href="{{url_for('post', pid= request.pid)}}">{{request.title}}</a> </li>
+
+    </ul>
+    {%endfor%}
+</body>
+
+{% endblock %}

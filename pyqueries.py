@@ -25,17 +25,12 @@ def check_usern(conn,username):
     Checks if user name is already in the database 
     '''
     curs = dbi.dict_cursor(conn)
-    try:
-        curs.execute('''
-                Select * from user where username = [%s]
-                 ''',
-                 [username])
-        user = curs.fetchone
-        if user == None: 
-            return False
-        return True
-    except Exception as err:
-        return ('Error: {}'.format(repr(err)))
+    curs.execute('''
+            Select * from user where username = (%s)
+                ''',
+                (username))
+    return curs.fetchone()
+
 
     
 

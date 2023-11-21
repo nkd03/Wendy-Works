@@ -51,7 +51,6 @@ def join():
         #getting other skills, changing into a list 
             other_skills = request.form.get("other_skills").split(",")
 
-            print(other_skills)
 
         #checking if passwords match before creating account 
         #or inserting anything 
@@ -65,7 +64,9 @@ def join():
 
             #potentially add a check to ensure a user with that username is not 
             #already in the db? 
-            if pyqueries.check_usern(conn,username):
+          
+            if pyqueries.check_usern(conn,username) != None:
+                print("ENTERING THE IF STATEMENT")
                 flash("Username is taken. Please enter a unique username")
                 return render_template('create.html', header ='Create an Account')
        
@@ -121,18 +122,29 @@ def login():
             return(redirect(url_for('join')))
             
       
-@app.route('/search/')
+@app.route('/search/', methods = ["GET", "POST"])
 def search():
     conn = dbi.connect() 
-    u_input = request.args['query']
-    u_kind = request.args['kind']
-    if u_kind == 'provision':
-        key_phrase = u_input
-        helper.find_service(conn, key_phrase)
-        return render_template('search_results.html', key_phrase=key_phrase)
-    if u_kind == 'request':
-        helper.find_provider(conn, key_phrase)
-        return render_template('search_results.html', key_phrase=key_phrase)
+    print(request.method)
+    if request.method == 'GET':
+        return render_template('search.html', header ='Search for a post')
+    else: #method should be post 
+        u_input = request.form.get('query')
+        u_kind = request.form.get('kind')
+        print(u_input)
+        print(u_kind)
+        if u_kind == 'provision':
+            print("Entering Provision")
+            providers = helper.providers(conn, u_input)
+            print(providers)
+            print(type(providers))
+            return render_template('providers.html', key_phrase=u_input, providers = providers)
+        if u_kind == 'request':
+            print("Entering request")
+            requests = helper.find_requests(conn, u_input)
+            return render_template('requests.html', key_phrase=u_input, requests = requests)
+
+
 
 @app.route('/insert/', methods=["GET", "POST"])
 def insert_post():
@@ -142,7 +154,7 @@ def insert_post():
     conn = dbi.connect()
     
     if request.method == 'GET':
-        return render_template('post.html')
+        return render_template('insert_post.html')
     else:
         # Collect relevant form information into variables
         print(request.form)
@@ -179,12 +191,18 @@ def insert_post():
        
         flash('Your post was inserted successfully')
         return redirect(url_for('post', pid=pid)) #how do we get the pid??
-        
+
+
+
 @app.route('/post/<int:pid>')
 def post(pid):
     conn = dbi.connect() 
+    #getting post information
     post_info = helper.get_post(conn, pid)
-    return render_template("post.html", pid=post_info.get('pid'))
+    #getting poster information
+    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
+    
+    return render_template("display_post.html", post_info=post_info, account_info=account_info)
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
@@ -205,6 +223,7 @@ def profile(uid):
         flash('Sorry, you cannot access this page')
         return(redirect(url_for('login')))
   
+
 @app.route('/update/<int:user>', methods = ["GET","POST"])
 def update(user):
     conn = dbi.connect() 

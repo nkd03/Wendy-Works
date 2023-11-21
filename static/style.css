@@ -185,7 +185,6 @@ label {
 }
 
 ul {
-    list-style: none; /* Removes the default list bullet points */
     padding: 1; /* Removes default padding */
 }
 
@@ -193,6 +192,15 @@ li {
     padding: 5px 0; 
 }
 
+.posts table, th, td {
+    border: 1px solid;
+  }
+.posts table{
+    width: 70%;
+}
+.posts td{
+    text-align: center;
+}
 
 
 

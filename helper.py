@@ -52,37 +52,34 @@ def get_pid(conn):
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
 
-def find_service(conn, key_phrase):
+def find_requests(conn, key_phrase):
     '''
     Helper function to find posts including the relevant keyword 
-    for a service 
+    for a request
     '''
     curs = dbi.dict_cursor(conn)
-    key_phrase = '%' + key_phrase + '%'
     curs.execute('''
                  select *
                  from post
-                 where body like %s and type = 'request'
-                 ''', [key_phrase])
-    results = curs.fetchall()
-    return results
+                 where body like (%s) and type = 'request'
+                 ''', ['%' + key_phrase + '%'])
+
+    return curs.fetchall()
 
 
-def find_provider(conn, key_phrase):
+def providers(conn, key_phrase):
     '''
     Helper function to find users who can provide a service
     based on the categories that the "provider" has linked to
     their account
     '''
     curs = dbi.dict_cursor(conn)
-    key_phrase = '%' + key_phrase + '%'
     curs.execute('''
                  select *
                  from post
-                 where body like %s and type = 'provision'
-                 ''', [key_phrase])
-    results = curs.fetchall()
-    return results
+                 where body like (%s) and type = 'provision'
+                 ''', ['%' + key_phrase + '%'])
+    return curs.fetchall()
 
 def find_service_by_cat(conn, cat):
     '''
