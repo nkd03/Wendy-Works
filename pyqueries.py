@@ -73,6 +73,10 @@ def insert_other_skills(conn, uid, other_skills):
 
 
 def get_skills(conn, uid): 
+    """
+    This function gets all skills
+    that the user has in the database
+    """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                 select * from skills where uid= (%s)
@@ -91,7 +95,13 @@ def get_account_info(conn,uid):
 
     
 
-def login_user(conn, username, pass1): 
+def login_user(conn, username, pass1):
+    """
+    This function checks if the input and hashed
+    passwords are the same and returns the uid, false, 
+    or, if not found, None
+
+    """ 
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                  select f_name, `uid`, `password` from user 
@@ -112,6 +122,9 @@ def login_user(conn, username, pass1):
         return None
 
 def updateUser(conn, user, firstnm, lastnm, mail, username):
+    """
+    Updates the user's information in the database
+    """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                     update user set username = %s, email = %s, f_name = %s, l_name = %s
@@ -121,6 +134,9 @@ def updateUser(conn, user, firstnm, lastnm, mail, username):
     
 
 def delSkills(conn, user): 
+    """
+    Removes skills in the database
+    """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                 delete from skills where uid =(%s)
@@ -128,6 +144,10 @@ def delSkills(conn, user):
     conn.commit() 
 
 def setsession(conn, result, timestamp, uip): 
+    """
+    sets session information for the database
+    will be utilized in next version of project
+    """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
     INSERT INTO session (`uid`, st, ip) 
