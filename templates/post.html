@@ -5,12 +5,24 @@
     <fieldset>
     <legend>Make a post</legend>
     <table>
-        <tr><td><label for="title" accesskey="i">(i.) Title your post:</label></td>
+        <tr><td><label for="u_name" accesskey="i">(i.) Remind us your username:</label></td>
+            <td><input id="u_name" type="text" name="u_name"></td></tr>
+        
+            <tr><td><label for="title" accesskey="i">(i.) Title your post:</label></td>
             <td><input id="title" type="text" name="title"></td></tr>
-            
+
         <tr><td><label for="body" accesskey="t">(t) Describe your request or service:</label></td>
             <td><input id="body" type="text" name="body"></td></tr>
             
+        <tr><td><label for="type" accesskey="r">(r) Is this a request or service:</label> <br>
+            <input type="checkbox" id="provision" name="type" value="provision" />
+            <label for="provision">Provision</label>
+            <br>
+            
+            <input type="checkbox" id="request" name="type" value="request" />
+            <label for="request">Request</label>
+            
+            </td></tr>
         
         <tr><td><label for="category" accesskey="r">(r) Check off relevant categories:</label> <br>
             
