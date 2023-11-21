@@ -6,7 +6,6 @@ def insert_post(conn, uid, title, body, categories, type, date):
     Helper function to insert a created post into the database
     '''
     curs = dbi.dict_cursor(conn)
-    # how would we get the username?
     curs.execute('''
                  INSERT INTO post(uid, title, body, categories, type, post_date)
                  VALUES (%s, %s, %s, %s, %s, %s)

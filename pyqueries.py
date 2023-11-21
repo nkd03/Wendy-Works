@@ -27,10 +27,10 @@ def check_usern(conn,username):
     curs = dbi.dict_cursor(conn)
     try:
         curs.execute('''
-                Select * from user where username = [%s]
+                Select * from user where username =(%s)
                  ''',
                  [username])
-        user = curs.fetchone
+        user = curs.fetchone()
         if user == None: 
             return False
         return True

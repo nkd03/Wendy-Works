@@ -193,11 +193,12 @@ def profile(uid):
         information = pyqueries.get_account_info(conn, uid)
         skills = pyqueries.get_skills(conn, uid) 
         fname = information['f_name']
+        lname = information['l_name']
         usernm = information['username']
         mail = information['email']
         usid = information['uid']
         if request.method == 'GET': 
-            return render_template("account_page.html", name = fname,
+            return render_template("account_page.html", fnm = fname, lnm = lname,
                                 username = usernm, email = mail, all_skills = skills, user = usid)
         else:  
             return redirect(url_for('update', user = uid))
