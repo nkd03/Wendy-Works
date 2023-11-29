@@ -14,8 +14,7 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
                  VALUES (%s,%s,%s,%s,%s)
                  ''',
                  [username,email,f_name,l_name,hashed])
-        conn.commit()
-        return  
+        conn.commit() 
     except Exception as err:
         return ('Error: {}'.format(repr(err)))
  
@@ -55,7 +54,7 @@ def insert_skills(conn, uid,skills):
                     ''',
                     [uid,skill])
         conn.commit()
-    return 
+    
 
 def insert_other_skills(conn, uid, other_skills):
     """This function intends to insert any skills users have checked
@@ -69,7 +68,7 @@ def insert_other_skills(conn, uid, other_skills):
                     ''',
                     [uid,skill])
             conn.commit()
-    return 
+    
 
 
 def get_skills(conn, uid): 
@@ -118,8 +117,6 @@ def login_user(conn, username, pass1):
             return element['uid']
         else: 
             return False
-    else:
-        return None
 
 def updateUser(conn, user, firstnm, lastnm, mail, username):
     """
