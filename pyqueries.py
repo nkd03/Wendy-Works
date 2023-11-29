@@ -31,8 +31,6 @@ def check_usern(conn,username):
     return curs.fetchone()
 
 
-    
-
 
 def get_uid(conn):
     """A quick helper function to get uid using last-insert"""
@@ -107,10 +105,8 @@ def login_user(conn, username, pass1):
                  where username= (%s)
                  ''', [username])
     element = curs.fetchone() 
-    print("Element", element)
     if element is not None: 
         passw = element['password']
-
         hashed2 = bcrypt.hashpw(pass1.encode('utf-8'), passw.encode('utf-8'))
         hashed2_str = hashed2.decode('utf-8')
         if hashed2_str == passw:
