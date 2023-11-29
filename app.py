@@ -106,10 +106,10 @@ def login():
         try: 
             #if the user is in the database
             if result >=1:
-                timestamp = datetime.now() #not sure if we need this
-                ip = str(request.remote_addr) #not sure if we need this
-                session['uid'] = result #we do need this
-                pyqueries.setsession(conn,result, timestamp, ip)
+                #timestamp = datetime.now() #not sure if we need this
+                #ip = str(request.remote_addr) #not sure if we need this
+                session['uid'] = result 
+               # pyqueries.setsession(conn,result, timestamp, ip)
                 return redirect(url_for('profile', uid = result))
             #if incorrect password
             elif result is False:
