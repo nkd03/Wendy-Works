@@ -84,7 +84,7 @@ def join():
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
-            #might change this once figure sessions out ==> think its okay to leave
+            
             flash('Account created! Please log in')
             return redirect(url_for("login"))
 
@@ -196,6 +196,9 @@ def insert_post():
 
 @app.route('/post/<int:pid>')
 def post(pid):
+    """
+    this funciton displays the specified post
+    """
     conn = dbi.connect() 
     #getting post information
     post_info = helper.get_post(conn, pid)
@@ -206,6 +209,10 @@ def post(pid):
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
+    """
+    This function is used for the profile page, getting all
+    of the user's information to be displayed
+    """
     if session['uid'] == uid: 
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
@@ -218,7 +225,7 @@ def profile(uid):
         if request.method == 'GET': 
             return render_template("account_page.html", fnm = fname, lnm = lname,
                                 username = usernm, email = mail, all_skills = skills, user = usid)
-        else:  
+        else:  #the method is post
             return redirect(url_for('update', user = uid))
     else: 
         flash('Sorry, you cannot access this page')
@@ -227,6 +234,11 @@ def profile(uid):
 
 @app.route('/update/<int:user>', methods = ["GET","POST"])
 def update(user):
+    """
+    Any changes the user makes to their information 
+    runs through this function
+    updates the database or displays update form
+    """
     conn = dbi.connect() 
     if request.method == "POST": 
         firstnm = request.form.get('fname')
@@ -242,47 +254,22 @@ def update(user):
         #userid stays the same so this is just updating additional info
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
         return redirect(url_for('profile', uid = user))
-    else: 
+    else: #method is get
         info = pyqueries.get_account_info(conn, user)
         uskills = pyqueries.get_skills(conn, user)
         print("Skills ", uskills)
         return render_template("update_profile.html", account = info, skills = uskills, user = user)
 
 
-
-
-@app.route('/posts')
-def posts():
-    return render_template("create.html") #just a tester for the sessions, we can workshop this when there's a new template
-
 @app.route('/logout/')
 def logout():
+    """
+    Logs the user out and ends the session
+    """
     session.pop('uid', None)
     flash("You've logged out, please visit again soon!")
     #end the session here 
     return redirect(url_for('index'))
-
-# @app.route('/formecho/', methods=['GET','POST'])
-# def formecho():
-#     if request.method == 'GET':
-#         return render_template('form_data.html',
-#                                method=request.method,
-#                                form_data=request.args)
-#     elif request.method == 'POST':
-#         return render_template('form_data.html',
-#                                method=request.method,
-#                                form_data=request.form)
-#     else:
-#         # maybe PUT?
-#         return render_template('form_data.html',
-#                                method=request.method,
-#                                form_data={})
-
-# @app.route('/testform/')
-# def testform():
-#     # these forms go to the formecho route
-#     return render_template('testform.html')
-
 
 
 if __name__ == '__main__':

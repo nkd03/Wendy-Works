@@ -61,6 +61,7 @@ nav button, nav a {
     cursor: pointer;
     /* Firefox uses font -apple-system unless I repeat the font spec here. */
     font-family: var(--font-family);
+    color:rgb(240, 248, 244);
     font-weight: bold;
     font-size: 1.4rem;
 }
