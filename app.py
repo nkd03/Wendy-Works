@@ -48,7 +48,11 @@ def join():
             l_name=request.form.get("l_name")
         #getting checked skills as a list 
             skills=request.form.getlist("skills")
+<<<<<<< HEAD
             print("PRINTING SKILSS ------" + skills)
+=======
+            print("Skills", skills)
+>>>>>>> 3a198b2df15e45a30f5c2efa9fc36e24d806648f
         #getting other skills, changing into a list 
             other_skills = request.form.get("other_skills").split(",")
 
@@ -107,10 +111,10 @@ def login():
         try: 
             #if the user is in the database
             if result >=1:
-                timestamp = datetime.now() #not sure if we need this
-                ip = str(request.remote_addr) #not sure if we need this
-                session['uid'] = result #we do need this
-                pyqueries.setsession(conn,result, timestamp, ip)
+                #timestamp = datetime.now() #not sure if we need this
+                #ip = str(request.remote_addr) #not sure if we need this
+                session['uid'] = result 
+               # pyqueries.setsession(conn,result, timestamp, ip)
                 return redirect(url_for('profile', uid = result))
             #if incorrect password
             elif result is False:
