@@ -13,15 +13,6 @@ def insert_post(conn, uid, title, body, categories, type, date):
     conn.commit()
 
 
-# pid INT AUTO_INCREMENT PRIMARY KEY,
-#   `uid` INT NOT NULL, 
-#   title VARCHAR(40) NOT NULL, 
-#   body TEXT NOT NULL, 
-#   post_date DATE NOT NULL,
-#   categories SET('clothing', 'fitness', 'beauty', 'crafts', 'transportation', 'photography', 'other') NOT NULL,
-#   `type` ENUM('request', 'provision'), 
-#   `status` ENUM('open', 'closed', 'in progress') NOT NULL, 
-
 def get_user(conn, username):
     '''
     Helper function to insert a created post into the database
@@ -59,8 +50,8 @@ def find_requests(conn, key_phrase):
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                  select *
-                 from post
-                 where body like (%s) and type = 'request'
+                 from post, user
+                 where body like (%s) and type = 'request' and post.uid = user.uid
                  ''', ['%' + key_phrase + '%'])
 
     return curs.fetchall()
@@ -75,8 +66,8 @@ def providers(conn, key_phrase):
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                  select *
-                 from post
-                 where body like (%s) and type = 'provision'
+                 from post,user
+                 where body like (%s) and type = 'provision' and post.uid = user.uid
                  ''', ['%' + key_phrase + '%'])
     return curs.fetchall()
 

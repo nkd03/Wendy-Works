@@ -19,17 +19,6 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
         return ('Error: {}'.format(repr(err)))
  
 
-def check_usern(conn,username):
-    '''
-    Checks if user name is already in the database to m
-    '''
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-            Select * from user where username = (%s)
-                ''',
-                (username))
-    return curs.fetchone()
-
 
 
 def get_uid(conn):

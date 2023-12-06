@@ -48,11 +48,7 @@ def join():
             l_name=request.form.get("l_name")
         #getting checked skills as a list 
             skills=request.form.getlist("skills")
-<<<<<<< HEAD
-            print("PRINTING SKILSS ------" + skills)
-=======
             print("Skills", skills)
->>>>>>> 3a198b2df15e45a30f5c2efa9fc36e24d806648f
         #getting other skills, changing into a list 
             other_skills = request.form.get("other_skills").split(",")
 
@@ -147,6 +143,7 @@ def search():
         if u_kind == 'request':
             print("Entering request")
             requests = helper.find_requests(conn, u_input)
+
             return render_template('requests.html', key_phrase=u_input, requests = requests)
 
 
@@ -211,6 +208,7 @@ def post(pid):
     account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
     
     return render_template("display_post.html", post_info=post_info, account_info=account_info)
+
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):

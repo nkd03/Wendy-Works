@@ -5,12 +5,29 @@
 <p>This page is displaying all requests for services. This page is for providers looking to give a service</p>
 <p>Request posts matching {{key_phrase}}:</p>
 <body>
+    <table class="posts"> 
+           
+            <th>Title</th> 
+            <th>Text</th> 
+            <th>Categories</th> 
+            <th>Status</th>
+            <th>Post Date</th>
+            <th>Contact Info</th>
+        </tr> 
     {%for request in requests%}
-    <ul>
-         <li> <a href="{{url_for('post', pid= request.pid)}}">{{request.title}}</a> </li>
 
-    </ul>
+        <tr> 
+            
+            <td>{{request.title}}</td> 
+            <td>{{request.body}}</td> 
+            <td>{{request.categories}}</td> 
+            <td>{{request.status}}</td>
+            <td>{{request.post_date}}</td>
+            <td>{{request.email}}</td>
+        </tr> 
     {%endfor%}
+    </table>  
+    
 </body>
 
 {% endblock %}
