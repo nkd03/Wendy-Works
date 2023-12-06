@@ -22,7 +22,7 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
 
 def check_usern(conn,username):
     '''
-    Checks if user name is already in the database 
+    Checks if user name is already in the database to m
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''

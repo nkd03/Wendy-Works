@@ -48,6 +48,7 @@ def join():
             l_name=request.form.get("l_name")
         #getting checked skills as a list 
             skills=request.form.getlist("skills")
+            print("PRINTING SKILSS ------" + skills)
         #getting other skills, changing into a list 
             other_skills = request.form.get("other_skills").split(",")
 
