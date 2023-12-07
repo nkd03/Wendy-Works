@@ -3,6 +3,7 @@
 {% block main_content %}
 <h1>{{header}}</h1>
 
+<p>{{message}}</p>
 <form method="post" action="{{url_for('index')}}">
     <form> 
     <div class="form-group">
@@ -13,9 +14,9 @@
         <label for="passw"><b>Password: </b></label>
         <input type="password" placeholder="Enter password" name="passw">
     </div>
-    <input type="submit" name="action" value="Login">
-    <p> Don't have an account? </p>
-    <input type="submit" name="action" value="Create Account">
+    <button type="submit" name="action" value="Login">Login</button>
+    <p> Don't have an account?</p>
+    <button type="submit" name="action" value="Create Account">Create Account</button>
 </form>
 
 

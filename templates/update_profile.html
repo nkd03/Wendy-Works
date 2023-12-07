@@ -24,7 +24,7 @@
             <td><label for="skills">Skills: </label></td>
             <td>
                 <p>Please update the skills you are currently interested in providing (separated by comma)</p>
-                <input type="text" name="skills" id="skills" value="{% for entry in skills %}{{ entry.skill }}{% if not loop.last %}, {% endif %}{% endfor %}">
+                <input type="text" name="skills" id="skills" value="{%if skills%}{% for entry in skills %}{{ entry.skill }}{% if not loop.last %}, {% endif %}{% endfor %}{%endif%}">
             </td>
 
             </td>

@@ -75,7 +75,19 @@ def login():
         flash('Sorry, no username found, create an account')
         return(redirect(url_for('join')))
  
+@app.route('/photo/', methods = ['GET', 'POST'])
+def profile_photo(): 
+    user = session.get('uid')
+    if request.method == 'GET':
+        return render_template('photo_upload.html', current_us = user)
+    else:
+        request.form.get("pic")
+        return render_template('photo_upload.html')
+     
 
+    
+
+ 
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
@@ -112,10 +124,9 @@ def join():
             #potentially add a check to ensure a user with that username is not 
             #already in the db? 
           
-            if pyqueries.check_usern(conn,username) != None:
-                print("ENTERING THE IF STATEMENT")
-                flash("Username is taken. Please enter a unique username")
-                return render_template('create.html', header ='Create an Account')
+            #if pyqueries.check_usern(conn,username) != None:
+               #flash("Username is taken. Please enter a unique username")
+                #return render_template('create.html', header ='Create an Account')
        
        #if usernam does not exist, continue inserting 
         #inserting into database
@@ -133,7 +144,7 @@ def join():
 
             
             flash('Account created! Please log in')
-            return redirect(url_for("login"))
+            return redirect(url_for("index"))
 
         except Exception as err:
             flash('form submission error'+ str(err))
@@ -234,7 +245,7 @@ def profile(uid):
     This function is used for the profile page, getting all
     of the user's information to be displayed
     """
-    if session['uid'] == uid: 
+    if session.get('uid') == uid: 
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
         skills = pyqueries.get_skills(conn, uid) 
@@ -242,11 +253,11 @@ def profile(uid):
         lname = information['l_name']
         usernm = information['username']
         mail = information['email']
-        usid = information['uid']
+        useid = information['uid']
         if request.method == 'GET': 
             return render_template("account_page.html", fnm = fname, lnm = lname,
-                                username = usernm, email = mail, all_skills = skills, user = usid)
-        else:  #the method is post
+                                username = usernm, email = mail, all_skills = skills, usid = useid)
+        else:  
             return redirect(url_for('update', user = uid))
     else: 
         flash('Sorry, you cannot access this page')
@@ -276,10 +287,14 @@ def update(user):
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
         return redirect(url_for('profile', uid = user))
     else: #method is get
-        info = pyqueries.get_account_info(conn, user)
-        uskills = pyqueries.get_skills(conn, user)
-        print("Skills ", uskills)
-        return render_template("update_profile.html", account = info, skills = uskills, user = user)
+        action = request.args.get('action')
+        if action == 'UploadPhoto':
+            return redirect(url_for('profile_photo'))
+        else:
+            info = pyqueries.get_account_info(conn, user)
+            uskills = pyqueries.get_skills(conn, user)
+            print("Skills ", uskills)
+            return render_template("update_profile.html", account = info, skills = uskills, user = user)
 
 
 @app.route('/logout/')
