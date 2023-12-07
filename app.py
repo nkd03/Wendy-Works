@@ -46,9 +46,10 @@ def index():
             if action == 'Create Account':
                 return redirect(url_for('join'))
         
-@app.route('/login/', methods = ['GET', 'POST'])
+@app.route('/login/')
 def login(): 
     print("METHOD",request.method)
+    #removes temp data from session
     user = session.pop('temporary_username', None)
     pw = session.pop('temporary_password', None)
     
