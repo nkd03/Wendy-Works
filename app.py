@@ -52,7 +52,6 @@ def login():
     #removes temp data from session
     user = session.pop('temporary_username', None)
     pw = session.pop('temporary_password', None)
-    
     print("USER", user)
     conn = dbi.connect()
     result = pyqueries.login_user(conn, user, pw)
@@ -68,12 +67,12 @@ def login():
         #if incorrect password
         elif result is False:
             flash('Sorry, your password is incorrect, try again')
-            return redirect(url_for('login'))
+            return redirect(url_for('index'))
     #if that username is not in the db
     except Exception as e: 
-        print("Exception occurred:", e)
-        flash('Sorry, no username found, create an account')
-        return(redirect(url_for('join')))
+        if user != None: 
+            flash(f'Sorry, no account with username: {user} found. Create an account')
+        return(redirect(url_for('index')))
  
 @app.route('/photo/', methods = ['GET', 'POST'])
 def profile_photo(): 
@@ -228,7 +227,7 @@ def insert_post():
 @app.route('/post/<int:pid>')
 def post(pid):
     """
-    this funciton displays the specified post
+    this function displays the specified post
     """
     conn = dbi.connect() 
     #getting post information
@@ -260,7 +259,8 @@ def profile(uid):
         else:  
             return redirect(url_for('update', user = uid))
     else: 
-        flash('Sorry, you cannot access this page')
+        flash("Sorry, you cannot access this page. You've been logged out")
+        session.pop('uid', None)
         return(redirect(url_for('login')))
   
 
