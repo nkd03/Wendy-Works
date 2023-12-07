@@ -16,9 +16,7 @@
 <nav>
   
   <ul>
-    {% if 'uid' not in session %}
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-    {% else %}
+    {% if 'uid' in session %}
       <li><a href="{{ url_for('logout') }}">Logout</a></li>
       <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
       <li><a href="{{url_for('search')}}"> Search Posts</a></li>

@@ -26,9 +26,54 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 def index():
-    return render_template('main.html', header ='Welcome to Wendy Works')
+    if request.method == 'GET': 
+        return render_template('login.html', header ='Welcome to Wendy Works!')
+    else:
+        action = request.form.get("action")
+        if action == 'Login':
+            pw = request.form.get("passw")
+            user = request.form.get("username")
+            if not pw or not user:
+                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required')
+            else:
+                 #will use this in login route
+                session['temporary_username'] = user
+                session['temporary_password'] = pw
+                return redirect(url_for('login'))
+        else:
+            if action == 'Create Account':
+                return redirect(url_for('join'))
+        
+@app.route('/login/', methods = ['GET', 'POST'])
+def login(): 
+    print("METHOD",request.method)
+    user = session.pop('temporary_username', None)
+    pw = session.pop('temporary_password', None)
+    
+    print("USER", user)
+    conn = dbi.connect()
+    result = pyqueries.login_user(conn, user, pw)
+    print("Result", result)
+    try: 
+        #if the user is in the database
+        if result >=1:
+            #timestamp = datetime.now() #not sure if we need this
+            #ip = str(request.remote_addr) #not sure if we need this
+            session['uid'] = result 
+            # pyqueries.setsession(conn,result, timestamp, ip)
+            return redirect(url_for('profile', uid = result))
+        #if incorrect password
+        elif result is False:
+            flash('Sorry, your password is incorrect, try again')
+            return redirect(url_for('login'))
+    #if that username is not in the db
+    except Exception as e: 
+        print("Exception occurred:", e)
+        flash('Sorry, no username found, create an account')
+        return(redirect(url_for('join')))
+ 
 
 
 @app.route('/join/', methods=["GET", "POST"])
@@ -93,35 +138,7 @@ def join():
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
 
-
-@app.route('/login/', methods = ["GET", "POST"])
-def login(): 
-    if request.method == 'GET': 
-        return render_template('login.html', header = 'Login to Wendy Works')
-    else: 
-        uname = request.form.get('username')
-        in_pw = request.form.get('passw')
-        conn = dbi.connect()
-        result = pyqueries.login_user(conn, uname, in_pw)
-        print("Result", result)
-        try: 
-            #if the user is in the database
-            if result >=1:
-                #timestamp = datetime.now() #not sure if we need this
-                #ip = str(request.remote_addr) #not sure if we need this
-                session['uid'] = result 
-               # pyqueries.setsession(conn,result, timestamp, ip)
-                return redirect(url_for('profile', uid = result))
-            #if incorrect password
-            elif result is False:
-                flash('Sorry, your password is incorrect, try again')
-                return redirect(url_for('login'))
-        #if that username is not in the db
-        except Exception as e: 
-            print("Exception occurred:", e)
-            flash('Sorry, no username found, create an account')
-            return(redirect(url_for('join')))
-            
+           
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
