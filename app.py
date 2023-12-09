@@ -81,6 +81,7 @@ def profile_photo():
         return render_template('photo_upload.html', current_us = user)
     else:
         request.form.get("pic")
+        #this may be changed to redirect to the user's profile instead
         return render_template('photo_upload.html')
      
 
@@ -248,14 +249,9 @@ def profile(uid):
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
         skills = pyqueries.get_skills(conn, uid) 
-        fname = information['f_name']
-        lname = information['l_name']
-        usernm = information['username']
-        mail = information['email']
-        useid = information['uid']
+        #useid = information['uid']
         if request.method == 'GET': 
-            return render_template("account_page.html", fnm = fname, lnm = lname,
-                                username = usernm, email = mail, all_skills = skills, usid = useid)
+            return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid)
         else:  
             return redirect(url_for('update', user = uid))
     else: 

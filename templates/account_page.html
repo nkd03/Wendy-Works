@@ -2,13 +2,13 @@
 
 {% block main_content %}
 <body>
-    <h1>Welcome {{ fnm }}!</h1>
+    <h1>Welcome {{userdata.f_name }}!</h1>
     <form method ="GET" action="{{url_for('update', user=usid)}}">
         <div class="information-box">
             <h2>Your information:</h2>
-            <p> Name: {{fnm}} {{lnm}} </p>
-            <p>Username: {{ username }}</p>
-            <p>Email: {{ email }}</p>
+            <p> Name: {{userdata.f_name}} {{userdata.l_name}} </p>
+            <p>Username: {{userdata.username}}</p>
+            <p>Email: {{userdata.email}}</p>
 
 
             <h3 class="your-skills">Skills:</h3>
