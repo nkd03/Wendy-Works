@@ -36,6 +36,19 @@ def get_post(conn, pid):
                  ''', [pid])
     return curs.fetchone()
 
+def user_posts(conn, uid):
+    '''
+    gets all posts from a specified user if
+    it is not distinctly closed
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                select pid, title, body, status, categories
+                 from post where uid=%s
+                 ''',[uid])
+    return curs.fetchall()
+
+
 def get_pid(conn):
     """A quick helper function to get uid using last-insert"""
     curs = dbi.dict_cursor(conn)
@@ -84,20 +97,3 @@ def find_service_by_cat(conn, cat):
     results = curs.fetchall()
     return results
 
-if __name__ == '__main__':
-    import sys, os
-    if len(sys.argv) > 1:
-        # arg, if any, is the desired port number
-        port = int(sys.argv[1])
-        assert(port>1024)
-    else:
-        port = os.getuid()
-    # set this local variable to 'wmdb' or your personal or team db
-    db_to_use = 'wworks_db' 
-    print('will connect to {}'.format(db_to_use))
-    conn = dbi.connect()
-    uid_test = get_user(conn, 'test1')
-    print(uid_test)
-    dbi.conf(db_to_use)
-    app.debug = True
-    app.run('0.0.0.0',port)

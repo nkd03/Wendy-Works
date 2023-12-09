@@ -12,6 +12,8 @@ app = Flask(__name__)
 import cs304dbi as dbi
 
 # import cs304dbi_sqlite3 as dbi
+app.config['UPLOADS'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 
 
 import random
 import helper
@@ -74,15 +76,41 @@ def login():
             flash(f'Sorry, no account with username: {user} found. Create an account')
         return(redirect(url_for('index')))
  
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOADS'], filename)
+
+
 @app.route('/photo/', methods = ['GET', 'POST'])
 def profile_photo(): 
+    '''
+     the user's profile photo is saved in db 
+     or the photo upload page is shown 
+    '''
     user = session.get('uid')
     if request.method == 'GET':
-        return render_template('photo_upload.html', current_us = user)
+        return render_template('photo_upload.html', current_us=user)
     else:
-        request.form.get("pic")
-        #this may be changed to redirect to the user's profile instead
-        return render_template('photo_upload.html')
+        conn = dbi.connect() 
+        p = request.files["pic"]
+        user_filename = p.filename
+        ext = user_filename.split('.')[-1]
+        filename = secure_filename('{}.{}'.format(user, ext))
+
+        # Check and delete old photo
+        old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
+        if os.path.isfile(old_photo_path):
+            os.remove(old_photo_path)
+        # save new 
+        pathname = os.path.join(app.config['UPLOADS'], filename)
+        p.save(pathname)
+        # Store photo info in db
+        pyqueries.insert_photo(conn, user, filename)
+
+        flash("Photo Upload Successful!")
+
+        # Redirect to the user's profile
+        return redirect(url_for('profile', uid=user))
      
 
     
@@ -249,9 +277,19 @@ def profile(uid):
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
         skills = pyqueries.get_skills(conn, uid) 
-        #useid = information['uid']
+        u_posts = helper.user_posts(conn, uid)
+        #useid = information['uid')
         if request.method == 'GET': 
-            return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid)
+            user_photo = pyqueries.get_photo(conn, uid)
+            print("PHOTO", user_photo)
+            if user_photo == None:
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts)
+            else:
+                p_user = user_photo['filename']
+                photo_url = url_for('uploaded_file', filename=p_user)
+                print("PHOTO_URL", photo_url)
+                #photo = send_from_directory(app.config['UPLOADS'],p_user)
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts) 
         else:  
             return redirect(url_for('update', user = uid))
     else: 
