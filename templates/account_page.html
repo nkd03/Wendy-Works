@@ -20,8 +20,9 @@
             <p>Username: {{userdata.username}}</p>
             <p>Email: {{userdata.email}}</p>
 
-            <h2>Your Posts:</h2>
+            
             {% if posts %}
+            <h2>Your Posts:</h2>
                 <div class="profile_posts_container">
                     {% for post in posts %}
                         <table class="profile_posts"> 
