@@ -72,6 +72,7 @@ nav button, nav a {
     padding-bottom: 5px;
     background-color: var(--color-header); /* was #3498db */
     border: 1px solid black; 
+    border-radius: 5%;
     cursor: pointer;
     /* Firefox uses font -apple-system unless I repeat the font spec here. */
     font-family: var(--font-family);
@@ -107,6 +108,7 @@ form {
 
 .form-group {
     margin-bottom: 15px;
+    max-width: 250 px;
 }
 
 
@@ -142,27 +144,6 @@ label {
     margin-top: 20px;
 }
 
-.button {
-    display: inline-block;
-    background-color: rgb(185, 215, 254);
-    width: 150px; 
-    height: 35px;
-    padding: 5px;
-    font-size: 1.25rem; 
-    border: 1px solid rgb(0, 0, 0);
-    border-radius: 5px;
-    text-align: center; 
-}
-
-.button-container {
-    display: inline-flex;
-    width: auto; 
-}
-
-.button-container p {
-    margin-bottom: 10px; 
-}
-
 
 .photobox input[type="submit"] {
     width: 120px; 
@@ -179,7 +160,7 @@ label {
 
 
 .information-box {
-    border: 1px solid rgb(51, 103, 103); 
+    border: 2px solid rgb(45,45,149); 
     padding: 20px;
     margin: 10px 0; 
     border-radius: 10px; /* Rounded corners */
@@ -189,17 +170,20 @@ label {
 }
 
 .information-box .button{
-    width: 105px; 
-    height: 30px; 
+    border: 2px solid rgb(45,45,149); 
+    width: 150px; 
+    height: 50px; 
+    background-color: rgb(250, 250, 250);
     text-align: center;
     line-height: 25px;
     font-size: 15px;
-    
+    font-family: serif; 
+    border-radius: 8px;
     
 }
 .your-information {
     text-align: center; 
-    color: #000000; 
+    color: rgb(45, 45, 149); 
     margin-bottom: 10px;
 }
 
