@@ -51,6 +51,8 @@ def index():
         
 @app.route('/login/')
 def login(): 
+    """This function serves to log users in if they exists ensuring 
+    that their credentials are correct or directs users to create an account """
     print("METHOD",request.method)
     #removes temp data from session
     user = session.pop('temporary_username', None)
@@ -79,6 +81,7 @@ def login():
  
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
+    """Function serves to get uploaded file"""
     return send_from_directory(app.config['UPLOADS'], filename)
 
 
@@ -112,14 +115,14 @@ def profile_photo():
 
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
-     
-
+    
     
 
- 
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
+    """This route is used when users are creating a new account, the form takes 
+    user skills, and contact information to insert them into the database"""
     conn = dbi.connect()
     if request.method == 'GET':
         return render_template('create.html', header ='Create an Account', logo = "wendyworks.png")
@@ -149,13 +152,6 @@ def join():
             hashed = bcrypt.hashpw(pass1.encode('utf-8'),
                         bcrypt.gensalt())
             stored = hashed.decode('utf-8')
-
-            #potentially add a check to ensure a user with that username is not 
-            #already in the db? 
-          
-            #if pyqueries.check_usern(conn,username) != None:
-               #flash("Username is taken. Please enter a unique username")
-                #return render_template('create.html', header ='Create an Account')
        
        #if usernam does not exist, continue inserting 
         #inserting into database
@@ -178,43 +174,10 @@ def join():
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
-<<<<<<< HEAD
-
-
-# @app.route('/login/', methods = ["GET", "POST"])
-# def login(): 
-#     if request.method == 'GET': 
-#         return render_template('login.html', header = 'Login to Wendy Works', logo='wendyworks.png')
-#     else: 
-#         uname = request.form.get('username')
-#         in_pw = request.form.get('passw')
-#         conn = dbi.connect()
-#         result = pyqueries.login_user(conn, uname, in_pw)
-#         print("Result", result)
-#         try: 
-#             #if the user is in the database
-#             if result >=1:
-#                 #timestamp = datetime.now() #not sure if we need this
-#                 #ip = str(request.remote_addr) #not sure if we need this
-#                 session['uid'] = result 
-#                # pyqueries.setsession(conn,result, timestamp, ip)
-#                 return redirect(url_for('profile', uid = result))
-#             #if incorrect password
-#             elif result is False:
-#                 flash('Sorry, your password is incorrect, try again')
-#                 return redirect(url_for('login'))
-#         #if that username is not in the db
-#         except Exception as e: 
-#             print("Exception occurred:", e)
-#             flash('Sorry, no username found, create an account')
-#             return(redirect(url_for('join')))
-=======
->>>>>>> 3088cf8ec1aa3a314aea2710e5bf529ef5dbdce7
-            
-           
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
+    """This route gets information from search form to find and display prodvider or requestor posts"""
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
@@ -225,15 +188,10 @@ def search():
         print(u_input)
         print(u_kind)
         if u_kind == 'provision':
-            print("Entering Provision")
             providers = helper.providers(conn, u_input)
-            print(providers)
-            print(type(providers))
             return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
-            print("Entering request")
             requests = helper.find_requests(conn, u_input)
-
             return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
 
 
@@ -276,11 +234,8 @@ def insert_post():
         
         helper.insert_post(conn, uid, title, body, categories, type, date)
         post_id = helper.get_pid(conn)
-        
-        print(post_id)
         pid = post_id['last_insert_id()']
-        print(pid)
-       
+     
         flash('Your post was inserted successfully')
         return redirect(url_for('profile', uid=uid)) #how do we get the pid??
 
@@ -289,7 +244,7 @@ def insert_post():
 @app.route('/post/<int:pid>')
 def post(pid):
     """
-    this function displays the specified post
+    this function displays the specified post using pid 
     """
     conn = dbi.connect() 
     #getting post information

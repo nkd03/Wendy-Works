@@ -20,7 +20,6 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
  
 
 
-
 def get_uid(conn):
     """A quick helper function to get uid using last-insert"""
     curs = dbi.dict_cursor(conn)

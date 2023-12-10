@@ -11,6 +11,7 @@ def insert_post(conn, uid, title, body, categories, type, date):
                  VALUES (%s, %s, %s, %s, %s, %s)
                  ''', [uid, title, body, categories, type, date])
     conn.commit()
+    return
 
 
 def get_user(conn, username):
@@ -84,16 +85,5 @@ def providers(conn, key_phrase):
                  ''', ['%' + key_phrase + '%'])
     return curs.fetchall()
 
-def find_service_by_cat(conn, cat):
-    '''
-    Helper function to find posts that belong to a certain category
-    '''
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-                 select *
-                 from post
-                 where categories = %s
-                 ''', [cat])
-    results = curs.fetchall()
-    return results
+
 
