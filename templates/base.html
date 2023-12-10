@@ -13,8 +13,8 @@
 
             
 {% block nav %}
-<nav>
-  
+<nav class="navbar">
+  <img src="{{url_for('static', filename='images/'+ logo)}}" alt="logo">
   <ul>
     {% if 'uid' not in session %}
       <li><a href="{{ url_for('index') }}">Home</a></li>

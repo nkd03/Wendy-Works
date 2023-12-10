@@ -28,7 +28,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/')
 def index():
-    return render_template('main.html', header ='Welcome to Wendy Works')
+    return render_template('main.html', header ='Welcome to Wendy Works', logo='wendyworks.png')
 
 
 @app.route('/join/', methods=["GET", "POST"])
@@ -97,7 +97,7 @@ def join():
 @app.route('/login/', methods = ["GET", "POST"])
 def login(): 
     if request.method == 'GET': 
-        return render_template('login.html', header = 'Login to Wendy Works')
+        return render_template('login.html', header = 'Login to Wendy Works', logo='wendyworks.png')
     else: 
         uname = request.form.get('username')
         in_pw = request.form.get('passw')
@@ -128,7 +128,7 @@ def search():
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
-        return render_template('search.html', header ='Search for a post')
+        return render_template('search.html', header ='Search for a post',logo='wendyworks.png')
     else: #method should be post 
         u_input = request.form.get('query')
         u_kind = request.form.get('kind')
@@ -139,12 +139,12 @@ def search():
             providers = helper.providers(conn, u_input)
             print(providers)
             print(type(providers))
-            return render_template('providers.html', key_phrase=u_input, providers = providers)
+            return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
             print("Entering request")
             requests = helper.find_requests(conn, u_input)
 
-            return render_template('requests.html', key_phrase=u_input, requests = requests)
+            return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
 
 
 
@@ -156,7 +156,7 @@ def insert_post():
     conn = dbi.connect()
     
     if request.method == 'GET':
-        return render_template('insert_post.html')
+        return render_template('insert_post.html', logo='wendyworks.png')
     else:
         # Collect relevant form information into variables
         print(request.form)
@@ -196,18 +196,18 @@ def insert_post():
 
 
 
-@app.route('/post/<int:pid>')
-def post(pid):
-    """
-    this funciton displays the specified post
-    """
-    conn = dbi.connect() 
-    #getting post information
-    post_info = helper.get_post(conn, pid)
-    #getting poster information
-    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
+# @app.route('/post/<int:pid>')
+# def post(pid):
+#     """
+#     this funciton displays the specified post
+#     """
+#     conn = dbi.connect() 
+#     #getting post information
+#     post_info = helper.get_post(conn, pid)
+#     #getting poster information
+#     account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
     
-    return render_template("display_post.html", post_info=post_info, account_info=account_info)
+#     return render_template("display_post.html", post_info=post_info, account_info=account_info)
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
@@ -227,7 +227,7 @@ def profile(uid):
         usid = information['uid']
         if request.method == 'GET': 
             return render_template("account_page.html", fnm = fname, lnm = lname,
-                                username = usernm, email = mail, all_skills = skills, user = usid)
+                                username = usernm, email = mail, all_skills = skills, user = usid, logo='wendyworks.png')
         else:  #the method is post
             return redirect(url_for('update', user = uid))
     else: 
@@ -261,7 +261,7 @@ def update(user):
         info = pyqueries.get_account_info(conn, user)
         uskills = pyqueries.get_skills(conn, user)
         print("Skills ", uskills)
-        return render_template("update_profile.html", account = info, skills = uskills, user = user)
+        return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
 
 
 @app.route('/logout/')
