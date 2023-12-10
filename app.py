@@ -273,9 +273,9 @@ def profile(uid):
         else:  
             return redirect(url_for('update', user = uid))
     else: 
-        flash("Sorry, you cannot access this page. You've been logged out")
-        session.pop('uid', None)
-        return(redirect(url_for('login')))
+        flash("Sorry, you cannot access this page")
+        user = session.get('uid')
+        return(redirect(url_for('profile', uid= user)))
   
 
 @app.route('/update/<int:user>', methods = ["GET","POST"])
