@@ -121,7 +121,7 @@ def profile_photo():
 def join():
     conn = dbi.connect()
     if request.method == 'GET':
-        return render_template('create.html', header ='Create an Account')
+        return render_template('create.html', header ='Create an Account', logo = 'wendyworks.png')
     else: #request method is POST
        
         try: #getting account information first 
