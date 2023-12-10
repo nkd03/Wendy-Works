@@ -11,11 +11,13 @@ def insert_post(conn, uid, title, body, categories, type, date):
                  VALUES (%s, %s, %s, %s, %s, %s)
                  ''', [uid, title, body, categories, type, date])
     conn.commit()
+    return
 
 
 def get_user(conn, username):
     '''
-    Helper function to insert a created post into the database
+    Helper function find user by username 
+    Returns user
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -28,6 +30,7 @@ def get_user(conn, username):
 def get_post(conn, pid):
     '''
     Helper function to get a post given its pid
+    returns post 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -40,6 +43,7 @@ def user_posts(conn, uid):
     '''
     gets all posts from a specified user if
     it is not distinctly closed
+    returns lists of posts by uid 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -50,7 +54,9 @@ def user_posts(conn, uid):
 
 
 def get_pid(conn):
-    """A quick helper function to get uid using last-insert"""
+    """A quick helper function to get uid using
+      last-insert
+      Using until we fix transactions"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
@@ -59,6 +65,7 @@ def find_requests(conn, key_phrase):
     '''
     Helper function to find posts including the relevant keyword 
     for a request
+    returns lists of posts labeled as request by phrase 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -75,6 +82,7 @@ def providers(conn, key_phrase):
     Helper function to find users who can provide a service
     based on the categories that the "provider" has linked to
     their account
+    returns lists of posts labeled as provision by phrase
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -84,16 +92,5 @@ def providers(conn, key_phrase):
                  ''', ['%' + key_phrase + '%'])
     return curs.fetchall()
 
-def find_service_by_cat(conn, cat):
-    '''
-    Helper function to find posts that belong to a certain category
-    '''
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-                 select *
-                 from post
-                 where categories = %s
-                 ''', [cat])
-    results = curs.fetchall()
-    return results
+
 

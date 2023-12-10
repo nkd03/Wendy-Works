@@ -102,13 +102,15 @@ form {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(181, 179, 179, 0.2);
-    max-width: 400px;
+    max-width: 500px;
     margin: auto;
 }
 
 .form-group {
     margin-bottom: 15px;
 }
+
+
 
 input[type="text"], input[type="password"] {
     width: 100%;
@@ -194,6 +196,7 @@ label {
     line-height: 25px;
     font-size: 15px;
     
+    
 }
 .your-information {
     text-align: center; 
@@ -210,11 +213,12 @@ li {
 }
 
 .posts table, th, td {
-    border: 2px solid;
-    color: rgb(19, 19, 23);
+    padding: 8px;
+    border: 1px solid rgb(246, 242, 242); /* Light border for cells */
   }
 .posts table{
     width: 80%;
+    margin: 0 auto;
 }
 .posts td{
     text-align: center;

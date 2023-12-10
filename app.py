@@ -30,6 +30,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/', methods = ['GET', 'POST'])
 def index():
+    """ This is our main page it contains a login form or new users can create an account"""
     if request.method == 'GET': 
         return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
     else:
@@ -50,6 +51,8 @@ def index():
         
 @app.route('/login/')
 def login(): 
+    """This function serves to log users in if they exists ensuring 
+    that their credentials are correct or directs users to create an account """
     print("METHOD",request.method)
     #removes temp data from session
     user = session.pop('temporary_username', None)
@@ -78,6 +81,7 @@ def login():
  
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
+    """Function serves to get uploaded file"""
     return send_from_directory(app.config['UPLOADS'], filename)
 
 
@@ -111,14 +115,14 @@ def profile_photo():
 
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
-     
-
+    
     
 
- 
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
+    """This route is used when users are creating a new account, the form takes 
+    user skills, and contact information to insert them into the database"""
     conn = dbi.connect()
     if request.method == 'GET':
         return render_template('create.html', header ='Create an Account', logo = 'wendyworks.png')
@@ -148,13 +152,6 @@ def join():
             hashed = bcrypt.hashpw(pass1.encode('utf-8'),
                         bcrypt.gensalt())
             stored = hashed.decode('utf-8')
-
-            #potentially add a check to ensure a user with that username is not 
-            #already in the db? 
-          
-            #if pyqueries.check_usern(conn,username) != None:
-               #flash("Username is taken. Please enter a unique username")
-                #return render_template('create.html', header ='Create an Account')
        
        #if usernam does not exist, continue inserting 
         #inserting into database
@@ -177,11 +174,14 @@ def join():
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
-            
-           
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
+    """This route gets information from search form 
+    to find and display prodvider or requestor posts
+    Return: renders search form or search result page
+     """
+
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
@@ -192,15 +192,10 @@ def search():
         print(u_input)
         print(u_kind)
         if u_kind == 'provision':
-            print("Entering Provision")
             providers = helper.providers(conn, u_input)
-            print(providers)
-            print(type(providers))
             return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
-            print("Entering request")
             requests = helper.find_requests(conn, u_input)
-
             return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
 
 
@@ -208,7 +203,10 @@ def search():
 @app.route('/insert/', methods=["GET", "POST"])
 def insert_post():
     '''
-    This function is for a user to create a post
+    This function is for a user to create a post 
+    in which they indicate whether a post is requesting or 
+    providing and the skills they need or give give
+    Redirects to profile page 
     '''
     conn = dbi.connect()
     
@@ -241,27 +239,12 @@ def insert_post():
         
         helper.insert_post(conn, uid, title, body, categories, type, date)
         post_id = helper.get_pid(conn)
-        
-        print(post_id)
         pid = post_id['last_insert_id()']
-        print(pid)
-       
+     
         flash('Your post was inserted successfully')
-        return redirect(url_for('post', pid=pid)) 
+        return redirect(url_for('profile', uid=uid))
 
 
-
-@app.route('/post/<int:pid>')
-def post(pid):
-    """
-    this function displays the specified post
-    """
-    conn = dbi.connect() 
-    #getting post information
-    post_info = helper.get_post(conn, pid)
-    #getting poster information
-    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
-    return render_template("display_post.html", post_info=post_info, account_info=account_info, logo = 'wendyworks.png')
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
@@ -269,6 +252,7 @@ def profile(uid):
     """
     This function is used for the profile page, getting all
     of the user's information to be displayed
+    Return: renders account page 
     """
     if session.get('uid') == uid: 
         conn = dbi.connect() 
@@ -301,6 +285,7 @@ def update(user):
     Any changes the user makes to their information 
     runs through this function
     updates the database or displays update form
+    Returns: redirects to profile 
     """
     conn = dbi.connect() 
     if request.method == "POST": 

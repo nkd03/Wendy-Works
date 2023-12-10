@@ -20,9 +20,9 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
  
 
 
-
 def get_uid(conn):
-    """A quick helper function to get uid using last-insert"""
+    """A quick helper function to get uid using last-insert
+    Note: Just using until we fix transactions"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
@@ -90,6 +90,7 @@ def get_skills(conn, uid):
     """
     This function gets all skills
     that the user has in the database
+    returns lists of skills by user id 
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -99,7 +100,10 @@ def get_skills(conn, uid):
 
 
 def get_account_info(conn,uid):
-    """This function returns users information using uid """
+    """
+    Gets account using uid 
+    This function returns users information using uid 
+      """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                     select * from user where uid= (%s)
