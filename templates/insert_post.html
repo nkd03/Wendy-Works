@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-
-<div class="insert_post">
     <form  method=post action="{{url_for('insert_post')}}">
         <fieldset>
         <legend>Make a post</legend>
@@ -14,7 +12,7 @@
                 <td><input id="title" type="text" name="title"></td></tr>
 
             <tr><td><label for="body" accesskey="t"> Describe your request or service:</label></td>
-                <td><textarea id="story" name="story" rows="5" cols="33"></textarea></tr>
+                <td><textarea id="body" name="body" rows="5" cols="33"></textarea></tr>
                 
             <tr>
                 <td><label for="type" accesskey="r">Is this a request or service:</label> <br></td>
@@ -67,5 +65,5 @@
         <p> <input type='submit' value='Upload Post'> </p>
 
     </form>
-</div>
+
 {% endblock %}

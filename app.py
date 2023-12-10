@@ -177,7 +177,11 @@ def join():
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
-    """This route gets information from search form to find and display prodvider or requestor posts"""
+    """This route gets information from search form 
+    to find and display prodvider or requestor posts
+    Return: renders search form or search result page
+     """
+
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
@@ -199,7 +203,10 @@ def search():
 @app.route('/insert/', methods=["GET", "POST"])
 def insert_post():
     '''
-    This function is for a user to create a post
+    This function is for a user to create a post 
+    in which they indicate whether a post is requesting or 
+    providing and the skills they need or give give
+    Redirects to profile page 
     '''
     conn = dbi.connect()
     
@@ -208,9 +215,7 @@ def insert_post():
     else:
         # Collect relevant form information into variables
         print(request.form)
-        username = request.form.get('u_name')
-        user_id = helper.get_user(conn, username)
-        uid = user_id['uid']
+        uid = session.get('uid')
         date = datetime.now()
         print(uid)
         title = request.form.get('title')
@@ -237,22 +242,9 @@ def insert_post():
         pid = post_id['last_insert_id()']
      
         flash('Your post was inserted successfully')
-        return redirect(url_for('profile', uid=uid)) #how do we get the pid??
+        return redirect(url_for('profile', uid=uid))
 
 
-
-@app.route('/post/<int:pid>')
-def post(pid):
-    """
-    this function displays the specified post using pid 
-    """
-    conn = dbi.connect() 
-    #getting post information
-    post_info = helper.get_post(conn, pid)
-    #getting poster information
-    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
-    
-    return render_template("display_post.html", post_info=post_info, account_info=account_info, logo = "wendyworks.png")
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
@@ -260,6 +252,7 @@ def profile(uid):
     """
     This function is used for the profile page, getting all
     of the user's information to be displayed
+    Return: renders account page 
     """
     if session.get('uid') == uid: 
         conn = dbi.connect() 
@@ -292,6 +285,7 @@ def update(user):
     Any changes the user makes to their information 
     runs through this function
     updates the database or displays update form
+    Returns: redirects to profile 
     """
     conn = dbi.connect() 
     if request.method == "POST": 
