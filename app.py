@@ -217,9 +217,7 @@ def insert_post():
     else:
         # Collect relevant form information into variables
         print(request.form)
-        username = request.form.get('u_name')
-        user_id = helper.get_user(conn, username)
-        uid = user_id['uid']
+        uid = session.get('uid')
         date = datetime.now()
         print(uid)
         title = request.form.get('title')
@@ -249,7 +247,7 @@ def insert_post():
         print(pid)
        
         flash('Your post was inserted successfully')
-        return redirect(url_for('post', pid=pid)) #how do we get the pid??
+        return redirect(url_for('post', pid=pid)) 
 
 
 
@@ -263,8 +261,7 @@ def post(pid):
     post_info = helper.get_post(conn, pid)
     #getting poster information
     account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
-    
-#     return render_template("display_post.html", post_info=post_info, account_info=account_info)
+    return render_template("display_post.html", post_info=post_info, account_info=account_info, logo = 'wendyworks.png')
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
