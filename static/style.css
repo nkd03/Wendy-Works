@@ -67,12 +67,11 @@ nav button, nav a {
     display: block;
     box-sizing: border-box; /* easier to make button and A the same size */
     width: 100%;
-    height: 40px;
+    height: 35px;
     padding: 0px;
     padding-bottom: 5px;
     background-color: var(--color-header); /* was #3498db */
-    border: 2px solid black;
-    border-radius: 5px;
+    border: 1px solid black; 
     cursor: pointer;
     /* Firefox uses font -apple-system unless I repeat the font spec here. */
     font-family: var(--font-family);
@@ -233,6 +232,7 @@ li {
     margin-right: auto;
 }
 
+
 .profile_posts {
     font-size: medium;
     font-weight: 200;
@@ -247,7 +247,7 @@ li {
 }
 
 .profile_posts_container {
-    height: 300px; /* Fixed height */
+    height: 300px; 
     overflow-y: auto; /* Allows vertical scrolling */
 }
 
