@@ -178,6 +178,7 @@ def join():
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
+<<<<<<< HEAD
 
 
 # @app.route('/login/', methods = ["GET", "POST"])
@@ -207,6 +208,8 @@ def join():
 #             print("Exception occurred:", e)
 #             flash('Sorry, no username found, create an account')
 #             return(redirect(url_for('join')))
+=======
+>>>>>>> 3088cf8ec1aa3a314aea2710e5bf529ef5dbdce7
             
            
       
