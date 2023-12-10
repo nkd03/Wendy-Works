@@ -214,7 +214,6 @@ def insert_post():
         return render_template('insert_post.html', logo='wendyworks.png')
     else:
         # Collect relevant form information into variables
-        print(request.form)
         uid = session.get('uid')
         date = datetime.now()
         print(uid)
