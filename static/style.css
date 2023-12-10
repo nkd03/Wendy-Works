@@ -251,4 +251,7 @@ li {
     overflow-y: auto; /* Allows vertical scrolling */
 }
 
-
+.searchform input[type= "submit"] {
+    margin-top: 10px;
+    max-width: 40%;
+}
