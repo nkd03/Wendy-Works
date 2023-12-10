@@ -15,11 +15,36 @@
 
 
         <div class="information-box">
-            <h2>Your information:</h2>
+            <h2>Your Information:</h2>
             <p> Name: {{userdata.f_name}} {{userdata.l_name}} </p>
             <p>Username: {{userdata.username}}</p>
             <p>Email: {{userdata.email}}</p>
-            
+
+           
+            {% if posts %}
+             <h2>Your Posts:</h2>
+                <div class="profile_posts_container">
+                    {% for post in posts %}
+                        <table class="profile_posts"> 
+                            <tr> 
+                                <th>Title</th> 
+                                <th>Body</th>
+                                <th>Categories</th> 
+                                <th>Post Status</th>
+                            </tr> 
+                            <tr> 
+                                <td>{{ post.title }}</td> 
+                                <td>{{ post.body }}</td>
+                                <td>{{ post.categories }}</td> 
+                                <td>{{ post.status }}</td>
+                            </tr> 
+                        </table>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        
+        
+           
 
             <h3 class="your-skills">Your Skills:</h3>
             <div>

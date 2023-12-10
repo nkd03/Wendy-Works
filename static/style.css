@@ -32,22 +32,37 @@ h2, h3 {
     
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
 nav > ul {
     display: flex;
     flex-direction: row;
+    margin-left: auto; 
 }
+ 
 
 nav ul {
     list-style-type: none;
-    margin: 0px;
+    margin: 15px 0 0 0;
     padding: 0px;
+   
 }
-
 nav > ul > li {
     flex: 0 0 auto;
     width: 15em; 
 }
+nav img{
+    height: 125px;
+    width: auto;
+    margin-right: 0 10px;
+    margin-top: 0px;
 
+
+}
 nav button, nav a {
     display: block;
     box-sizing: border-box; /* easier to make button and A the same size */
@@ -64,6 +79,7 @@ nav button, nav a {
     color:rgb(240, 248, 244);
     font-weight: bold;
     font-size: 1.4rem;
+    text-decoration: None;
 }
 
 /* Only the top-level buttons are centered; lower ones are left-aligned. */

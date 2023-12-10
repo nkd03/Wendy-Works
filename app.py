@@ -31,14 +31,18 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/', methods = ['GET', 'POST'])
 def index():
     if request.method == 'GET': 
-        return render_template('login.html', header ='Welcome to Wendy Works!')
+        return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
     else:
         action = request.form.get("action")
         if action == 'Login':
             pw = request.form.get("passw")
             user = request.form.get("username")
             if not pw or not user:
+<<<<<<< HEAD
                 return render_template('login.html', header ='Welcome to Wendy Works!', message='Username and Password fields are required')
+=======
+                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required', logo='wendyworks.png')
+>>>>>>> Wendy_Main
             else:
                  #will use this in login route
                 session['temporary_username'] = user
@@ -89,7 +93,7 @@ def profile_photo():
     '''
     user = session.get('uid')
     if request.method == 'GET':
-        return render_template('photo_upload.html', current_us=user)
+        return render_template('photo_upload.html', current_us=user,logo='wendyworks.png')
     else:
         conn = dbi.connect() 
         p = request.files["pic"]
@@ -177,7 +181,7 @@ def join():
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
-
+            
            
       
 @app.route('/search/', methods = ["GET", "POST"])
@@ -185,7 +189,7 @@ def search():
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
-        return render_template('search.html', header ='Search for a post')
+        return render_template('search.html', header ='Search for a post',logo='wendyworks.png')
     else: #method should be post 
         u_input = request.form.get('query')
         u_kind = request.form.get('kind')
@@ -196,12 +200,12 @@ def search():
             providers = helper.providers(conn, u_input)
             print(providers)
             print(type(providers))
-            return render_template('providers.html', key_phrase=u_input, providers = providers)
+            return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
             print("Entering request")
             requests = helper.find_requests(conn, u_input)
 
-            return render_template('requests.html', key_phrase=u_input, requests = requests)
+            return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
 
 
 
@@ -213,7 +217,7 @@ def insert_post():
     conn = dbi.connect()
     
     if request.method == 'GET':
-        return render_template('insert_post.html')
+        return render_template('insert_post.html', logo='wendyworks.png')
     else:
         # Collect relevant form information into variables
         print(request.form)
@@ -264,7 +268,7 @@ def post(pid):
     #getting poster information
     account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
     
-    return render_template("display_post.html", post_info=post_info, account_info=account_info)
+#     return render_template("display_post.html", post_info=post_info, account_info=account_info)
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
@@ -283,13 +287,13 @@ def profile(uid):
             user_photo = pyqueries.get_photo(conn, uid)
             print("PHOTO", user_photo)
             if user_photo == None:
-                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts)
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
             else:
                 p_user = user_photo['filename']
                 photo_url = url_for('uploaded_file', filename=p_user)
                 print("PHOTO_URL", photo_url)
                 #photo = send_from_directory(app.config['UPLOADS'],p_user)
-                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts) 
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts, logo='wendyworks.png') 
         else:  
             return redirect(url_for('update', user = uid))
     else: 
@@ -328,6 +332,7 @@ def update(user):
             info = pyqueries.get_account_info(conn, user)
             uskills = pyqueries.get_skills(conn, user)
             print("Skills ", uskills)
+<<<<<<< HEAD
             return render_template("update_profile.html", account = info, skills = uskills, user = user)
         else:
             print("REQUEST FROM ARGS", request.args)
@@ -351,6 +356,9 @@ def update_post(pid):
         return 
 
 
+=======
+            return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
+>>>>>>> Wendy_Main
 
 
 @app.route('/logout/')
