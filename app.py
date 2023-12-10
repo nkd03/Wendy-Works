@@ -12,6 +12,8 @@ app = Flask(__name__)
 import cs304dbi as dbi
 
 # import cs304dbi_sqlite3 as dbi
+app.config['UPLOADS'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 
 
 import random
 import helper
@@ -26,10 +28,94 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 def index():
-    return render_template('main.html', header ='Welcome to Wendy Works', logo='wendyworks.png')
+    if request.method == 'GET': 
+        return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
+    else:
+        action = request.form.get("action")
+        if action == 'Login':
+            pw = request.form.get("passw")
+            user = request.form.get("username")
+            if not pw or not user:
+                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required', logo='wendyworks.png')
+            else:
+                 #will use this in login route
+                session['temporary_username'] = user
+                session['temporary_password'] = pw
+                return redirect(url_for('login'))
+        else:
+            if action == 'Create Account':
+                return redirect(url_for('join'))
+        
+@app.route('/login/')
+def login(): 
+    print("METHOD",request.method)
+    #removes temp data from session
+    user = session.pop('temporary_username', None)
+    pw = session.pop('temporary_password', None)
+    print("USER", user)
+    conn = dbi.connect()
+    result = pyqueries.login_user(conn, user, pw)
+    print("Result", result)
+    try: 
+        #if the user is in the database
+        if result >=1:
+            #timestamp = datetime.now() #not sure if we need this
+            #ip = str(request.remote_addr) #not sure if we need this
+            session['uid'] = result 
+            # pyqueries.setsession(conn,result, timestamp, ip)
+            return redirect(url_for('profile', uid = result))
+        #if incorrect password
+        elif result is False:
+            flash('Sorry, your password is incorrect, try again')
+            return redirect(url_for('index'))
+    #if that username is not in the db
+    except Exception as e: 
+        if user != None: 
+            flash(f'Sorry, no account with username: {user} found. Create an account')
+        return(redirect(url_for('index')))
+ 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOADS'], filename)
 
+
+@app.route('/photo/', methods = ['GET', 'POST'])
+def profile_photo(): 
+    '''
+     the user's profile photo is saved in db 
+     or the photo upload page is shown 
+    '''
+    user = session.get('uid')
+    if request.method == 'GET':
+        return render_template('photo_upload.html', current_us=user,logo='wendyworks.png')
+    else:
+        conn = dbi.connect() 
+        p = request.files["pic"]
+        user_filename = p.filename
+        ext = user_filename.split('.')[-1]
+        filename = secure_filename('{}.{}'.format(user, ext))
+
+        # Check and delete old photo
+        old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
+        if os.path.isfile(old_photo_path):
+            os.remove(old_photo_path)
+        # save new 
+        pathname = os.path.join(app.config['UPLOADS'], filename)
+        p.save(pathname)
+        # Store photo info in db
+        pyqueries.insert_photo(conn, user, filename)
+
+        flash("Photo Upload Successful!")
+
+        # Redirect to the user's profile
+        return redirect(url_for('profile', uid=user))
+     
+
+    
+
+ 
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
@@ -66,10 +152,9 @@ def join():
             #potentially add a check to ensure a user with that username is not 
             #already in the db? 
           
-            if pyqueries.check_usern(conn,username) != None:
-                print("ENTERING THE IF STATEMENT")
-                flash("Username is taken. Please enter a unique username")
-                return render_template('create.html', header ='Create an Account')
+            #if pyqueries.check_usern(conn,username) != None:
+               #flash("Username is taken. Please enter a unique username")
+                #return render_template('create.html', header ='Create an Account')
        
        #if usernam does not exist, continue inserting 
         #inserting into database
@@ -87,7 +172,7 @@ def join():
 
             
             flash('Account created! Please log in')
-            return redirect(url_for("login"))
+            return redirect(url_for("index"))
 
         except Exception as err:
             flash('form submission error'+ str(err))
@@ -122,6 +207,7 @@ def login():
             flash('Sorry, no username found, create an account')
             return(redirect(url_for('join')))
             
+           
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
@@ -196,16 +282,16 @@ def insert_post():
 
 
 
-# @app.route('/post/<int:pid>')
-# def post(pid):
-#     """
-#     this funciton displays the specified post
-#     """
-#     conn = dbi.connect() 
-#     #getting post information
-#     post_info = helper.get_post(conn, pid)
-#     #getting poster information
-#     account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
+@app.route('/post/<int:pid>')
+def post(pid):
+    """
+    this function displays the specified post
+    """
+    conn = dbi.connect() 
+    #getting post information
+    post_info = helper.get_post(conn, pid)
+    #getting poster information
+    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
     
 #     return render_template("display_post.html", post_info=post_info, account_info=account_info)
 
@@ -216,22 +302,28 @@ def profile(uid):
     This function is used for the profile page, getting all
     of the user's information to be displayed
     """
-    if session['uid'] == uid: 
+    if session.get('uid') == uid: 
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
         skills = pyqueries.get_skills(conn, uid) 
-        fname = information['f_name']
-        lname = information['l_name']
-        usernm = information['username']
-        mail = information['email']
-        usid = information['uid']
+        u_posts = helper.user_posts(conn, uid)
+        #useid = information['uid')
         if request.method == 'GET': 
-            return render_template("account_page.html", fnm = fname, lnm = lname,
-                                username = usernm, email = mail, all_skills = skills, user = usid, logo='wendyworks.png')
-        else:  #the method is post
+            user_photo = pyqueries.get_photo(conn, uid)
+            print("PHOTO", user_photo)
+            if user_photo == None:
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
+            else:
+                p_user = user_photo['filename']
+                photo_url = url_for('uploaded_file', filename=p_user)
+                print("PHOTO_URL", photo_url)
+                #photo = send_from_directory(app.config['UPLOADS'],p_user)
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts, logo='wendyworks.png') 
+        else:  
             return redirect(url_for('update', user = uid))
     else: 
-        flash('Sorry, you cannot access this page')
+        flash("Sorry, you cannot access this page. You've been logged out")
+        session.pop('uid', None)
         return(redirect(url_for('login')))
   
 
@@ -258,10 +350,14 @@ def update(user):
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
         return redirect(url_for('profile', uid = user))
     else: #method is get
-        info = pyqueries.get_account_info(conn, user)
-        uskills = pyqueries.get_skills(conn, user)
-        print("Skills ", uskills)
-        return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
+        action = request.args.get('action')
+        if action == 'UploadPhoto':
+            return redirect(url_for('profile_photo'))
+        else:
+            info = pyqueries.get_account_info(conn, user)
+            uskills = pyqueries.get_skills(conn, user)
+            print("Skills ", uskills)
+            return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
 
 
 @app.route('/logout/')

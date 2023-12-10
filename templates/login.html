@@ -3,17 +3,20 @@
 {% block main_content %}
 <h1>{{header}}</h1>
 
-<form method="post" action="{{url_for('login')}}">
+<p>{{message}}</p>
+<form method="post" action="{{url_for('index')}}">
     <form> 
     <div class="form-group">
         <label for="username"><b>Username: </b></label>
-        <input type="text" placeholder="Enter username" name="username" required>
+        <input type="text" placeholder="Enter username" name="username">
     </div>
     <div class="form-group">
         <label for="passw"><b>Password: </b></label>
-        <input type="password" placeholder="Enter password" name="passw" required>
+        <input type="password" placeholder="Enter password" name="passw">
     </div>
-    <input type="submit" value="Login">
+    <button type="submit" name="action" value="Login">Login</button>
+    <p> Don't have an account?</p>
+    <button type="submit" name="action" value="Create Account">Create Account</button>
 </form>
 
 
