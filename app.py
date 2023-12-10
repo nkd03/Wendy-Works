@@ -38,7 +38,7 @@ def index():
             pw = request.form.get("passw")
             user = request.form.get("username")
             if not pw or not user:
-                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required')
+                return render_template('login.html', header ='Welcome to Wendy Works!', message='Username and Password fields are required')
             else:
                  #will use this in login route
                 session['temporary_username'] = user
@@ -324,11 +324,33 @@ def update(user):
         action = request.args.get('action')
         if action == 'UploadPhoto':
             return redirect(url_for('profile_photo'))
-        else:
+        elif action == 'UpdateP':
             info = pyqueries.get_account_info(conn, user)
             uskills = pyqueries.get_skills(conn, user)
             print("Skills ", uskills)
             return render_template("update_profile.html", account = info, skills = uskills, user = user)
+        else:
+            print("REQUEST FROM ARGS", request.args)
+            #need to add something here that gets the users 
+            return redirect(url_for('update_post', pid = '1'))
+
+
+@app.route('/updatepost/<int:pid>', methods = ["GET", "POST"])
+def update_post(pid): 
+    '''
+    used to update a user's profile page
+    '''
+    user = session.get('uid')
+    if request.method == "GET":  
+        print("REQUEST", request.args)
+        return 
+        
+    #request method is POST 
+    else: 
+        print("POSTED TO UPDATE POST", request.form)
+        return 
+
+
 
 
 @app.route('/logout/')
@@ -337,7 +359,7 @@ def logout():
     Logs the user out and ends the session
     """
     session.pop('uid', None)
-    flash("You've logged out, please visit again soon!")
+    flash("You've logged out")
     #end the session here 
     return redirect(url_for('index'))
 

@@ -19,34 +19,6 @@
             <p> Name: {{userdata.f_name}} {{userdata.l_name}} </p>
             <p>Username: {{userdata.username}}</p>
             <p>Email: {{userdata.email}}</p>
-
-            
-            {% if posts %}
-            <h2>Your Posts:</h2>
-                <div class="profile_posts_container">
-                    {% for post in posts %}
-                        <table class="profile_posts"> 
-                            <tr> 
-                                <th>PID</th> 
-                                <th>Title</th> 
-                                <th>Body</th>
-                                <th>Categories</th> 
-                                <th>Post Status</th>
-                            </tr> 
-                            <tr> 
-                                <td>{{ post.pid }}</td> 
-                                <td>{{ post.title }}</td> 
-                                <td>{{ post.body }}</td>
-                                <td>{{ post.categories }}</td> 
-                                <td>{{ post.status }}</td>
-                            </tr> 
-                        </table>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        
-        
-           
             
 
             <h3 class="your-skills">Your Skills:</h3>
@@ -59,9 +31,38 @@
                 {%endif%}
                 </ul>
             </div>
-            <button type="submit" name="action" value="Update">Update</button>
-            <button type="submit" name="action" value="UploadPhoto">Upload profile photo</button>
+            <button type="submit" name="action" value="UpdateP">Update Profile Information</button>
+            <button type="submit" name="action" value="UploadPhoto">Upload Profile Photo</button>
     </form>
+
+    {% if posts %}
+                <h2>Your Posts:</h2>
+                    <div class="profile_posts_container">
+                        {% for post in posts %}
+                        <form method ="POST" action="{{url_for('update_post', pid=post.pid)}}"> 
+                            <table class="profile_posts"> 
+                                <tr> 
+                                    <th>Title</th> 
+                                    <th>Body</th>
+                                    <th>Categories</th> 
+                                    <th>Post Status</th>
+                                </tr> 
+                                <tr> 
+                                    <td>{{ post.title }}</td> 
+                                     <td>{{ post.body }}</td>
+                                    <td>{{ post.categories }}</td> 
+                                    <td>{{ post.status }}</td>
+                                </tr> 
+                               
+                            </table>
+                            <div> 
+                                <button type="submit" name="action" value="Update">Update this post</button>
+                            </div>
+                        {% endfor %}
+                    </form>
+                    </div>
+               
+            {% endif %}
     <div> 
 </div>
 
