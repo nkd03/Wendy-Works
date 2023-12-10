@@ -210,11 +210,12 @@ li {
 }
 
 .posts table, th, td {
-    border: 2px solid;
-    color: rgb(19, 19, 23);
+    padding: 8px;
+    border: 1px solid rgb(246, 242, 242); /* Light border for cells */
   }
 .posts table{
     width: 80%;
+    margin: 0 auto;
 }
 .posts td{
     text-align: center;

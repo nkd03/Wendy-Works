@@ -30,6 +30,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/', methods = ['GET', 'POST'])
 def index():
+    """ This is our main page it contains a login form or new users can create an account"""
     if request.method == 'GET': 
         return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
     else:
@@ -121,7 +122,7 @@ def profile_photo():
 def join():
     conn = dbi.connect()
     if request.method == 'GET':
-        return render_template('create.html', header ='Create an Account')
+        return render_template('create.html', header ='Create an Account', logo = "wendyworks.png")
     else: #request method is POST
        
         try: #getting account information first 
@@ -179,33 +180,33 @@ def join():
             return redirect( url_for('index') )
 
 
-@app.route('/login/', methods = ["GET", "POST"])
-def login(): 
-    if request.method == 'GET': 
-        return render_template('login.html', header = 'Login to Wendy Works', logo='wendyworks.png')
-    else: 
-        uname = request.form.get('username')
-        in_pw = request.form.get('passw')
-        conn = dbi.connect()
-        result = pyqueries.login_user(conn, uname, in_pw)
-        print("Result", result)
-        try: 
-            #if the user is in the database
-            if result >=1:
-                #timestamp = datetime.now() #not sure if we need this
-                #ip = str(request.remote_addr) #not sure if we need this
-                session['uid'] = result 
-               # pyqueries.setsession(conn,result, timestamp, ip)
-                return redirect(url_for('profile', uid = result))
-            #if incorrect password
-            elif result is False:
-                flash('Sorry, your password is incorrect, try again')
-                return redirect(url_for('login'))
-        #if that username is not in the db
-        except Exception as e: 
-            print("Exception occurred:", e)
-            flash('Sorry, no username found, create an account')
-            return(redirect(url_for('join')))
+# @app.route('/login/', methods = ["GET", "POST"])
+# def login(): 
+#     if request.method == 'GET': 
+#         return render_template('login.html', header = 'Login to Wendy Works', logo='wendyworks.png')
+#     else: 
+#         uname = request.form.get('username')
+#         in_pw = request.form.get('passw')
+#         conn = dbi.connect()
+#         result = pyqueries.login_user(conn, uname, in_pw)
+#         print("Result", result)
+#         try: 
+#             #if the user is in the database
+#             if result >=1:
+#                 #timestamp = datetime.now() #not sure if we need this
+#                 #ip = str(request.remote_addr) #not sure if we need this
+#                 session['uid'] = result 
+#                # pyqueries.setsession(conn,result, timestamp, ip)
+#                 return redirect(url_for('profile', uid = result))
+#             #if incorrect password
+#             elif result is False:
+#                 flash('Sorry, your password is incorrect, try again')
+#                 return redirect(url_for('login'))
+#         #if that username is not in the db
+#         except Exception as e: 
+#             print("Exception occurred:", e)
+#             flash('Sorry, no username found, create an account')
+#             return(redirect(url_for('join')))
             
            
       
@@ -278,7 +279,7 @@ def insert_post():
         print(pid)
        
         flash('Your post was inserted successfully')
-        return redirect(url_for('post', pid=pid)) #how do we get the pid??
+        return redirect(url_for('profile', uid=uid)) #how do we get the pid??
 
 
 
@@ -293,7 +294,7 @@ def post(pid):
     #getting poster information
     account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
     
-#     return render_template("display_post.html", post_info=post_info, account_info=account_info)
+    return render_template("display_post.html", post_info=post_info, account_info=account_info, logo = "wendyworks.png")
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
