@@ -177,35 +177,6 @@ def join():
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
-
-
-@app.route('/login/', methods = ["GET", "POST"])
-def login(): 
-    if request.method == 'GET': 
-        return render_template('login.html', header = 'Login to Wendy Works', logo='wendyworks.png')
-    else: 
-        uname = request.form.get('username')
-        in_pw = request.form.get('passw')
-        conn = dbi.connect()
-        result = pyqueries.login_user(conn, uname, in_pw)
-        print("Result", result)
-        try: 
-            #if the user is in the database
-            if result >=1:
-                #timestamp = datetime.now() #not sure if we need this
-                #ip = str(request.remote_addr) #not sure if we need this
-                session['uid'] = result 
-               # pyqueries.setsession(conn,result, timestamp, ip)
-                return redirect(url_for('profile', uid = result))
-            #if incorrect password
-            elif result is False:
-                flash('Sorry, your password is incorrect, try again')
-                return redirect(url_for('login'))
-        #if that username is not in the db
-        except Exception as e: 
-            print("Exception occurred:", e)
-            flash('Sorry, no username found, create an account')
-            return(redirect(url_for('join')))
             
            
       
