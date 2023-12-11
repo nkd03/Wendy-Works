@@ -114,11 +114,22 @@ def profile_photo():
             pyqueries.insert_photo(conn, user, filename)
             flash("Photo Upload Successful!")
         else:
-            flash("Please upload a JPEG.")
+            flash("Please upload a JPEG or PNG.")
 
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
     
+    
+@app.route('/home/')
+def home():
+    '''
+    Used for home page feed, gets 10 most 
+    recent post entries (non-specified)
+    ''' 
+    conn = dbi.connect()
+    recent_posts = pyqueries.most_recent(conn)
+    print(recent_posts)
+    return render_template("home.html", posts = recent_posts, logo = 'wendyworks.png')
     
 
 
@@ -264,7 +275,7 @@ def profile(uid):
         #useid = information['uid')
         if request.method == 'GET': 
             user_photo = pyqueries.get_photo(conn, uid)
-            print("PHOTO", user_photo)
+            #print("PHOTO", user_photo)
             if user_photo == None:
                 return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
             else:
@@ -276,7 +287,7 @@ def profile(uid):
         else:  
             return redirect(url_for('update', user = uid))
     else: 
-        flash("Sorry, you cannot access this page")
+        flash("Sorry, you cannot access this page.")
         user = session.get('uid')
         return(redirect(url_for('profile', uid= user)))
   

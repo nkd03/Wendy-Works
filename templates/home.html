@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<h1> Recent Posts from our Users! </h1>
+
+{% if posts %}
+   <div class="home_posts_container">
+       {% for post in posts %}
+           <table class="home_posts"> 
+               <tr> 
+                   <th> User </th>
+                   <th>Title</th> 
+                   <th>Body</th>
+                   <th>Post Status</th>
+                
+               </tr> 
+               <tr> 
+                   <td> {{post.f_name}} </td>
+                   <td>{{ post.title }}</td> 
+                   <td>{{ post.body }}</td>
+                   <td>{{ post.status }}</td>
+               </tr> 
+           </table>
+       {% endfor %}
+   </div>
+{% endif %}
+
+{% endblock %}

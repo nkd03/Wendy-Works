@@ -111,7 +111,17 @@ def get_account_info(conn,uid):
                     [uid])
     return curs.fetchone()
 
-    
+
+def most_recent(conn):
+    '''
+    used for home page, display most 
+    recent 10 posts
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 select user.f_name, post.title, post.body, post.status from user 
+                 inner join post where user.uid = post.uid order by post.pid DESC limit 10''') 
+    return curs.fetchall()
 
 def login_user(conn, username, pass1):
     """

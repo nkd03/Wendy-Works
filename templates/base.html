@@ -18,6 +18,7 @@
   alt="Logo for WendyWorks in blue font">
   <ul>
     {% if 'uid' in session %}
+      <li><a href="{{ url_for('home') }}">Home</a></li>
       <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
       <li><a href="{{url_for('search')}}"> Search Posts</a></li>
       <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
