@@ -4,10 +4,10 @@
 
 <p>This page is displaying all requests for services. This page is for providers looking to give a service</p>
 <p>Request posts matching {{key_phrase}}:</p>
-<body>
+
     {%if requests%}
     <table class="posts"> 
-           
+        <tr>  
             <th>Title</th> 
             <th>Text</th> 
             <th>Categories</th> 
@@ -30,7 +30,7 @@
     </table>
       {%else%}
       <h3> There are no matches for your query. </h3>
-</body>
+
 {%endif%}
 
 {% endblock %}
