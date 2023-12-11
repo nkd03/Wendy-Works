@@ -99,19 +99,22 @@ def profile_photo():
         p = request.files["pic"]
         user_filename = p.filename
         ext = user_filename.split('.')[-1]
-        filename = secure_filename('{}.{}'.format(user, ext))
+        print("EXT", ext)
+        if ext == 'jpeg':
+            filename = secure_filename('{}.{}'.format(user, ext))
 
-        # Check and delete old photo
-        old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
-        if os.path.isfile(old_photo_path):
-            os.remove(old_photo_path)
-        # save new 
-        pathname = os.path.join(app.config['UPLOADS'], filename)
-        p.save(pathname)
-        # Store photo info in db
-        pyqueries.insert_photo(conn, user, filename)
-
-        flash("Photo Upload Successful!")
+            # Check and delete old photo
+            old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
+            if os.path.isfile(old_photo_path):
+                os.remove(old_photo_path)
+            # save new 
+            pathname = os.path.join(app.config['UPLOADS'], filename)
+            p.save(pathname)
+            # Store photo info in db
+            pyqueries.insert_photo(conn, user, filename)
+            flash("Photo Upload Successful!")
+        else:
+            flash("Please upload a JPEG.")
 
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
