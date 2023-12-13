@@ -2,11 +2,12 @@
 
 {% block main_content %}
 <p>This page will show a list of providers who made a post. This page is ideal for those looking for someone to provide them with a service</p>
+{%if providers%}
 <p>Provider posts matching {{key_phrase}}:</p>
-<body>
-    
+
+   
     <table class="posts"> 
-           
+    <tr>      
         <th>Title</th> 
         <th>Text</th> 
         <th>Categories</th> 
@@ -30,7 +31,11 @@
 
 
 </table>  
+{%else%}
+<h3> There are no matches for your query. </h3>
+
     
-</body>
+
+{%endif%}
 
 {% endblock %}

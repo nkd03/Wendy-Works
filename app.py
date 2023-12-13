@@ -30,6 +30,7 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
 @app.route('/', methods = ['GET', 'POST'])
 def index():
+    """ This is our main page it contains a login form or new users can create an account"""
     if request.method == 'GET': 
         return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
     else:
@@ -50,6 +51,8 @@ def index():
         
 @app.route('/login/')
 def login(): 
+    """This function serves to log users in if they exists ensuring 
+    that their credentials are correct or directs users to create an account """
     print("METHOD",request.method)
     #removes temp data from session
     user = session.pop('temporary_username', None)
@@ -78,6 +81,7 @@ def login():
  
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
+    """Function serves to get uploaded file"""
     return send_from_directory(app.config['UPLOADS'], filename)
 
 
@@ -95,33 +99,47 @@ def profile_photo():
         p = request.files["pic"]
         user_filename = p.filename
         ext = user_filename.split('.')[-1]
-        filename = secure_filename('{}.{}'.format(user, ext))
+        print("EXT", ext)
+        if ext == 'jpeg' or ext =='png':
+            filename = secure_filename('{}.{}'.format(user, ext))
 
-        # Check and delete old photo
-        old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
-        if os.path.isfile(old_photo_path):
-            os.remove(old_photo_path)
-        # save new 
-        pathname = os.path.join(app.config['UPLOADS'], filename)
-        p.save(pathname)
-        # Store photo info in db
-        pyqueries.insert_photo(conn, user, filename)
-
-        flash("Photo Upload Successful!")
+            # Check and delete old photo
+            old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
+            if os.path.isfile(old_photo_path):
+                os.remove(old_photo_path)
+            # save new 
+            pathname = os.path.join(app.config['UPLOADS'], filename)
+            p.save(pathname)
+            # Store photo info in db
+            pyqueries.insert_photo(conn, user, filename)
+            flash("Photo Upload Successful!")
+        else:
+            flash("Please upload a JPEG or PNG.")
 
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
-     
-
+    
+    
+@app.route('/home/')
+def home():
+    '''
+    Used for home page feed, gets 10 most 
+    recent post entries (non-specified)
+    ''' 
+    conn = dbi.connect()
+    recent_posts = pyqueries.most_recent(conn)
+    print(recent_posts)
+    return render_template("home.html", posts = recent_posts, logo = 'wendyworks.png')
     
 
- 
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
+    """This route is used when users are creating a new account, the form takes 
+    user skills, and contact information to insert them into the database"""
     conn = dbi.connect()
     if request.method == 'GET':
-        return render_template('create.html', header ='Create an Account')
+        return render_template('create.html', header ='Create an Account', logo = 'wendyworks.png')
     else: #request method is POST
        
         try: #getting account information first 
@@ -148,13 +166,6 @@ def join():
             hashed = bcrypt.hashpw(pass1.encode('utf-8'),
                         bcrypt.gensalt())
             stored = hashed.decode('utf-8')
-
-            #potentially add a check to ensure a user with that username is not 
-            #already in the db? 
-          
-            #if pyqueries.check_usern(conn,username) != None:
-               #flash("Username is taken. Please enter a unique username")
-                #return render_template('create.html', header ='Create an Account')
        
        #if usernam does not exist, continue inserting 
         #inserting into database
@@ -177,11 +188,14 @@ def join():
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
-            
-           
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
+    """This route gets information from search form 
+    to find and display prodvider or requestor posts
+    Return: renders search form or search result page
+     """
+
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
@@ -192,15 +206,10 @@ def search():
         print(u_input)
         print(u_kind)
         if u_kind == 'provision':
-            print("Entering Provision")
             providers = helper.providers(conn, u_input)
-            print(providers)
-            print(type(providers))
             return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
-            print("Entering request")
             requests = helper.find_requests(conn, u_input)
-
             return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
 
 
@@ -208,7 +217,10 @@ def search():
 @app.route('/insert/', methods=["GET", "POST"])
 def insert_post():
     '''
-    This function is for a user to create a post
+    This function is for a user to create a post 
+    in which they indicate whether a post is requesting or 
+    providing and the skills they need or give give
+    Redirects to profile page 
     '''
     conn = dbi.connect()
     
@@ -216,10 +228,7 @@ def insert_post():
         return render_template('insert_post.html', logo='wendyworks.png')
     else:
         # Collect relevant form information into variables
-        print(request.form)
-        username = request.form.get('u_name')
-        user_id = helper.get_user(conn, username)
-        uid = user_id['uid']
+        uid = session.get('uid')
         date = datetime.now()
         print(uid)
         title = request.form.get('title')
@@ -243,28 +252,12 @@ def insert_post():
         
         helper.insert_post(conn, uid, title, body, categories, type, date)
         post_id = helper.get_pid(conn)
-        
-        print(post_id)
         pid = post_id['last_insert_id()']
-        print(pid)
-       
+     
         flash('Your post was inserted successfully')
-        return redirect(url_for('post', pid=pid)) #how do we get the pid??
+        return redirect(url_for('profile', uid=uid))
 
 
-
-@app.route('/post/<int:pid>')
-def post(pid):
-    """
-    this function displays the specified post
-    """
-    conn = dbi.connect() 
-    #getting post information
-    post_info = helper.get_post(conn, pid)
-    #getting poster information
-    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
-    
-#     return render_template("display_post.html", post_info=post_info, account_info=account_info)
 
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
@@ -272,6 +265,7 @@ def profile(uid):
     """
     This function is used for the profile page, getting all
     of the user's information to be displayed
+    Return: renders account page 
     """
     if session.get('uid') == uid: 
         conn = dbi.connect() 
@@ -281,7 +275,7 @@ def profile(uid):
         #useid = information['uid')
         if request.method == 'GET': 
             user_photo = pyqueries.get_photo(conn, uid)
-            print("PHOTO", user_photo)
+            #print("PHOTO", user_photo)
             if user_photo == None:
                 return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
             else:
@@ -293,9 +287,9 @@ def profile(uid):
         else:  
             return redirect(url_for('update', user = uid))
     else: 
-        flash("Sorry, you cannot access this page. You've been logged out")
-        session.pop('uid', None)
-        return(redirect(url_for('login')))
+        flash("Sorry, you cannot access this page.")
+        user = session.get('uid')
+        return(redirect(url_for('profile', uid= user)))
   
 
 @app.route('/update/<int:user>', methods = ["GET","POST"])
@@ -304,6 +298,7 @@ def update(user):
     Any changes the user makes to their information 
     runs through this function
     updates the database or displays update form
+    Returns: redirects to profile 
     """
     conn = dbi.connect() 
     if request.method == "POST": 
@@ -324,7 +319,18 @@ def update(user):
         action = request.args.get('action')
         if action == 'UploadPhoto':
             return redirect(url_for('profile_photo'))
-        elif action == 'UpdateP':
+        elif action == 'Delete':
+            uid = session.get('uid')
+            pyqueries.deleteUser(conn, uid)
+            #finish writing this
+            #need to so some python queries here 
+            # see how the delete cascade will work 
+           
+
+            session.pop('uid', None)
+            flash("We're sorry to see you go! Account deleted successfully")
+            return redirect(url_for('index'))
+        else:
             info = pyqueries.get_account_info(conn, user)
             uskills = pyqueries.get_skills(conn, user)
             print("Skills ", uskills)

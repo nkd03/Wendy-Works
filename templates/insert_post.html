@@ -1,64 +1,69 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<form method=post action="{{url_for('insert_post')}}">
-    <fieldset>
-    <legend>Make a post</legend>
-    <table>
-        <tr><td><label for="u_name" accesskey="i"> Remind us your username:</label></td>
-            <td><input id="u_name" type="text" name="u_name"></td></tr>
-        
-            <tr><td><label for="title" accesskey="i"> Title your post:</label></td>
-            <td><input id="title" type="text" name="title"></td></tr>
+    <form  method=post action="{{url_for('insert_post')}}">
+        <fieldset>
+        <legend>Make a post</legend>
+        <table>
+                <tr><td><label for="title" accesskey="i"> Title your post:</label></td>
+                <td><input id="title" type="text" name="title"></td></tr>
 
-        <tr><td><label for="body" accesskey="t"> Describe your request or service:</label></td>
-            <td><input id="body" type="text" name="body"></td></tr>
+            <tr><td><label for="body" accesskey="t"> Describe your request or service:</label></td>
+                <td><textarea id="body" name="body" rows="5" cols="33"></textarea></tr>
+                
+            <tr>
+                <td><label accesskey="r">Is this a request or service:</label> <br></td>
+                
+               
+                <td>
+                    <label for="provision">Provision</label>
+                    <input type="checkbox" id = "provision" name="type" value="provision">
+                   
+                
+
+                    <label for="request">Request</label>
+                    <input id ="request" type="checkbox" name="type" value="request">
+                
+                
+                </td></tr>
             
-        <tr><td><label for="type" accesskey="r">Is this a request or service:</label> <br>
-            <input type="checkbox" id="provision" name="type" value="provision" />
-            <label for="provision">Provision</label>
+            <tr><td><label  accesskey="r"> Check off relevant categories:</label> <br> </td>
+            
+            <td>    
+            <label for="clothing">Clothing (sewing, hemming, etc.)</label>
+            <input type="checkbox" id="clothing" name="category" value="clothing">
+            
             <br>
+            <label for="fitness">Fitness</label>
+            <input type="checkbox" id="fitness" name="category" value="fitness">
+           
+            <br> 
+            <label for="beauty">Beauty</label>
+            <input type="checkbox" id="beauty" name="category" value="beauty">
             
-            <input type="checkbox" id="request" name="type" value="request" />
-            <label for="request">Request</label>
+            <br> 
+            <label for="crafts">Crafts</label>
+            <input type="checkbox" id="crafts" name="category" value="crafts">
+            
+            <br> 
+            <label for="transportation">Transportation</label>
+            <input type="checkbox" id="transportation" name="category" value="transportation">
+            
+            <br>
+            <label for="photo">Photography</label>
+            <input type="checkbox" id="photo" name="category" value="photo">
+            
+            <br>
+            <label for="other">Other</label>
+            <input type="checkbox" id="other" name="category" value="other">
+            
             
             </td></tr>
-        
-        <tr><td><label for="category" accesskey="r"> Check off relevant categories:</label> <br>
-            
-        <input type="checkbox" id="clothing" name="category" value="clothing" />
-        <label for="clothing">Clothing (sewing, hemming, etc.)</label>
-        <br>
-    
-        <input type="checkbox" id="fitness" name="category" value="fitness" />
-        <label for="fitness">Fitness</label>
-        <br> 
-        
-        <input type="checkbox" id="beauty" name="category" value="beauty" />
-        <label for="beauty">Beauty</label>
-        <br> 
-         
-        <input type="checkbox" id="crafts" name="category" value="crafts" />
-        <label for="crafts">Crafts</label>
-         <br> 
-         
-        <input type="checkbox" id="transportation" name="category" value="transportation" />
-        <label for="transportation">Transportation</label>
-        <br>
-        
-        <input type="checkbox" id="photo" name="category" value="photo" />
-        <label for="photo">Photography</label>
-        <br>
-        
-        <input type="checkbox" id="other" name="category" value="other" />
-        <label for="other">Other</label>
-        
-        </td></tr>
-    </table>
-    </fieldset>
+        </table>
+        </fieldset>
 
-    <p> <input type='submit' value='Upload Post'> </p>
+        <p> <input type='submit' value='Upload Post'> </p>
 
-</form>
+    </form>
 
 {% endblock %}

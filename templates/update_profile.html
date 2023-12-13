@@ -2,7 +2,7 @@
 
 {% block main_content %}
 
-<form method="POST" action="/update/{{user}}">
+<form method="POST" action="{{url_for('update', user=user)}}">
     <table>
         <tr>
           <td><label for="fname"> First Name </label></td>

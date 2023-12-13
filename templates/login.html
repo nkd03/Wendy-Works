@@ -5,14 +5,14 @@
 
 <p>{{message}}</p>
 <form method="post" action="{{url_for('index')}}">
-    <form> 
+    
     <div class="form-group">
         <label for="username"><b>Username: </b></label>
-        <input type="text" placeholder="Enter username" name="username">
+        <input type="text" placeholder="Enter username" name="username" id="username">
     </div>
     <div class="form-group">
         <label for="passw"><b>Password: </b></label>
-        <input type="password" placeholder="Enter password" name="passw">
+        <input type="password" placeholder="Enter password" name="passw" id="passw">
     </div>
     <button type="submit" name="action" value="Login">Login</button>
     <p> Don't have an account?</p>

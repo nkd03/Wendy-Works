@@ -5,8 +5,8 @@
     <!-- for mobile-friendly pages -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name=author content="">
-    <title>Wendy Works</title>
-    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
+    <title>Wendy Works is a website for on campus task completion by Wellesley students for Wellesely students</title>
+    <link rel='stylesheet' href="{{ url_for('static', filename = 'style.css') }}">
     {% block head_stuff %} {% endblock %}
 </head>
 <body>
@@ -14,9 +14,11 @@
             
 {% block nav %}
 <nav class="navbar">
-  <img src="{{url_for('static', filename='images/'+ logo)}}" alt="logo">
+  <img src="{{url_for('static', filename='images/'+ logo)}}" 
+  alt="Logo for WendyWorks in blue font">
   <ul>
     {% if 'uid' in session %}
+      <li><a href="{{ url_for('home') }}">Home</a></li>
       <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
       <li><a href="{{url_for('search')}}"> Search Posts</a></li>
       <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
