@@ -319,6 +319,17 @@ def update(user):
         action = request.args.get('action')
         if action == 'UploadPhoto':
             return redirect(url_for('profile_photo'))
+        elif action == 'Delete':
+            uid = session.get('uid')
+            pyqueries.deleteUser(conn, uid)
+            #finish writing this
+            #need to so some python queries here 
+            # see how the delete cascade will work 
+           
+
+            session.pop('uid', None)
+            flash("We're sorry to see you go! Account deleted successfully")
+            return redirect(url_for('index'))
         else:
             info = pyqueries.get_account_info(conn, user)
             uskills = pyqueries.get_skills(conn, user)
