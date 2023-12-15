@@ -173,6 +173,7 @@ def join():
             pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
             row = pyqueries.get_uid(conn)
+            #print("I got here to line 176", row)
             uid = row.get("last_insert_id()")
             
             
@@ -183,11 +184,12 @@ def join():
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
             
-            flash('Account created!')
+            flash('Account created, welcome!')
             #automatically log-in
             session['uid'] = uid
             return redirect(url_for("profile", uid = uid))
         except Exception as err:
+            #print("Error",err)
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
       
