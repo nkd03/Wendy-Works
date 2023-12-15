@@ -173,6 +173,7 @@ def join():
             pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
             row = pyqueries.get_uid(conn)
+            #print("I got here to line 176", row)
             uid = row.get("last_insert_id()")
             
             
@@ -182,10 +183,14 @@ def join():
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
             flash('Account created, welcome!')
+
+            
+            flash('Account created, welcome!')
             #automatically log-in
             session['uid'] = uid
             return redirect(url_for("profile", uid = uid))
         except Exception as err:
+            #print("Error",err)
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
       
@@ -210,8 +215,8 @@ def search():
             return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
             requests = helper.find_requests(conn, u_input)
+            print('LINE 202', requests)
             return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
-
 
 
 @app.route('/insert/', methods=["GET", "POST"])
@@ -284,7 +289,8 @@ def profile(uid):
                 print("PHOTO_URL", photo_url)
                 #photo = send_from_directory(app.config['UPLOADS'],p_user)
                 return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts, logo='wendyworks.png') 
-        else:  
+        else:
+            
             return redirect(url_for('update', user = uid))
     else: 
         flash("Sorry, you cannot access this page.")
@@ -328,6 +334,47 @@ def update(user):
             uskills = pyqueries.get_skills(conn, user)
             print("Skills ", uskills)
             return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
+
+
+
+@app.route('/update_post/<int:pid>', methods = ["GET","POST"])
+def update_post(pid):
+    """
+    Allows for user to update post details
+    """
+    conn = dbi.connect() 
+    # Retrieve the post from the database using post_id
+    user = session.get('uid')
+    print('LINE 328', user)
+    print(request.method)
+    if request.method == 'GET':
+        post = helper.get_post(conn, pid)
+        print('LINE 332', post)
+        #user = session.get('uid')
+        
+        return render_template('update_post.html', post = post, pid=post.get('pid'), logo='wendyworks.png')
+    else:
+        # Update post details based on the form submission
+        updated_post = request.form
+        print('LINE 333', updated_post)
+        #user = session.get('uid')
+        print('line 329', user)
+        helper.update_post(conn, updated_post, pid)
+        print(helper.update_post(conn, updated_post, pid))
+        return redirect(url_for('profile', uid=user))
+
+
+@app.route('/post/<int:pid>')
+def view_post(pid):
+    # Fetch the post from the database based on pid
+    conn = dbi.connect() 
+    post = helper.get_post(conn, pid)
+
+    if post:
+        return render_template('post.html', post=post, logo='wendyworks.png')
+    else:
+        # Handle case where post is not found
+        return redirect(url_for('index'))
 
 
 @app.route('/logout/')

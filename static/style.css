@@ -240,6 +240,19 @@ li {
     overflow-y: auto; /* Allows vertical scrolling */
 }
 
+.profile_post_container {
+    width: 300px; /* Adjust the width as needed */
+    margin: 0 auto; /* Center the container */
+    background-color: rgb(247, 247, 247);
+    padding: 30px;
+    font-size: large;
+    border: 10px solid rgb(246, 242, 242);
+}
+
+.post_detail {
+    margin-bottom: 10px; /* Add some space between details */
+}
+
 .searchform input[type= "submit"] {
     margin-top: 10px;
     max-width: 40%;
