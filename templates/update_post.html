@@ -32,7 +32,7 @@
         ('photo', 'Photography'), ('other', 'Other')] %}
             <label for="{{ category }}">{{ label }}</label>
             <input type="checkbox" id="{{ category }}" name="category" value="{{ category }}"
-                   {% if category == post.categories %}checked{% endif %}>
+                   {% if category = post.categories %}checked{% endif %}>
             <br>
         {% endfor %}
       </td>

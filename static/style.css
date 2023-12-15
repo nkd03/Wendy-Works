@@ -286,3 +286,8 @@ li {
    font-size: 1em;
    color: rgb(39, 43, 43);
 }
+
+.pencil {
+    width: 24px;
+    height: 19px;
+}
