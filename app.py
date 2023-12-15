@@ -169,6 +169,7 @@ def join():
        
        #if usernam does not exist, continue inserting 
         #inserting into database
+            print("I got here to line 172", username)
             pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
             row = pyqueries.get_uid(conn)
@@ -182,9 +183,10 @@ def join():
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
             
-            flash('Account created! Please log in')
-            return redirect(url_for("index"))
-
+            flash('Account created!')
+            #automatically log-in
+            session['uid'] = uid
+            return redirect(url_for("profile", uid = uid))
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
