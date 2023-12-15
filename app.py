@@ -48,7 +48,7 @@ def index():
         else:
             if action == 'Create Account':
                 return redirect(url_for('join'))
-        
+   
 @app.route('/login/')
 def login(): 
     """This function serves to log users in if they exists ensuring 
@@ -68,7 +68,7 @@ def login():
             #ip = str(request.remote_addr) #not sure if we need this
             session['uid'] = result 
             # pyqueries.setsession(conn,result, timestamp, ip)
-            return redirect(url_for('profile', uid = result))
+            return redirect(url_for('home'))
         #if incorrect password
         elif result is False:
             flash('Sorry, your password is incorrect, try again')
@@ -124,11 +124,11 @@ def profile_photo():
 def home():
     '''
     Used for home page feed, gets 10 most 
-    recent post entries (non-specified)
+    recent post entries user non-inclusive
     ''' 
     conn = dbi.connect()
-    recent_posts = pyqueries.most_recent(conn)
-    print(recent_posts)
+    uid = session.get('uid')
+    recent_posts = pyqueries.most_recent(conn, uid)
     return render_template("home.html", posts = recent_posts, logo = 'wendyworks.png')
     
 
@@ -307,10 +307,8 @@ def update(user):
         mail = request.form.get('email')
         username = request.form.get('username')
         skills_input = request.form.get('skills')
-        #remove old skills from the db
         pyqueries.delSkills(conn, user)
         updated_skills = [skill.strip() for skill in skills_input.split(',')]
-        #add new skills to the db
         pyqueries.insert_other_skills(conn, user, updated_skills)
         #userid stays the same so this is just updating additional info
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
@@ -322,13 +320,8 @@ def update(user):
         elif action == 'Delete':
             uid = session.get('uid')
             pyqueries.deleteUser(conn, uid)
-            #finish writing this
-            #need to so some python queries here 
-            # see how the delete cascade will work 
-           
-
             session.pop('uid', None)
-            flash("We're sorry to see you go! Account deleted successfully")
+            flash("We're sorry to see you go! Account successfully deleted")
             return redirect(url_for('index'))
         else:
             info = pyqueries.get_account_info(conn, user)
@@ -343,8 +336,7 @@ def logout():
     Logs the user out and ends the session
     """
     session.pop('uid', None)
-    flash("You've logged out")
-    #end the session here 
+    flash("You've logged out, please visit again soon!")
     return redirect(url_for('index'))
 
 

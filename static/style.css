@@ -29,7 +29,12 @@ h1 {
 h2, h3 {
     color:rgb(35, 7, 119);
 }
-    
+
+h4 {
+    color: var(--color-header);
+    font-size: 175%;
+    text-align: center;
+}
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
 nav{
@@ -171,7 +176,7 @@ label {
 
 .information-box .button{
     border: 2px solid rgb(45,45,149); 
-    width: 150px; 
+    width: 145px; 
     height: 50px; 
     background-color: rgb(250, 250, 250);
     text-align: center;
@@ -211,7 +216,7 @@ li {
     max-width: 80%;
     max-height: 300px;
     border-radius: 80%;
-    display: block; /* Add this to make margin auto effective */
+    display: block; 
     margin-left: auto;
     margin-right: auto;
 }
@@ -240,253 +245,31 @@ li {
     max-width: 40%;
 }
 
-/* the --color-header and others are CSS variables, which we access later. 
-*/
 
-HTML {
-    --color-header: rgb(48, 117, 140);  /* color for H1-H6 and others. was deepskyblue but poor contrast. */
-    --color-hilite: rgb(38, 109, 180);  /* was red, but this avoids WAVE contrast errors */ 
-    --color-focus: #56B929;
-    --font-family: Serif;
-    font-family: var(--font-family)
-}
-
-/* For flashed messages; make them stand out using red and italics */
-
-#messages {
-    color: var(--color-hilite);
-    font-style: italic;
-}
-
-
-   
-h1 {
-    text-align: center;
-    font-size: 200%;
-    color: var(--color-header);
- }
-
-
-
-h2, h3 {
-    color:rgb(35, 7, 119);
-}
-    
-
-/* for a simple navbar. Talk to Scott if you want drop-downs. */
-nav{
+.home_posts {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    background-color: #f5fbfc;
 }
 
-nav > ul {
-    display: flex;
-    flex-direction: row;
-    margin-left: auto; 
-}
- 
-
-nav ul {
-    list-style-type: none;
-    margin: 15px 0 0 0;
-    padding: 0px;
-   
-}
-nav > ul > li {
-    flex: 0 0 auto;
-    width: 15em; 
-}
-nav img{
-    height: 125px;
-    width: auto;
-    margin-right: 0 10px;
-    margin-top: 0px;
-
-
-}
-nav button, nav a {
-    display: block;
-    box-sizing: border-box; /* easier to make button and A the same size */
-    width: 100%;
-    height: 40px;
-    padding: 0px;
-    padding-bottom: 5px;
-    background-color: var(--color-header); /* was #3498db */
-    border: 2px solid black;
-    border-radius: 5px;
-    cursor: pointer;
-    /* Firefox uses font -apple-system unless I repeat the font spec here. */
-    font-family: var(--font-family);
-    color:rgb(240, 248, 244);
-    font-weight: bold;
-    font-size: 1.4rem;
-    text-decoration: None;
-}
-
-/* Only the top-level buttons are centered; lower ones are left-aligned. */
-nav > ul > li > button , nav > ul > li > a {
-    text-align: center;
-}
-
-/* because of the margin trick, this can only be used for the last element */
-
-nav li.right {
-    margin-left: auto;
-}
-
-nav button:hover, button:focus, nav a:hover, nav a:focus {
-    background-color: var(--color-focus);
-}
-
-form {
-    background-color: #e3e3e3; 
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(181, 179, 179, 0.2);
-    max-width: 400px;
-    margin: auto;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.post {
+    flex: 0 0 50%;
     box-sizing: border-box;
+    padding: 10px; 
+    border: 2px solid  rgb(48, 117, 140);
 }
 
-input[type="submit"] {
-    width: 100%;
-    background-color: var(--color-header);
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 4px;
-}
-
-
-label {
-    display: block;
-    margin-top: 10px;
-}
-
-.centered-buttons {
+.post_title {
+    font-size: 1.5em;
     text-align: center;
-    margin-top: 20px;
-}
-
-.button {
-    display: inline-block;
-    background-color: rgb(185, 215, 254);
-    width: 150px; 
-    height: 35px;
-    padding: 5px;
-    font-size: 1.25rem; 
-    border: 1px solid rgb(0, 0, 0);
-    border-radius: 5px;
-    text-align: center; 
-}
-
-.button-container {
-    display: inline-flex;
-    width: auto; 
-}
-
-.button-container p {
+    background-color: rgb(48, 117, 140);
+    color: aliceblue;
+    font-weight: bold;
     margin-bottom: 10px; 
 }
 
 
-.photobox input[type="submit"] {
-    width: 120px; 
-    height: 40px; 
-    text-align: center;
+.post_body {
+   font-size: 1em;
+   color: rgb(39, 43, 43);
 }
-
-.photobox input[type="file"] {
-    display: inline-block; 
-}
-.photobox p{
-    text-align: center;
-}
-
-
-.information-box {
-    border: 1px solid rgb(51, 103, 103); 
-    padding: 20px;
-    margin: 10px 0; 
-    border-radius: 10px; /* Rounded corners */
-    background-color:rgb(166, 210, 225) ; 
-    max-width: 1000px; 
-    margin-right: auto;
-}
-
-.information-box .button{
-    width: 105px; 
-    height: 30px; 
-    text-align: center;
-    line-height: 25px;
-    font-size: 15px;
-    
-}
-.your-information {
-    text-align: center; 
-    color: #000000; 
-    margin-bottom: 10px;
-}
-
-ul {
-    padding: 1; /* Removes default padding */
-}
-
-li {
-    padding: 5px 0; 
-}
-
-.posts table, th, td {
-    border: 2px solid;
-    color: rgb(19, 19, 23);
-  }
-.posts table{
-    width: 80%;
-}
-.posts td{
-    text-align: center;
-}
-
-.circular-image {
-    max-width: 80%;
-    max-height: 300px;
-    border-radius: 80%;
-    display: block; /* Add this to make margin auto effective */
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.profile_posts {
-    font-size: medium;
-    font-weight: 200;
-    background-color: rgb(247, 247, 247);
-    width: 100%; 
-    margin-bottom: 20px; /* Margin between posts */
-}
-
-.profile_posts th, .profile_posts td {
-    padding: 8px;
-    border: 1px solid rgb(246, 242, 242); /* Light border for cells */
-}
-
-.profile_posts_container {
-    height: 300px; /* Fixed height */
-    overflow-y: auto; /* Allows vertical scrolling */
-}
-
-
