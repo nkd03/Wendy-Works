@@ -59,40 +59,7 @@
             <button class ="button" type="submit" name="action" value="Update">Update</button>
             <button class= "button" type="submit" name="action" value="UploadPhoto">Upload Photo</button>
             <button class= "button" type="submit" name="action" value="Delete">Delete Account</button>
-        </div>
     </form>
-
-    {% if posts %}
-                <h2>Your Posts:</h2>
-                    <div class="profile_posts_container">
-                        {% for post in posts %}
-                        <form method ="POST" action="{{url_for('update_post', pid=post.pid)}}"> 
-                            <table class="profile_posts"> 
-                                <tr> 
-                                    <th>Title</th> 
-                                    <th>Body</th>
-                                    <th>Categories</th> 
-                                    <th>Post Status</th>
-                                </tr> 
-                                <tr> 
-                                    <td>{{ post.title }}</td> 
-                                     <td>{{ post.body }}</td>
-                                    <td>{{ post.categories }}</td> 
-                                    <td>{{ post.status }}</td>
-                                </tr> 
-                               
-                            </table>
-                            <div> 
-                                <button type="submit" name="action" value="Update">Update this post</button>
-                            </div>
-                        {% endfor %}
-                    </form>
-                    </div>
-               
-            {% endif %}
-    <div> 
 </div>
-
-
 
 {% endblock %}
