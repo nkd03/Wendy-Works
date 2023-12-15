@@ -48,7 +48,7 @@ def index():
         else:
             if action == 'Create Account':
                 return redirect(url_for('join'))
-        
+   
 @app.route('/login/')
 def login(): 
     """This function serves to log users in if they exists ensuring 
@@ -68,7 +68,7 @@ def login():
             #ip = str(request.remote_addr) #not sure if we need this
             session['uid'] = result 
             # pyqueries.setsession(conn,result, timestamp, ip)
-            return redirect(url_for('profile', uid = result))
+            return redirect(url_for('home'))
         #if incorrect password
         elif result is False:
             flash('Sorry, your password is incorrect, try again')
@@ -127,8 +127,8 @@ def home():
     recent post entries (non-specified)
     ''' 
     conn = dbi.connect()
-    recent_posts = pyqueries.most_recent(conn)
-    print(recent_posts)
+    uid = session.get('uid')
+    recent_posts = pyqueries.most_recent(conn, uid)
     return render_template("home.html", posts = recent_posts, logo = 'wendyworks.png')
     
 
