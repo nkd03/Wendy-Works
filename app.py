@@ -124,7 +124,7 @@ def profile_photo():
 def home():
     '''
     Used for home page feed, gets 10 most 
-    recent post entries (non-specified)
+    recent post entries user non-inclusive
     ''' 
     conn = dbi.connect()
     uid = session.get('uid')
@@ -322,11 +322,6 @@ def update(user):
         elif action == 'Delete':
             uid = session.get('uid')
             pyqueries.deleteUser(conn, uid)
-            #finish writing this
-            #need to so some python queries here 
-            # see how the delete cascade will work 
-           
-
             session.pop('uid', None)
             flash("We're sorry to see you go! Account deleted successfully")
             return redirect(url_for('index'))

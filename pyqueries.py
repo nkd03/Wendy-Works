@@ -168,6 +168,31 @@ def delSkills(conn, user):
     conn.commit() 
 
 
+def deleteUser(conn, user):
+    '''
+    Remove user and all associated data 
+    from the db
+    '''
+    curs = dbi.dict_cursor(conn)
+    delSkills(conn,user)
+    curs.execute('''
+                delete from replies where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
+                delete from post where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
+                delete from skills where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
+                delete from user where uid = %s
+                 ''',[user])
+    conn.commit()
+
+
 
 
 
