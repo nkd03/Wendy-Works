@@ -111,7 +111,17 @@ def get_account_info(conn,uid):
                     [uid])
     return curs.fetchone()
 
-    
+
+def most_recent(conn, uid):
+    '''
+    used for home page, display most 
+    recent 10 posts
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 select user.f_name, post.title, post.body, post.status from user 
+                 inner join post where user.uid = post.uid and user.uid <> %s order by post.pid DESC limit 10''',[uid]) 
+    return curs.fetchall()
 
 def login_user(conn, username, pass1):
     """
@@ -157,17 +167,32 @@ def delSkills(conn, user):
                  ''', [user])
     conn.commit() 
 
-def setsession(conn, result, timestamp, uip): 
-    """
-    sets session information for the database
-    will be utilized in next version of project
-    """
+
+def deleteUser(conn, user):
+    '''
+    Remove user and all associated data 
+    from the db
+    '''
     curs = dbi.dict_cursor(conn)
+    delSkills(conn,user)
     curs.execute('''
-    INSERT INTO session (`uid`, st, ip) 
-    VALUES (%s, %s, %s)
-     ''', [result,timestamp, uip])
-    conn.commit() 
+                delete from replies where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
+                delete from post where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
+                delete from skills where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
+                delete from user where uid = %s
+                 ''',[user])
+    conn.commit()
+
+
 
 
 

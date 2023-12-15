@@ -48,7 +48,7 @@ def index():
         else:
             if action == 'Create Account':
                 return redirect(url_for('join'))
-        
+   
 @app.route('/login/')
 def login(): 
     """This function serves to log users in if they exists ensuring 
@@ -68,7 +68,7 @@ def login():
             #ip = str(request.remote_addr) #not sure if we need this
             session['uid'] = result 
             # pyqueries.setsession(conn,result, timestamp, ip)
-            return redirect(url_for('profile', uid = result))
+            return redirect(url_for('home'))
         #if incorrect password
         elif result is False:
             flash('Sorry, your password is incorrect, try again')
@@ -100,7 +100,7 @@ def profile_photo():
         user_filename = p.filename
         ext = user_filename.split('.')[-1]
         print("EXT", ext)
-        if ext == 'jpeg':
+        if ext == 'jpeg' or ext =='png':
             filename = secure_filename('{}.{}'.format(user, ext))
 
             # Check and delete old photo
@@ -114,11 +114,22 @@ def profile_photo():
             pyqueries.insert_photo(conn, user, filename)
             flash("Photo Upload Successful!")
         else:
-            flash("Please upload a JPEG.")
+            flash("Please upload a JPEG or PNG.")
 
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
     
+    
+@app.route('/home/')
+def home():
+    '''
+    Used for home page feed, gets 10 most 
+    recent post entries user non-inclusive
+    ''' 
+    conn = dbi.connect()
+    uid = session.get('uid')
+    recent_posts = pyqueries.most_recent(conn, uid)
+    return render_template("home.html", posts = recent_posts, logo = 'wendyworks.png')
     
 
 
@@ -158,9 +169,11 @@ def join():
        
        #if usernam does not exist, continue inserting 
         #inserting into database
+            print("I got here to line 172", username)
             pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
             row = pyqueries.get_uid(conn)
+            #print("I got here to line 176", row)
             uid = row.get("last_insert_id()")
             
             
@@ -171,10 +184,12 @@ def join():
                 pyqueries.insert_other_skills(conn, uid, other_skills)
 
             
-            flash('Account created! Please log in')
-            return redirect(url_for("index"))
-
+            flash('Account created, welcome!')
+            #automatically log-in
+            session['uid'] = uid
+            return redirect(url_for("profile", uid = uid))
         except Exception as err:
+            #print("Error",err)
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
       
@@ -264,7 +279,7 @@ def profile(uid):
         #useid = information['uid')
         if request.method == 'GET': 
             user_photo = pyqueries.get_photo(conn, uid)
-            print("PHOTO", user_photo)
+            #print("PHOTO", user_photo)
             if user_photo == None:
                 return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
             else:
@@ -277,7 +292,7 @@ def profile(uid):
             
             return redirect(url_for('update', user = uid))
     else: 
-        flash("Sorry, you cannot access this page")
+        flash("Sorry, you cannot access this page.")
         user = session.get('uid')
         return(redirect(url_for('profile', uid= user)))
   
@@ -297,10 +312,8 @@ def update(user):
         mail = request.form.get('email')
         username = request.form.get('username')
         skills_input = request.form.get('skills')
-        #remove old skills from the db
         pyqueries.delSkills(conn, user)
         updated_skills = [skill.strip() for skill in skills_input.split(',')]
-        #add new skills to the db
         pyqueries.insert_other_skills(conn, user, updated_skills)
         #userid stays the same so this is just updating additional info
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
@@ -309,6 +322,12 @@ def update(user):
         action = request.args.get('action')
         if action == 'UploadPhoto':
             return redirect(url_for('profile_photo'))
+        elif action == 'Delete':
+            uid = session.get('uid')
+            pyqueries.deleteUser(conn, uid)
+            session.pop('uid', None)
+            flash("We're sorry to see you go! Account successfully deleted")
+            return redirect(url_for('index'))
         else:
             info = pyqueries.get_account_info(conn, user)
             uskills = pyqueries.get_skills(conn, user)
@@ -364,7 +383,6 @@ def logout():
     """
     session.pop('uid', None)
     flash("You've logged out, please visit again soon!")
-    #end the session here 
     return redirect(url_for('index'))
 
 

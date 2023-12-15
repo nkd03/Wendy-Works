@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<h1> Welcome to Wendy Works! </h1>
+<h4> Our Most Recent Posts! </h4>
+
+{% if posts %}
+<div class="home_posts">
+    {% for post in posts %}
+    <div class="post">
+        <div class="post_title">{{ post.title }}</div>
+        <div class="post_body">
+            <p>Posted by {{ post.f_name }}:</p>
+            <p>{{ post.body }}</p>
+            <p>Current Status: {{ post.status }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
