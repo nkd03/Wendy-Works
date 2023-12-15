@@ -181,9 +181,7 @@ def join():
 
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
-
-            
-            flash('Account created!')
+            flash('Account created, welcome!')
             #automatically log-in
             session['uid'] = uid
             return redirect(url_for("profile", uid = uid))
