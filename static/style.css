@@ -29,7 +29,12 @@ h1 {
 h2, h3 {
     color:rgb(35, 7, 119);
 }
-    
+
+h4 {
+    color: var(--color-header);
+    font-size: 175%;
+    text-align: center;
+}
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
 nav{
@@ -211,7 +216,7 @@ li {
     max-width: 80%;
     max-height: 300px;
     border-radius: 80%;
-    display: block; /* Add this to make margin auto effective */
+    display: block; 
     margin-left: auto;
     margin-right: auto;
 }
@@ -238,4 +243,33 @@ li {
 .searchform input[type= "submit"] {
     margin-top: 10px;
     max-width: 40%;
+}
+
+
+.home_posts {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.post {
+    flex: 0 0 50%;
+    box-sizing: border-box;
+    padding: 10px; 
+    border: 2px solid  rgb(48, 117, 140);
+}
+
+.post_title {
+    font-size: 1.5em;
+    text-align: center;
+    background-color: rgb(48, 117, 140);
+    color: aliceblue;
+    font-weight: bold;
+    margin-bottom: 10px; 
+}
+
+
+.post_body {
+    font-family: Arial, Helvetica, sans-serif;
+   font-size: 1em;
+   color: rgb(39, 43, 43);
 }
