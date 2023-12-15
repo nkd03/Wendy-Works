@@ -92,5 +92,23 @@ def providers(conn, key_phrase):
                  ''', ['%' + key_phrase + '%'])
     return curs.fetchall()
 
+def update_post(conn, post_obj, pid):
+    '''
+    Helper function to find users who can provide a service
+    based on the categories that the "provider" has linked to
+    their account
+    returns lists of posts labeled as provision by phrase
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 UPDATE post
+                 SET title = %s, body = %s, status = %s
+                 where pid = %s
+                 ''', [post_obj.get('title'), post_obj.get('body'), 
+                       post_obj.get('status'), pid])
+    conn.commit()
+    return curs.fetchall()
+
+
 
 

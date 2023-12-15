@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+    
+   
+
+    <div class="profile_post_container">
+        <div class="post_detail">
+            <strong>Title:</strong> {{ post.title }}
+        </div>
+        <div class="post_detail">
+            <strong>Body:</strong> {{ post.body }}
+        </div>
+        <div class="post_detail">
+            <strong>Categories:</strong> {{ post.categories }}
+        </div>
+        <div class="post_detail">
+            <strong>Post Status:</strong> {{ post.status }}
+        </div>
+    </div>
+{% endblock %}

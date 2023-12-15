@@ -8,23 +8,26 @@
     {%if requests%}
     <table class="posts"> 
         <tr>  
+            <th>postID</th>
             <th>Title</th> 
             <th>Text</th> 
             <th>Categories</th> 
             <th>Status</th>
             <th>Post Date</th>
             <th>Contact Info</th>
+            
         </tr> 
     {%for request in requests%}
 
         <tr> 
-            
+            <td>{{request.pid}}</td>
             <td>{{request.title}}</td> 
             <td>{{request.body}}</td> 
             <td>{{request.categories}}</td> 
             <td>{{request.status}}</td>
             <td>{{request.post_date}}</td>
             <td>{{request.email}}</td>
+            
         </tr> 
     {%endfor%}
     </table>

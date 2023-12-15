@@ -12,6 +12,8 @@ app = Flask(__name__)
 import cs304dbi as dbi
 
 # import cs304dbi_sqlite3 as dbi
+app.config['UPLOADS'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 
 
 import random
 import helper
@@ -26,16 +28,107 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 def index():
-    return render_template('main.html', header ='Welcome to Wendy Works')
+    """ This is our main page it contains a login form or new users can create an account"""
+    if request.method == 'GET': 
+        return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
+    else:
+        action = request.form.get("action")
+        if action == 'Login':
+            pw = request.form.get("passw")
+            user = request.form.get("username")
+            if not pw or not user:
+                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required', logo='wendyworks.png')
+            else:
+                 #will use this in login route
+                session['temporary_username'] = user
+                session['temporary_password'] = pw
+                return redirect(url_for('login'))
+        else:
+            if action == 'Create Account':
+                return redirect(url_for('join'))
+        
+@app.route('/login/')
+def login(): 
+    """This function serves to log users in if they exists ensuring 
+    that their credentials are correct or directs users to create an account """
+    print("METHOD",request.method)
+    #removes temp data from session
+    user = session.pop('temporary_username', None)
+    pw = session.pop('temporary_password', None)
+    print("USER", user)
+    conn = dbi.connect()
+    result = pyqueries.login_user(conn, user, pw)
+    print("Result", result)
+    try: 
+        #if the user is in the database
+        if result >=1:
+            #timestamp = datetime.now() #not sure if we need this
+            #ip = str(request.remote_addr) #not sure if we need this
+            session['uid'] = result 
+            # pyqueries.setsession(conn,result, timestamp, ip)
+            return redirect(url_for('profile', uid = result))
+        #if incorrect password
+        elif result is False:
+            flash('Sorry, your password is incorrect, try again')
+            return redirect(url_for('index'))
+    #if that username is not in the db
+    except Exception as e: 
+        if user != None: 
+            flash(f'Sorry, no account with username: {user} found. Create an account')
+        return(redirect(url_for('index')))
+ 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Function serves to get uploaded file"""
+    return send_from_directory(app.config['UPLOADS'], filename)
+
+
+@app.route('/photo/', methods = ['GET', 'POST'])
+def profile_photo(): 
+    '''
+     the user's profile photo is saved in db 
+     or the photo upload page is shown 
+    '''
+    user = session.get('uid')
+    if request.method == 'GET':
+        return render_template('photo_upload.html', current_us=user,logo='wendyworks.png')
+    else:
+        conn = dbi.connect() 
+        p = request.files["pic"]
+        user_filename = p.filename
+        ext = user_filename.split('.')[-1]
+        print("EXT", ext)
+        if ext == 'jpeg':
+            filename = secure_filename('{}.{}'.format(user, ext))
+
+            # Check and delete old photo
+            old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
+            if os.path.isfile(old_photo_path):
+                os.remove(old_photo_path)
+            # save new 
+            pathname = os.path.join(app.config['UPLOADS'], filename)
+            p.save(pathname)
+            # Store photo info in db
+            pyqueries.insert_photo(conn, user, filename)
+            flash("Photo Upload Successful!")
+        else:
+            flash("Please upload a JPEG.")
+
+        # Redirect to the user's profile
+        return redirect(url_for('profile', uid=user))
+    
+    
 
 
 @app.route('/join/', methods=["GET", "POST"])
 def join():
+    """This route is used when users are creating a new account, the form takes 
+    user skills, and contact information to insert them into the database"""
     conn = dbi.connect()
     if request.method == 'GET':
-        return render_template('create.html', header ='Create an Account')
+        return render_template('create.html', header ='Create an Account', logo = 'wendyworks.png')
     else: #request method is POST
        
         try: #getting account information first 
@@ -48,6 +141,7 @@ def join():
             l_name=request.form.get("l_name")
         #getting checked skills as a list 
             skills=request.form.getlist("skills")
+            print("Skills", skills)
         #getting other skills, changing into a list 
             other_skills = request.form.get("other_skills").split(",")
 
@@ -61,14 +155,6 @@ def join():
             hashed = bcrypt.hashpw(pass1.encode('utf-8'),
                         bcrypt.gensalt())
             stored = hashed.decode('utf-8')
-
-            #potentially add a check to ensure a user with that username is not 
-            #already in the db? 
-          
-            if pyqueries.check_usern(conn,username) != None:
-                print("ENTERING THE IF STATEMENT")
-                flash("Username is taken. Please enter a unique username")
-                return render_template('create.html', header ='Create an Account')
        
        #if usernam does not exist, continue inserting 
         #inserting into database
@@ -86,81 +172,52 @@ def join():
 
             
             flash('Account created! Please log in')
-            return redirect(url_for("login"))
+            return redirect(url_for("index"))
 
         except Exception as err:
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
-
-
-@app.route('/login/', methods = ["GET", "POST"])
-def login(): 
-    if request.method == 'GET': 
-        return render_template('login.html', header = 'Login to Wendy Works')
-    else: 
-        uname = request.form.get('username')
-        in_pw = request.form.get('passw')
-        conn = dbi.connect()
-        result = pyqueries.login_user(conn, uname, in_pw)
-        print("Result", result)
-        try: 
-            #if the user is in the database
-            if result >=1:
-                timestamp = datetime.now() #not sure if we need this
-                ip = str(request.remote_addr) #not sure if we need this
-                session['uid'] = result #we do need this
-                pyqueries.setsession(conn,result, timestamp, ip)
-                return redirect(url_for('profile', uid = result))
-            #if incorrect password
-            elif result is False:
-                flash('Sorry, your password is incorrect, try again')
-                return redirect(url_for('login'))
-        #if that username is not in the db
-        except Exception as e: 
-            print("Exception occurred:", e)
-            flash('Sorry, no username found, create an account')
-            return(redirect(url_for('join')))
-            
       
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
+    """This route gets information from search form 
+    to find and display prodvider or requestor posts
+    Return: renders search form or search result page
+     """
+
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
-        return render_template('search.html', header ='Search for a post')
+        return render_template('search.html', header ='Search for a post',logo='wendyworks.png')
     else: #method should be post 
         u_input = request.form.get('query')
         u_kind = request.form.get('kind')
         print(u_input)
         print(u_kind)
         if u_kind == 'provision':
-            print("Entering Provision")
             providers = helper.providers(conn, u_input)
-            print(providers)
-            print(type(providers))
-            return render_template('providers.html', key_phrase=u_input, providers = providers)
+            return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
         if u_kind == 'request':
-            print("Entering request")
             requests = helper.find_requests(conn, u_input)
-            return render_template('requests.html', key_phrase=u_input, requests = requests)
+            return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
 
 
 
 @app.route('/insert/', methods=["GET", "POST"])
 def insert_post():
     '''
-    This function is for a user to create a post
+    This function is for a user to create a post 
+    in which they indicate whether a post is requesting or 
+    providing and the skills they need or give give
+    Redirects to profile page 
     '''
     conn = dbi.connect()
     
     if request.method == 'GET':
-        return render_template('insert_post.html')
+        return render_template('insert_post.html', logo='wendyworks.png')
     else:
         # Collect relevant form information into variables
-        print(request.form)
-        username = request.form.get('u_name')
-        user_id = helper.get_user(conn, username)
-        uid = user_id['uid']
+        uid = session.get('uid')
         date = datetime.now()
         print(uid)
         title = request.form.get('title')
@@ -184,52 +241,44 @@ def insert_post():
         
         helper.insert_post(conn, uid, title, body, categories, type, date)
         post_id = helper.get_pid(conn)
-        
-        print(post_id)
         pid = post_id['last_insert_id()']
-        print(pid)
-       
+     
         flash('Your post was inserted successfully')
-        return redirect(url_for('post', pid=pid)) #how do we get the pid??
+        return redirect(url_for('profile', uid=uid))
 
 
 
-@app.route('/post/<int:pid>')
-def post(pid):
-    """
-    this funciton displays the specified post
-    """
-    conn = dbi.connect() 
-    #getting post information
-    post_info = helper.get_post(conn, pid)
-    #getting poster information
-    account_info= pyqueries.get_account_info(conn,post_info.get('uid'))
-    
-    return render_template("display_post.html", post_info=post_info, account_info=account_info)
 
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
     """
     This function is used for the profile page, getting all
     of the user's information to be displayed
+    Return: renders account page 
     """
-    if session['uid'] == uid: 
+    if session.get('uid') == uid: 
         conn = dbi.connect() 
         information = pyqueries.get_account_info(conn, uid)
         skills = pyqueries.get_skills(conn, uid) 
-        fname = information['f_name']
-        lname = information['l_name']
-        usernm = information['username']
-        mail = information['email']
-        usid = information['uid']
+        u_posts = helper.user_posts(conn, uid)
+        #useid = information['uid')
         if request.method == 'GET': 
-            return render_template("account_page.html", fnm = fname, lnm = lname,
-                                username = usernm, email = mail, all_skills = skills, user = usid)
-        else:  #the method is post
+            user_photo = pyqueries.get_photo(conn, uid)
+            print("PHOTO", user_photo)
+            if user_photo == None:
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
+            else:
+                p_user = user_photo['filename']
+                photo_url = url_for('uploaded_file', filename=p_user)
+                print("PHOTO_URL", photo_url)
+                #photo = send_from_directory(app.config['UPLOADS'],p_user)
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts, logo='wendyworks.png') 
+        else:  
             return redirect(url_for('update', user = uid))
     else: 
-        flash('Sorry, you cannot access this page')
-        return(redirect(url_for('login')))
+        flash("Sorry, you cannot access this page")
+        user = session.get('uid')
+        return(redirect(url_for('profile', uid= user)))
   
 
 @app.route('/update/<int:user>', methods = ["GET","POST"])
@@ -238,6 +287,7 @@ def update(user):
     Any changes the user makes to their information 
     runs through this function
     updates the database or displays update form
+    Returns: redirects to profile 
     """
     conn = dbi.connect() 
     if request.method == "POST": 
@@ -255,10 +305,14 @@ def update(user):
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
         return redirect(url_for('profile', uid = user))
     else: #method is get
-        info = pyqueries.get_account_info(conn, user)
-        uskills = pyqueries.get_skills(conn, user)
-        print("Skills ", uskills)
-        return render_template("update_profile.html", account = info, skills = uskills, user = user)
+        action = request.args.get('action')
+        if action == 'UploadPhoto':
+            return redirect(url_for('profile_photo'))
+        else:
+            info = pyqueries.get_account_info(conn, user)
+            uskills = pyqueries.get_skills(conn, user)
+            print("Skills ", uskills)
+            return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
 
 
 @app.route('/logout/')
@@ -298,20 +352,13 @@ def insert_post(conn, uid, title, body, categories, type, date):
                  VALUES (%s, %s, %s, %s, %s, %s)
                  ''', [uid, title, body, categories, type, date])
     conn.commit()
+    return
 
-
-# pid INT AUTO_INCREMENT PRIMARY KEY,
-#   `uid` INT NOT NULL, 
-#   title VARCHAR(40) NOT NULL, 
-#   body TEXT NOT NULL, 
-#   post_date DATE NOT NULL,
-#   categories SET('clothing', 'fitness', 'beauty', 'crafts', 'transportation', 'photography', 'other') NOT NULL,
-#   `type` ENUM('request', 'provision'), 
-#   `status` ENUM('open', 'closed', 'in progress') NOT NULL, 
 
 def get_user(conn, username):
     '''
-    Helper function to insert a created post into the database
+    Helper function find user by username 
+    Returns user
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -324,6 +371,7 @@ def get_user(conn, username):
 def get_post(conn, pid):
     '''
     Helper function to get a post given its pid
+    returns post 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -332,8 +380,24 @@ def get_post(conn, pid):
                  ''', [pid])
     return curs.fetchone()
 
+def user_posts(conn, uid):
+    '''
+    gets all posts from a specified user if
+    it is not distinctly closed
+    returns lists of posts by uid 
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                select pid, title, body, status, categories
+                 from post where uid=%s
+                 ''',[uid])
+    return curs.fetchall()
+
+
 def get_pid(conn):
-    """A quick helper function to get uid using last-insert"""
+    """A quick helper function to get uid using
+      last-insert
+      Using until we fix transactions"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
@@ -342,12 +406,13 @@ def find_requests(conn, key_phrase):
     '''
     Helper function to find posts including the relevant keyword 
     for a request
+    returns lists of posts labeled as request by phrase 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                  select *
-                 from post
-                 where body like (%s) and type = 'request'
+                 from post, user
+                 where body like (%s) and type = 'request' and post.uid = user.uid
                  ''', ['%' + key_phrase + '%'])
 
     return curs.fetchall()
@@ -358,45 +423,19 @@ def providers(conn, key_phrase):
     Helper function to find users who can provide a service
     based on the categories that the "provider" has linked to
     their account
+    returns lists of posts labeled as provision by phrase
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                  select *
-                 from post
-                 where body like (%s) and type = 'provision'
+                 from post,user
+                 where body like (%s) and type = 'provision' and post.uid = user.uid
                  ''', ['%' + key_phrase + '%'])
     return curs.fetchall()
 
-def find_service_by_cat(conn, cat):
-    '''
-    Helper function to find posts that belong to a certain category
-    '''
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-                 select *
-                 from post
-                 where categories = %s
-                 ''', [cat])
-    results = curs.fetchall()
-    return results
 
-if __name__ == '__main__':
-    import sys, os
-    if len(sys.argv) > 1:
-        # arg, if any, is the desired port number
-        port = int(sys.argv[1])
-        assert(port>1024)
-    else:
-        port = os.getuid()
-    # set this local variable to 'wmdb' or your personal or team db
-    db_to_use = 'wworks_db' 
-    print('will connect to {}'.format(db_to_use))
-    conn = dbi.connect()
-    uid_test = get_user(conn, 'test1')
-    print(uid_test)
-    dbi.conf(db_to_use)
-    app.debug = True
-    app.run('0.0.0.0',port)
+
+
 import cs304dbi as dbi
 import bcrypt
 # import cs304dbi_sqlite3 as dbi
@@ -412,29 +451,15 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
                  VALUES (%s,%s,%s,%s,%s)
                  ''',
                  [username,email,f_name,l_name,hashed])
-        conn.commit()
-        return  
+        conn.commit() 
     except Exception as err:
         return ('Error: {}'.format(repr(err)))
  
 
-def check_usern(conn,username):
-    '''
-    Checks if user name is already in the database 
-    '''
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''
-            Select * from user where username = (%s)
-                ''',
-                (username))
-    return curs.fetchone()
-
-
-    
-
 
 def get_uid(conn):
-    """A quick helper function to get uid using last-insert"""
+    """A quick helper function to get uid using last-insert
+    Note: Just using until we fix transactions"""
     curs = dbi.dict_cursor(conn)
     curs.execute('''select last_insert_id()''')
     return curs.fetchone()
@@ -453,7 +478,35 @@ def insert_skills(conn, uid,skills):
                     ''',
                     [uid,skill])
         conn.commit()
-    return 
+    
+def get_photo(conn, uid): 
+    '''
+    gets the user's profile photo from
+    the db
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''select filename from picfile where 
+                 uid=%s''', [uid]
+                 )
+    return curs.fetchone() 
+
+def insert_photo(conn, uid, filename):
+    '''
+    Inserts a new photo into the database or updates the existing one if the uid already exists.
+    '''
+    curs = dbi.dict_cursor(conn)
+
+    # check if the uid is already in the database
+    curs.execute('''SELECT * FROM picfile WHERE uid = %s''', [uid])
+    if curs.fetchone():
+        # If uid exists, update 
+        curs.execute('''UPDATE picfile SET filename = %s WHERE uid = %s''', [filename, uid])
+    else:
+        # If uid does not exist, insert 
+        curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s)''', [uid, filename])
+
+    conn.commit()
+
 
 def insert_other_skills(conn, uid, other_skills):
     """This function intends to insert any skills users have checked
@@ -467,13 +520,14 @@ def insert_other_skills(conn, uid, other_skills):
                     ''',
                     [uid,skill])
             conn.commit()
-    return 
+    
 
 
 def get_skills(conn, uid): 
     """
     This function gets all skills
     that the user has in the database
+    returns lists of skills by user id 
     """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -483,7 +537,10 @@ def get_skills(conn, uid):
 
 
 def get_account_info(conn,uid):
-    """This function returns users information using uid """
+    """
+    Gets account using uid 
+    This function returns users information using uid 
+      """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
                     select * from user where uid= (%s)
@@ -506,18 +563,14 @@ def login_user(conn, username, pass1):
                  where username= (%s)
                  ''', [username])
     element = curs.fetchone() 
-    print("Element", element)
     if element is not None: 
         passw = element['password']
-
         hashed2 = bcrypt.hashpw(pass1.encode('utf-8'), passw.encode('utf-8'))
         hashed2_str = hashed2.decode('utf-8')
         if hashed2_str == passw:
             return element['uid']
         else: 
             return False
-    else:
-        return None
 
 def updateUser(conn, user, firstnm, lastnm, mail, username):
     """
@@ -572,39 +625,141 @@ INSERT INTO `post` (`uid`, `title`, `body`, `post_date`, `categories`, `status`)
 INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
 (1, 2, ' Hopping on the Stair master now! I can show you SO soon :)'),
 (2, 3, 'I have some photography tips! Let me know when you are free'),
-(1, 2, 'DIY Crafts are really my thing! I make fall decor all the time');{% extends "base.html" %}
+(1, 2, 'DIY Crafts are really my thing! I make fall decor all the time');USE wworks_db;
+
+DROP TABLE IF EXISTS replies;
+DROP TABLE IF EXISTS post;
+DROP TABLE IF EXISTS picfile; 
+DROP TABLE IF EXISTS skills; 
+DROP TABLE IF EXISTS session; 
+DROP TABLE IF EXISTS user;
+
+
+
+CREATE TABLE user (
+  `uid` INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(25) NOT NULL ,
+  email VARCHAR(25) NOT NULL,
+  f_name VARCHAR(20),
+  l_name VARCHAR(50),
+  `password` VARCHAR(60) NOT NULL
+) 
+engine=InnoDB;
+
+create table session (
+  `uid` INT NOT NULL, 
+  st timestamp, 
+  ip char(15),  
+  foreign key (`uid`) references user (`uid`)
+  )
+  engine = InnoDB;
+
+CREATE TABLE skills (
+  `uid` INT NOT NULL, 
+  skill VARCHAR(30),
+  foreign key (`uid`) references user(`uid`) 
+)
+engine=InnoDB;
+
+create table picfile (
+    `uid`int NOT NULL, 
+    filename varchar(50),
+    foreign key (`uid`) references user(`uid`) 
+        on delete cascade on update cascade
+)
+engine = InnoDB;
+
+
+CREATE TABLE post (
+  pid INT AUTO_INCREMENT PRIMARY KEY,
+  `uid` INT NOT NULL, 
+  title VARCHAR(40) NOT NULL, 
+  body TEXT NOT NULL, 
+  post_date DATE NOT NULL,
+  categories SET('clothing', 'fitness', 'beauty', 'crafts', 'transportation', 'photography', 'other') NOT NULL,
+  `type` ENUM('request', 'provision'), 
+  `status` ENUM('open', 'closed', 'in progress') NOT NULL, 
+  foreign key (`uid`) references user(`uid`) 
+        on update restrict 
+        on delete restrict 
+        ) 
+engine=InnoDB;
+
+
+CREATE TABLE replies (
+  rid INT AUTO_INCREMENT PRIMARY KEY,
+  pid INT NOT NULL,
+  `uid` INT NOT NULL,
+  body TEXT NOT NULL,
+  foreign key (pid) references post(pid) 
+    on update restrict 
+    on delete restrict
+) 
+engine=InnoDB;
+{% extends "base.html" %}
 
 {% block main_content %}
-<body>
-    <h1>Welcome {{ fnm }}!</h1>
-    <form method ="POST" action="/update/{{user}}">
+
+    <h1>Welcome {{userdata.f_name }}!</h1>
+
+
+    <form method ="GET" action="{{url_for('update', user=usid)}}">
+        <div> 
+            {% if picture %}
+            
+             <img src="{{ picture }}" alt="User Photo" class="circular-image">
+            {% endif %}
+        </div>
+
+
         <div class="information-box">
-            <h2>Your information:</h2>
-            <p> Name: {{fnm}} {{lnm}} </p>
-            <p>Username: {{ username }}</p>
-            <p>Email: {{ email }}</p>
+            <h2>Your Information:</h2>
+            <p> Name: {{userdata.f_name}} {{userdata.l_name}} </p>
+            <p>Username: {{userdata.username}}</p>
+            <p>Email: {{userdata.email}}</p>
 
+           
+            {% if posts %}
+             <h2>Your Posts:</h2>
+                <div class="profile_posts_container">
+                    {% for post in posts %}
+                        <table class="profile_posts"> 
+                            <tr> 
+                                <th>Title</th> 
+                                <th>Body</th>
+                                <th>Categories</th> 
+                                <th>Post Status</th>
+                            </tr> 
+                            <tr> 
+                                <td>{{ post.title }}</td> 
+                                <td>{{ post.body }}</td>
+                                <td>{{ post.categories }}</td> 
+                                <td>{{ post.status }}</td>
+                            </tr> 
+                        </table>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        
+        
+           
 
-            <h3 class="your-skills">Skills:</h3>
+            <h3 class="your-skills">Your Skills:</h3>
+            <div>
             <ul>
-                {% for task in all_skills %}
-                <li>{{ task.skill }}</li>
-                {% endfor %}
-            </ul>
-            <a href="{{ url_for('update', user=user) }}" class="button">Update</a>
+                {% if all_skills %}
+                    {% for task in all_skills %}
+                    <li>{{ task.skill }}</li>
+                    {% endfor %}
+                {%endif%}
+                </ul>
+            </div>
+            <button class ="button" type="submit" name="action" value="Update">Update</button>
+            <button class= "button" type="submit" name="action" value="UploadPhoto">Upload Photo</button>
         </div>
     </form>
-
-    <div class="photobox">
-        <p>Your profile photo:</p>
-        <form method="POST" action="" enctype="multipart/form-data">
-            <p><label>Change Photo: <input type="file" name="pic"></label></p>
-            <p><input type="submit" value="upload"></p>
-        </form>
-    </div>
-    
-</body>
-
+    <div> 
+</div>
 
 
 
@@ -615,224 +770,23 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
     <!-- for mobile-friendly pages -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name=author content="">
-    <title>{{ page_title }}</title>
-    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
+    <title>Wendy Works is a website for on campus task completion by Wellesley students for Wellesely students</title>
+    <link rel='stylesheet' href="{{ url_for('static', filename = 'style.css') }}">
     {% block head_stuff %} {% endblock %}
 </head>
 <body>
 
             
 {% block nav %}
-<nav>
+<nav class="navbar">
+  <img src="{{url_for('static', filename='images/'+ logo)}}" 
+  alt="Logo for WendyWorks in blue font">
   <ul>
-    {% if 'uid' not in session %}
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-    {% else %}
-      <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
-      <li><a href="{{url_for('posts')}}"> Recent Posts</a></li>
-      <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
-      
-    {% endif %}
-  </ul>
-</nav>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div id="messages">
-  {% for msg in messages %}
-  <p>{{msg}}</p>
-  {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
-{% endblock %}
-
-{% block main_content %}
-<h1>Welcome!</h1>
-{% endblock %}
-
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  {% block end_scripts %}
-  {% endblock %}
-  
-</body>
-</html>
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <!-- for mobile-friendly pages -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name=author content="">
-    <title>{{ page_title }}</title>
-    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
-    {% block head_stuff %} {% endblock %}
-</head>
-<body>
-
-            
-{% block nav %}
-<nav>
-  <ul>
-    {% if 'uid' not in session %}
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
-    {% else %}
-      <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
-      <li><a href="{{url_for('posts')}}"> Posts</a></li>
-      
-    {% endif %}
-  </ul>
-</nav>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div id="messages">
-  {% for msg in messages %}
-  <p>{{msg}}</p>
-  {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
-{% endblock %}
-
-{% block main_content %}
-<h1>Welcome!</h1>
-{% endblock %}
-
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  {% block end_scripts %}
-  {% endblock %}
-  
-</body>
-</html>
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <!-- for mobile-friendly pages -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name=author content="">
-    <title>{{ page_title }}</title>
-    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
-    {% block head_stuff %} {% endblock %}
-</head>
-<body>
-
-            
-{% block nav %}
-<nav>
-  <ul>
-    {% if 'uid' not in session %}
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-    {% else %}
-      <li><a href="{{ url_for('logout') }}">Logout</a></li>
+    {% if 'uid' in session %}
       <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
       <li><a href="{{url_for('search')}}"> Search Posts</a></li>
       <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
-      
-    {% endif %}
-  </ul>
-</nav>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div id="messages">
-  {% for msg in messages %}
-  <p>{{msg}}</p>
-  {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
-{% endblock %}
-
-{% block main_content %}
-<h1>Welcome!</h1>
-{% endblock %}
-
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  {% block end_scripts %}
-  {% endblock %}
-  
-</body>
-</html>
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <!-- for mobile-friendly pages -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name=author content="">
-    <title>{{ page_title }}</title>
-    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
-    {% block head_stuff %} {% endblock %}
-</head>
-<body>
-
-            
-{% block nav %}
-<nav>
-  <ul>
-    {% if 'uid' not in session %}
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      
-    {% else %}
       <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
-      <li><a href="{{url_for('posts')}}"> Posts</a></li>
-      <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
-      
-    {% endif %}
-  </ul>
-</nav>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div id="messages">
-  {% for msg in messages %}
-  <p>{{msg}}</p>
-  {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
-{% endblock %}
-
-{% block main_content %}
-<h1>Welcome!</h1>
-{% endblock %}
-
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  {% block end_scripts %}
-  {% endblock %}
-  
-</body>
-</html>
-<!doctype html>
-<html lang='en'>
-<head>
-    <meta charset='utf-8'>
-    <!-- for mobile-friendly pages -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name=author content="">
-    <title>{{ page_title }}</title>
-    <link rel='stylesheet' href="{{url_for('static', filename = 'style.css')}}">
-    {% block head_stuff %} {% endblock %}
-</head>
-<body>
-
-            
-{% block nav %}
-<nav>
-  <ul>
-    {% if 'uid' not in session %}
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-    {% else %}
-      <li><a href="{{ url_for('logout') }}">Logout</a></li>
-      <li><a href="{{ url_for('profile', uid=session['uid']) }}">Profile</a></li>
-      <li><a href="{{url_for('posts')}}"> Recent Posts</a></li>
-      <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
       
     {% endif %}
   </ul>
@@ -868,54 +822,83 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
   <p> Sign up using this form:</p>
  
   <table>
-    <p>Contact Info:</p>
-    <tr><label for="email"><b>Wellesley Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" required></tr>
-    <br>
-    <tr><label for="f_name"><b>First name: </b></label>
-        <input type="text" placeholder="Enter first name" name="f_name" required></tr>
-        <br>
-    <tr><label for="l_name"><b>Last name: </b></label>
-        <input type="text" placeholder="Enter last name" name="l_name" required></tr>
-        <br>
 
 
-    <p>Account Info:</p>
+    <tbody>
+        <tr>
+            <td><label for="email"><b>Wellesley Email</b></label></td>
+            <td><input type="text" placeholder="Enter Email" name="email" 
+                id="email" required></td>
+        </tr>
+        
+        <tr>
+            <td><label for="f_name"><b>First name: </b></label></td>
+            <td><input type="text" placeholder="Enter first name" name="f_name" 
+                id="f_name" required></td>
+        </tr>
+        
+        <tr>
+            <td><label for="l_name"><b>Last name: </b></label></td>
+            <td><input type="text" placeholder="Enter last name" name="l_name"
+                id="l_name" required></td>
+        </tr>
+        
     
-    <tr><label for="username"><b>Username</b></label>
-    <input type="text" placeholder="Username" name="username" required></tr>
-    <br>
-    <tr> <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="pswrd" required></tr>
-    <br>
-    <tr><label for="psw-repeat"><b>Repeat Password</b></label>
-    <input type="password" placeholder="Repeat Password" name="pswrd-repeat" required></tr>
-    <br> 
-    <p>Please check off any skills you are interested in providing.</p>
-        <label>
-            <input type="checkbox" name="skills" value="cooking"> Cooking
-        </label>
-        <br>
-        <label>
-            <input type="checkbox" name="skills" value="crafts" > Crafts
-        </label><br>
-        <label>
-            <input type="checkbox"  name="skills" value="fitness" > Fitness
-        </label><br>
-        <label>
-            <input type="checkbox"  name="skills" value="sewing" > Sewing
-        </label><br>
-        <label>
-            <input type="checkbox"  name="skills" name="transportation" > Tranportation
-        </label><br>
+    <tr>
+        <td><label for="username"><b>Username</b></label></td>
+        <td><input type="text" placeholder="Username" name="username" 
+            id="username" required></td>
+    </tr>
     
-    <p>Are you looking to provide any skills we don't have listed? Please enter any skills you have seperated by a comma (e.g cooking,sewing)</p>
-    <tr><label for="other_skills"><b>Other skills</b></label>
-    <input type="text" placeholder="Enter skills" name="other_skills"></tr>
-    </table>
+    <tr>
+        <td><label for="psw"><b>Password</b></label></td>
+        <td><input type="password" placeholder="Enter Password" name="pswrd" 
+            id= "psw" required></td>
+    </tr>
+    
+    <tr>
+        <td><label for="psw-repeat"><b>Repeat Password</b></label></td>
+        <td><input type="password" placeholder="Repeat Password" 
+            name="pswrd-repeat" id="psw-repeat" required></td>
+    </tr>
+    
+    <tr>
+        <td colspan="2">
+            <p>Please check off any skills you are interested in providing.</p>
+            <label>
+                <input type="checkbox" name="skills" value="cooking"> Cooking
+            </label>
+            <br>
+            <label>
+                <input type="checkbox" name="skills" value="crafts" > Crafts
+            </label><br>
+            <label>
+                <input type="checkbox"  name="skills" value="fitness" > Fitness
+            </label><br>
+            <label>
+                <input type="checkbox"  name="skills" value="sewing" > Sewing
+            </label><br>
+            <label>
+                <input type="checkbox" name="skills" value="transportation"> Transportation
+            </label>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="2">
+            <p>Are you looking to provide any skills we don't have listed? 
+            Please enter any skills you have seperated by a comma 
+            (e.g cooking,sewing)</p>
+            <label for="other_skills"><b>Other skills</b></label>
+            <input type="text" placeholder="Enter skills" name="other_skills"
+            id="other_skills">
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 
-    <p> <input type='submit' value='Submit'> </p>
+<p> <input type='submit' value='Submit'> </p>
 
 
 </form>
@@ -925,107 +908,90 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
 {% endblock %}{% extends "base.html" %}
 
 {% block main_content %}
-<h1>{{header}}</h1>
-    <table class="posts"> 
-        <tr> 
-            <th>Title</th> 
-            <th>Text</th> 
-            <th>Categories</th> 
-            <th>Status</th>
-            <th>Post Date</th>
-            <th>Poster Contact Information</th>
-        </tr> 
-        <tr> 
-            <td>{{post_info.title}}</td> 
-            <td>{{post_info.body}}</td> 
-            <td>{{post_info.categories}}</td> 
-            <td>{{post_info.status}}</td>
-            <td>{{post_info.post_date}}</td>
-            <td>{{account_info.email}}</td>
-        </tr> 
-    </table>  
+    <form  method=post action="{{url_for('insert_post')}}">
+        <fieldset>
+        <legend>Make a post</legend>
+        <table>
+                <tr><td><label for="title" accesskey="i"> Title your post:</label></td>
+                <td><input id="title" type="text" name="title"></td></tr>
 
+            <tr><td><label for="body" accesskey="t"> Describe your request or service:</label></td>
+                <td><textarea id="body" name="body" rows="5" cols="33"></textarea></tr>
+                
+            <tr>
+                <td><label accesskey="r">Is this a request or service:</label> <br></td>
+                
+               
+                <td>
+                    <label for="provision">Provision</label>
+                    <input type="checkbox" id = "provision" name="type" value="provision">
+                   
+                
 
-
-{% endblock %}{% extends "base.html" %}
-
-{% block main_content %}
-<form method=post action="{{url_for('insert_post')}}">
-    <fieldset>
-    <legend>Make a post</legend>
-    <table>
-        <tr><td><label for="u_name" accesskey="i">(i.) Remind us your username:</label></td>
-            <td><input id="u_name" type="text" name="u_name"></td></tr>
-        
-            <tr><td><label for="title" accesskey="i">(i.) Title your post:</label></td>
-            <td><input id="title" type="text" name="title"></td></tr>
-
-        <tr><td><label for="body" accesskey="t">(t) Describe your request or service:</label></td>
-            <td><input id="body" type="text" name="body"></td></tr>
+                    <label for="request">Request</label>
+                    <input id ="request" type="checkbox" name="type" value="request">
+                
+                
+                </td></tr>
             
-        <tr><td><label for="type" accesskey="r">(r) Is this a request or service:</label> <br>
-            <input type="checkbox" id="provision" name="type" value="provision" />
-            <label for="provision">Provision</label>
+            <tr><td><label  accesskey="r"> Check off relevant categories:</label> <br> </td>
+            
+            <td>    
+            <label for="clothing">Clothing (sewing, hemming, etc.)</label>
+            <input type="checkbox" id="clothing" name="category" value="clothing">
+            
             <br>
+            <label for="fitness">Fitness</label>
+            <input type="checkbox" id="fitness" name="category" value="fitness">
+           
+            <br> 
+            <label for="beauty">Beauty</label>
+            <input type="checkbox" id="beauty" name="category" value="beauty">
             
-            <input type="checkbox" id="request" name="type" value="request" />
-            <label for="request">Request</label>
+            <br> 
+            <label for="crafts">Crafts</label>
+            <input type="checkbox" id="crafts" name="category" value="crafts">
+            
+            <br> 
+            <label for="transportation">Transportation</label>
+            <input type="checkbox" id="transportation" name="category" value="transportation">
+            
+            <br>
+            <label for="photo">Photography</label>
+            <input type="checkbox" id="photo" name="category" value="photo">
+            
+            <br>
+            <label for="other">Other</label>
+            <input type="checkbox" id="other" name="category" value="other">
+            
             
             </td></tr>
-        
-        <tr><td><label for="category" accesskey="r">(r) Check off relevant categories:</label> <br>
-            
-        <input type="checkbox" id="clothing" name="category" value="clothing" />
-        <label for="clothing">Clothing (sewing, hemming, etc.)</label>
-        <br>
-    
-        <input type="checkbox" id="fitness" name="category" value="fitness" />
-        <label for="fitness">Fitness</label>
-        <br> 
-        
-        <input type="checkbox" id="beauty" name="category" value="beauty" />
-        <label for="beauty">Beauty</label>
-        <br> 
-         
-        <input type="checkbox" id="crafts" name="category" value="crafts" />
-        <label for="crafts">Crafts</label>
-         <br> 
-         
-        <input type="checkbox" id="transportation" name="category" value="transportation" />
-        <label for="transportation">Transportation</label>
-        <br>
-        
-        <input type="checkbox" id="photo" name="category" value="photo" />
-        <label for="photo">Photography</label>
-        <br>
-        
-        <input type="checkbox" id="other" name="category" value="other" />
-        <label for="other">Other</label>
-        
-        </td></tr>
-    </table>
-    </fieldset>
+        </table>
+        </fieldset>
 
-    <p> <input type='submit' value='Upload Post'> </p>
+        <p> <input type='submit' value='Upload Post'> </p>
 
-</form>
+    </form>
 
 {% endblock %}{% extends "base.html" %}
 
 {% block main_content %}
 <h1>{{header}}</h1>
 
-<form method="post" action="{{url_for('login')}}">
-    <form> 
+<p>{{message}}</p>
+<form method="post" action="{{url_for('index')}}">
+    
     <div class="form-group">
         <label for="username"><b>Username: </b></label>
-        <input type="text" placeholder="Enter username" name="username" required>
+        <input type="text" placeholder="Enter username" name="username" id="username">
     </div>
     <div class="form-group">
         <label for="passw"><b>Password: </b></label>
-        <input type="password" placeholder="Enter password" name="passw" required>
+        <input type="password" placeholder="Enter password" name="passw" id="passw">
     </div>
-    <input type="submit" value="Login">
+    <button type="submit" name="action" value="Login">Login</button>
+    <p> Don't have an account?</p>
+    <button type="submit" name="action" value="Create Account">Create Account</button>
 </form>
 
 
@@ -1048,15 +1014,54 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
 {% extends "base.html" %}
 
 {% block main_content %}
+<h1>{{header}}</h1>
+
+<div class="photobox">
+    <form method="POST" action="{{url_for('profile_photo')}}" enctype="multipart/form-data">
+        <p><label>Change Photo: <input type="file" name="pic"></label></p>
+        <button><input type="submit" value="upload"></button>
+    </form>
+</div>
+
+{% endblock %}{% extends "base.html" %}
+
+{% block main_content %}
 <p>This page will show a list of providers who made a post. This page is ideal for those looking for someone to provide them with a service</p>
+{%if providers%}
 <p>Provider posts matching {{key_phrase}}:</p>
-<body>
+
+   
+    <table class="posts"> 
+    <tr>      
+        <th>Title</th> 
+        <th>Text</th> 
+        <th>Categories</th> 
+        <th>Status</th>
+        <th>Post Date</th>
+        <th>Contact Info</th>
+    </tr> 
+   
     {%for provider in providers%}
-    <ul>
-        <li> <a href="{{url_for('post', pid= provider.pid)}}">{{provider.title}}</a> </li>
-    </ul>
+
+    <tr> 
+        
+        <td>{{provider.title}}</td> 
+        <td>{{provider.body}}</td> 
+        <td>{{provider.categories}}</td> 
+        <td>{{provider.status}}</td>
+        <td>{{provider.post_date}}</td>
+        <td>{{provider.email}}</td>
+    </tr> 
     {%endfor%}
-</body>
+
+
+</table>  
+{%else%}
+<h3> There are no matches for your query. </h3>
+
+    
+
+{%endif%}
 
 {% endblock %}{% extends "base.html" %}
 
@@ -1064,29 +1069,52 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
 
 <p>This page is displaying all requests for services. This page is for providers looking to give a service</p>
 <p>Request posts matching {{key_phrase}}:</p>
-<body>
-    {%for request in requests%}
-    <ul>
-         <li> <a href="{{url_for('post', pid= request.pid)}}">{{request.title}}</a> </li>
 
-    </ul>
+    {%if requests%}
+    <table class="posts"> 
+        <tr>  
+            <th>Title</th> 
+            <th>Text</th> 
+            <th>Categories</th> 
+            <th>Status</th>
+            <th>Post Date</th>
+            <th>Contact Info</th>
+        </tr> 
+    {%for request in requests%}
+
+        <tr> 
+            
+            <td>{{request.title}}</td> 
+            <td>{{request.body}}</td> 
+            <td>{{request.categories}}</td> 
+            <td>{{request.status}}</td>
+            <td>{{request.post_date}}</td>
+            <td>{{request.email}}</td>
+        </tr> 
     {%endfor%}
-</body>
+    </table>
+      {%else%}
+      <h3> There are no matches for your query. </h3>
+
+{%endif%}
 
 {% endblock %}{% extends "base.html" %}
 
 {% block main_content %}
 <h1>{{header}}</h1>
-<div class="form">
+<div class="searchform">
     <form  method="post" action="{{url_for('search')}}">
-        <p><label>search: <input type="text" required name="query"></label>
-        <label>kind
-                <select required name="kind">
-                    <option value="">choose one</option>
-                    <option value="provision">service provision</option>
-                    <option value="request">service request</option>
-                </select>
+        <label>I am looking to
+            <select required name="kind">
+                <option value="">choose one</option>
+                <!-- i.e. I am looking to request a service -->
+                <option value="provision">request a service</option>
+                <!-- i.e. I am looking to provide a service -->
+                <option value="request">provide a service</option>
+            </select>
         </label>
+        <p><label>Service subject <input type="text" required name="query"></label>
+        
         <input type="submit" value="search"></p>
     </form>
 </div>
@@ -1095,7 +1123,59 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
 
 {% block main_content %}
 
-<form method="POST" action="/update/{{user}}">
+<form method="POST" action="/update_post/{{pid}}">
+    <fieldset>
+        <legend>Update your post</legend>
+        <table>
+            
+                <tr><td><label for="title" accesskey="i"> Title your post:</label></td>
+                <td><input id="title" type="text" name="title"></td></tr>
+    
+            <tr><td><label for="body" accesskey="t"> Describe your request or service:</label></td>
+                <td><input id="body" type="text" name="body"></td></tr>
+                
+            
+            <tr><td><label for="category" accesskey="r"> Check off relevant categories:</label> <br>
+                
+            <input type="checkbox" id="clothing" name="category" value="clothing" />
+            <label for="clothing">Clothing (sewing, hemming, etc.)</label>
+            <br>
+        
+            <input type="checkbox" id="fitness" name="category" value="fitness" />
+            <label for="fitness">Fitness</label>
+            <br> 
+            
+            <input type="checkbox" id="beauty" name="category" value="beauty" />
+            <label for="beauty">Beauty</label>
+            <br> 
+             
+            <input type="checkbox" id="crafts" name="category" value="crafts" />
+            <label for="crafts">Crafts</label>
+             <br> 
+             
+            <input type="checkbox" id="transportation" name="category" value="transportation" />
+            <label for="transportation">Transportation</label>
+            <br>
+            
+            <input type="checkbox" id="photo" name="category" value="photo" />
+            <label for="photo">Photography</label>
+            <br>
+            
+            <input type="checkbox" id="other" name="category" value="other" />
+            <label for="other">Other</label>
+            
+            </td></tr>
+        </table>
+        </fieldset>
+    
+        <p> <input type='submit' value='Upload Post'> </p>
+  </form>
+  {% endblock %}
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<form method="POST" action="{{url_for('update', user=user)}}">
     <table>
         <tr>
           <td><label for="fname"> First Name </label></td>
@@ -1117,7 +1197,7 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
             <td><label for="skills">Skills: </label></td>
             <td>
                 <p>Please update the skills you are currently interested in providing (separated by comma)</p>
-                <input type="text" name="skills" id="skills" value="{% for entry in skills %}{{ entry.skill }}{% if not loop.last %}, {% endif %}{% endfor %}">
+                <input type="text" name="skills" id="skills" value="{%if skills%}{% for entry in skills %}{{ entry.skill }}{% if not loop.last %}, {% endif %}{% endfor %}{%endif%}">
             </td>
 
             </td>
@@ -1131,7 +1211,7 @@ INSERT INTO `replies` (`pid`, `uid`, `body`) VALUES
 
 HTML {
     --color-header: rgb(48, 117, 140);  /* color for H1-H6 and others. was deepskyblue but poor contrast. */
-    --color-hilite: #b50000;  /* was red, but this avoids WAVE contrast errors */ 
+    --color-hilite: rgb(38, 109, 180);  /* was red, but this avoids WAVE contrast errors */ 
     --color-focus: #56B929;
     --font-family: Serif;
     font-family: var(--font-family)
@@ -1160,38 +1240,54 @@ h2, h3 {
     
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
 nav > ul {
     display: flex;
     flex-direction: row;
+    margin-left: auto; 
 }
+ 
 
 nav ul {
     list-style-type: none;
-    margin: 0px;
+    margin: 15px 0 0 0;
     padding: 0px;
+   
 }
-
 nav > ul > li {
     flex: 0 0 auto;
     width: 15em; 
 }
+nav img{
+    height: 125px;
+    width: auto;
+    margin-right: 0 10px;
+    margin-top: 0px;
 
+
+}
 nav button, nav a {
     display: block;
     box-sizing: border-box; /* easier to make button and A the same size */
     width: 100%;
-    height: 40px;
+    height: 35px;
     padding: 0px;
     padding-bottom: 5px;
     background-color: var(--color-header); /* was #3498db */
-    border: 2px solid black;
-    border-radius: 5px;
+    border: 1px solid black; 
+    border-radius: 5%;
     cursor: pointer;
     /* Firefox uses font -apple-system unless I repeat the font spec here. */
     font-family: var(--font-family);
     color:rgb(240, 248, 244);
     font-weight: bold;
     font-size: 1.4rem;
+    text-decoration: None;
 }
 
 /* Only the top-level buttons are centered; lower ones are left-aligned. */
@@ -1214,13 +1310,16 @@ form {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(181, 179, 179, 0.2);
-    max-width: 400px;
+    max-width: 500px;
     margin: auto;
 }
 
 .form-group {
     margin-bottom: 15px;
+    max-width: 250 px;
 }
+
+
 
 input[type="text"], input[type="password"] {
     width: 100%;
@@ -1253,27 +1352,6 @@ label {
     margin-top: 20px;
 }
 
-.button {
-    display: inline-block;
-    background-color: rgb(185, 215, 254);
-    width: 150px; 
-    height: 35px;
-    padding: 5px;
-    font-size: 1.25rem; 
-    border: 1px solid rgb(0, 0, 0);
-    border-radius: 5px;
-    text-align: center; 
-}
-
-.button-container {
-    display: inline-flex;
-    width: auto; 
-}
-
-.button-container p {
-    margin-bottom: 10px; 
-}
-
 
 .photobox input[type="submit"] {
     width: 120px; 
@@ -1290,26 +1368,30 @@ label {
 
 
 .information-box {
-    border: 1px solid rgb(51, 103, 103); 
+    border: 2px solid rgb(45,45,149); 
     padding: 20px;
-    margin: 20px 0; 
+    margin: 10px 0; 
     border-radius: 10px; /* Rounded corners */
     background-color:rgb(166, 210, 225) ; 
-    max-width: 400px; 
+    max-width: 1000px; 
     margin-right: auto;
 }
 
 .information-box .button{
-    width: 105px; 
-    height: 30px; 
+    border: 2px solid rgb(45,45,149); 
+    width: 150px; 
+    height: 50px; 
+    background-color: rgb(250, 250, 250);
     text-align: center;
     line-height: 25px;
     font-size: 15px;
+    font-family: serif; 
+    border-radius: 8px;
     
 }
 .your-information {
     text-align: center; 
-    color: #000000; 
+    color: rgb(45, 45, 149); 
     margin-bottom: 10px;
 }
 
@@ -1322,14 +1404,46 @@ li {
 }
 
 .posts table, th, td {
-    border: 1px solid;
+    padding: 8px;
+    border: 1px solid rgb(246, 242, 242); /* Light border for cells */
   }
 .posts table{
-    width: 70%;
+    width: 80%;
+    margin: 0 auto;
 }
 .posts td{
     text-align: center;
 }
 
+.circular-image {
+    max-width: 80%;
+    max-height: 300px;
+    border-radius: 80%;
+    display: block; /* Add this to make margin auto effective */
+    margin-left: auto;
+    margin-right: auto;
+}
 
 
+.profile_posts {
+    font-size: medium;
+    font-weight: 200;
+    background-color: rgb(247, 247, 247);
+    width: 100%; 
+    margin-bottom: 20px; /* Margin between posts */
+}
+
+.profile_posts th, .profile_posts td {
+    padding: 8px;
+    border: 1px solid rgb(246, 242, 242); /* Light border for cells */
+}
+
+.profile_posts_container {
+    height: 300px; 
+    overflow-y: auto; /* Allows vertical scrolling */
+}
+
+.searchform input[type= "submit"] {
+    margin-top: 10px;
+    max-width: 40%;
+}
