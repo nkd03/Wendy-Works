@@ -307,10 +307,8 @@ def update(user):
         mail = request.form.get('email')
         username = request.form.get('username')
         skills_input = request.form.get('skills')
-        #remove old skills from the db
         pyqueries.delSkills(conn, user)
         updated_skills = [skill.strip() for skill in skills_input.split(',')]
-        #add new skills to the db
         pyqueries.insert_other_skills(conn, user, updated_skills)
         #userid stays the same so this is just updating additional info
         pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
@@ -323,7 +321,7 @@ def update(user):
             uid = session.get('uid')
             pyqueries.deleteUser(conn, uid)
             session.pop('uid', None)
-            flash("We're sorry to see you go! Account deleted successfully")
+            flash("We're sorry to see you go! Account successfully deleted")
             return redirect(url_for('index'))
         else:
             info = pyqueries.get_account_info(conn, user)
@@ -339,7 +337,6 @@ def logout():
     """
     session.pop('uid', None)
     flash("You've logged out, please visit again soon!")
-    #end the session here 
     return redirect(url_for('index'))
 
 
