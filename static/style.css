@@ -287,7 +287,19 @@ li {
    color: rgb(39, 43, 43);
 }
 
+
+.custom-link {
+    text-decoration: none; 
+    color: black; 
+    cursor: pointer; /* Changes cursor to a pointer on hover */
+}
+
+.edit-cell {
+    text-align: center; 
+}
+
 .pencil {
+    display: block; 
+    margin: 0 auto; 
     width: 24px;
-    height: 19px;
 }
