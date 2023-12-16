@@ -241,7 +241,7 @@ li {
 }
 
 .profile_post_container {
-    width: 300px; /* Adjust the width as needed */
+    width: 300px; 
     margin: 0 auto; /* Center the container */
     background-color: rgb(247, 247, 247);
     padding: 30px;
