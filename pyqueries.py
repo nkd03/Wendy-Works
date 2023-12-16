@@ -119,7 +119,7 @@ def most_recent(conn, uid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 select user.f_name, post.title, post.body, post.status from user 
+                 select user.f_name, post.title, post.body, post.status, post.post_date from user 
                  inner join post where user.uid = post.uid and user.uid <> %s order by post.pid DESC limit 10''',[uid]) 
     return curs.fetchall()
 
