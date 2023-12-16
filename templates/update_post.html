@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<form method="POST" action="{{ url_for('update_post', pid=post.pid) }}">
+    
+  <fieldset>
+    <legend>Edit your post</legend>
+    <table>
+      <tr><td><label for="title"> Title your post:</label></td>
+      <td><input id="title" type="text" name="title" 
+        value="{{ post.title }}" required></td></tr>
+
+      <tr><td><label for="body" > Describe your request or service:</label></td>
+      <td><textarea id="body" rows="5" cols="33" name="body"
+        >{{ post.body }}</textarea></td></tr>
+      
+      <tr><td><label for="status"> Post status:</label></td>
+      <td>
+        <select id = "status" name="status">      
+          <option>open</option>
+          <option>in progress</option>
+          <option>closed</option>
+          </select><br>
+      </td>
+      </tr>
+
+      <tr><td><label>Check off relevant categories</label></td>
+      <td>
+        {% for category, label in [('clothing', 'Clothing'), ('fitness', 'Fitness'), 
+        ('beauty', 'Beauty'), ('crafts', 'Crafts'), ('transportation', 'Transportation'), 
+        ('photo', 'Photography'), ('other', 'Other')] %}
+            <label for="{{ category }}">{{ label }}</label>
+            <input type="checkbox" id="{{ category }}" name="category" value="{{ category }}"
+                   {% if category == post.categories %}checked{% endif %}>
+            <br>
+        {% endfor %}
+      </td>
+      
+    </table>
+    <button type="submit">Update Post</button>
+  </fieldset>
+  </form>
+  {% endblock %}
+
+
+  <label for="clothing">Clothing (sewing, hemming, etc.)</label>
+        <input type="checkbox" id="clothing" name="category" value="clothing">
+
+        <br>
+        <label for="fitness">Fitness</label>
+        <input type="checkbox" id="fitness" name="category" value="fitness">
+       
+        <br> 
+        <label for="beauty">Beauty</label>
+        <input type="checkbox" id="beauty" name="category" value="beauty">
+        
+        <br> 
+        <label for="crafts">Crafts</label>
+        <input type="checkbox" id="crafts" name="category" value="crafts">
+        
+        <br> 
+        <label for="transportation">Transportation</label>
+        <input type="checkbox" id="transportation" name="category" value="transportation">
+        
+        <br>
+        <label for="photo">Photography</label>
+        <input type="checkbox" id="photo" name="category" value="photo">
+        
+        <br>
+        <label for="other">Other</label>
+        <input type="checkbox" id="other" name="category" value="other">
+      </td>
+      </tr>

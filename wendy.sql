@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS interest;
 
 CREATE TABLE user (
   `uid` INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(25) NOT NULL ,
+  unique username VARCHAR(25) NOT NULL ,
   email VARCHAR(25) NOT NULL,
   f_name VARCHAR(20),
   l_name VARCHAR(50),
