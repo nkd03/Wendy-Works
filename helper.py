@@ -5,13 +5,15 @@ def insert_post(conn, uid, title, body, categories, type, date):
     '''
     Helper function to insert a created post into the database
     '''
-    curs = dbi.dict_cursor(conn)
+    curs = dbi.cursor(conn)
     curs.execute('''
                  INSERT INTO post(uid, title, body, categories, type, post_date)
                  VALUES (%s, %s, %s, %s, %s, %s)
                  ''', [uid, title, body, categories, type, date])
     conn.commit()
-    return
+    curs.execute('''select last_insert_id()''')
+    pid = curs.fetchone()
+    return pid[0]
 
 
 def get_user(conn, username):
@@ -49,6 +51,7 @@ def user_posts(conn, uid):
     curs.execute('''
                 select pid, title, body, status, categories
                  from post where uid=%s
+                 ORDER BY post_date DESC
                  ''',[uid])
     return curs.fetchall()
 
@@ -72,6 +75,7 @@ def find_requests(conn, key_phrase):
                  select *
                  from post, user
                  where body like (%s) and type = 'request' and post.uid = user.uid
+                 ORDER BY post_date DESC
                  ''', ['%' + key_phrase + '%'])
 
     return curs.fetchall()
@@ -89,6 +93,7 @@ def providers(conn, key_phrase):
                  select *
                  from post,user
                  where body like (%s) and type = 'provision' and post.uid = user.uid
+                 ORDER BY post_date DESC
                  ''', ['%' + key_phrase + '%'])
     return curs.fetchall()
 

@@ -97,7 +97,7 @@ nav button:hover, button:focus, nav a:hover, nav a:focus {
     background-color: var(--color-focus);
 }
 
-form {
+form{
     background-color: #e3e3e3; 
     padding: 20px;
     border-radius: 5px;
@@ -186,7 +186,7 @@ label {
     border-radius: 10px; /* Rounded corners */
     background-color:rgb(166, 210, 225) ; 
     max-width: 1000px; 
-    margin-right: auto;
+    margin: auto;
 }
 
 .information-box .button{
@@ -252,3 +252,55 @@ li {
 }
 
 
+.search_result_post_container{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+}
+
+.search_result_post{
+    text-align: left; /* Each post takes up one-third of the container with a bit of space between them */
+    margin: auto;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(48, 117, 140, 0.125);
+    border: 1px solid black;
+    width: calc(30.33% - 10px); 
+    height:auto;
+
+}
+
+.search_result_text{
+    padding: 25px
+}
+
+.search_result_text .title{
+     font-size: larger;
+     text-align: center;
+     text-decoration: underline;
+}
+
+.search_result_text .body{
+    border: 1px solid #000000;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.search_result_text .contact_info{
+    font-size: larger;
+    text-align: center;
+}
+
+.search_result_post_container .search_result_post input[type="submit"]{
+    background-color: rgb(48, 117, 140);
+    color: white;
+    padding: 10px 20px;
+    border: 1px solid black;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    
+}

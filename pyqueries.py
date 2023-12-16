@@ -7,7 +7,7 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
     '''
     Takes user account information and inserts in to the user table database 
     '''
-    curs = dbi.dict_cursor(conn)
+    curs = dbi.cursor(conn)
     try:
         curs.execute('''
                  INSERT INTO user(username,email,f_name,l_name,`password`) 
@@ -15,6 +15,10 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
                  ''',
                  [username,email,f_name,l_name,hashed])
         conn.commit() 
+        curs.execute('''select last_insert_id()''')
+        uid = curs.fetchone()
+        print(f'(Printing the UID: {uid[0]}')
+        return uid[0]
     except Exception as err:
         return ('Error: {}'.format(repr(err)))
  
@@ -34,6 +38,7 @@ def insert_skills(conn, uid,skills):
     """This function intends to insert any skills users have checked
     or have added in as other"""
     curs = dbi.dict_cursor(conn)
+    print(uid)
     for skill in skills:
         curs.execute('''
                     INSERT INTO skills(uid,skill) 
@@ -168,6 +173,29 @@ def setsession(conn, result, timestamp, uip):
     VALUES (%s, %s, %s)
      ''', [result,timestamp, uip])
     conn.commit() 
+
+
+def insert_interest(conn, pid, uid):
+    """This function takes a pid and uid to 
+    create a registry of people who are interested 
+    in helping a certain post"""
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    INSERT INTO interest (pid, uid) 
+                 VALUES (%s, %s)'''
+                 , [pid, uid])
+    conn.commit()
+
+def get_interested(conn,pid):
+    """This function gets the users who are 
+     interested in providing for a post """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT * from interest, user where
+    interest.pid = (%s) and interest.uid = user.uid
+    ''')
+    return curs.fetchall()
+
 
 
 

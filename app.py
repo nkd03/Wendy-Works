@@ -155,26 +155,22 @@ def join():
        
        #if usernam does not exist, continue inserting 
         #inserting into database
-            pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
-        #getting last uid
-            row = pyqueries.get_uid(conn)
-            uid = row.get("last_insert_id()")
-            
-            
+            uid = pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
+            print(f'PRINTING THE UID: {uid}') 
         #inserting skills 
             pyqueries.insert_skills(conn,uid,skills)
 
             if len(other_skills) > 0:
-                pyqueries.insert_other_skills(conn, uid, other_skills)
-
-            
+                pyqueries.insert_other_skills(conn, uid, other_skills) 
             flash('Account created! Please log in')
             return redirect(url_for("index"))
 
         except Exception as err:
-            flash('form submission error'+ str(err))
+            flash('Username already taken, choose another!')
             return redirect( url_for('index') )
       
+
+
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
     """This route gets information from search form 
@@ -238,8 +234,7 @@ def insert_post():
             return redirect(url_for('insert_post'))
         
         helper.insert_post(conn, uid, title, body, categories, type, date)
-        post_id = helper.get_pid(conn)
-        pid = post_id['last_insert_id()']
+      
      
         flash('Your post was inserted successfully')
         return redirect(url_for('profile', uid=uid))
@@ -311,6 +306,25 @@ def update(user):
             uskills = pyqueries.get_skills(conn, user)
             print("Skills ", uskills)
             return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
+
+
+
+@app.route('/interest/<int:pid>', methods = ["GET", "POST"])
+def insert_interest(pid):
+    conn = dbi.connect() 
+    if request.method == "POST":
+        uid = session.get("uid")
+        pyqueries.insert_interest(conn,pid,uid)
+        return redirect(url_for('search'))
+        # interested_users = pyqueries.get_interested(conn,pid)
+            
+        # posts = helper.get_post(conn,pid)
+        # if posts.get("type") == "request":
+        #     return render_template("requests.html")
+
+
+
+
 
 
 @app.route('/logout/')

@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS picfile;
 DROP TABLE IF EXISTS skills; 
 DROP TABLE IF EXISTS session; 
 DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS interest;
 
 
 
@@ -15,7 +16,10 @@ CREATE TABLE user (
   email VARCHAR(25) NOT NULL,
   f_name VARCHAR(20),
   l_name VARCHAR(50),
-  `password` VARCHAR(60) NOT NULL
+  `password` VARCHAR(60) NOT NULL,
+  
+  unique(username),
+  index(username)
 ) 
 engine=InnoDB;
 
@@ -68,4 +72,16 @@ CREATE TABLE replies (
     on update restrict 
     on delete restrict
 ) 
+engine=InnoDB;
+
+CREATE TABLE interest(
+  pid INT NOT NULL,
+  `uid` INT NOT NULL,
+  foreign key (pid) references post(pid) 
+    on update restrict 
+    on delete restrict,
+  foreign key (`uid`) references user(`uid`)
+    on update restrict 
+    on delete restrict
+)
 engine=InnoDB;

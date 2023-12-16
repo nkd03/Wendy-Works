@@ -4,8 +4,6 @@
 <body>
     <h1>Welcome {{userdata.f_name }}!</h1>
 
-
-    <form method ="GET" action="{{url_for('update', user=usid)}}">
         <div> 
             {% if picture %}
             
@@ -56,11 +54,12 @@
                 {%endif%}
                 </ul>
             </div>
+            <form method ="GET" action="{{url_for('update', user=usid)}}">
             <button type="submit" name="action" value="Update">Update</button>
             <button type="submit" name="action" value="UploadPhoto">Upload profile photo</button>
-    </form>
-    <div> 
-</div>
+            </form>
+        </div> 
+
 
 
 

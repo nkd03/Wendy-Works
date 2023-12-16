@@ -4,32 +4,21 @@
 <p>This page will show a list of providers who made a post. This page is ideal for those looking for someone to provide them with a service</p>
 <p>Provider posts matching {{key_phrase}}:</p>
 <body>
-    
-    <table class="posts"> 
-           
-        <th>Title</th> 
-        <th>Text</th> 
-        <th>Categories</th> 
-        <th>Status</th>
-        <th>Post Date</th>
-        <th>Contact Info</th>
-    </tr> 
-   
-    {%for provider in providers%}
 
-    <tr> 
-        
-        <td>{{provider.title}}</td> 
-        <td>{{provider.body}}</td> 
-        <td>{{provider.categories}}</td> 
-        <td>{{provider.status}}</td>
-        <td>{{provider.post_date}}</td>
-        <td>{{provider.email}}</td>
-    </tr> 
+    <div class="search_result_post_container">
+    {%for provider in providers%} 
+        <div class="search_result_post">
+            <div class="search_result_text"> 
+                <p class="title">{{provider.title}}</p>
+                <p class="body"> {{provider.body}} </p>
+                <p>Categories: {{provider.categories}}</p> 
+                <p>Status: {{provider.status}}</p>
+                <p> Post Date: {{provider.post_date}}</p>
+                <p class="contact_info">Contact Info: {{provider.email}}</p>
+            </div>
+        </div>
     {%endfor%}
-
-
-</table>  
+    </div>
     
 </body>
 
