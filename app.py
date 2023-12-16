@@ -345,7 +345,6 @@ def update_post(pid):
     conn = dbi.connect() 
     # Retrieve the post from the database using post_id
     user = session.get('uid')
-    print('LINE 328', user)
     print(request.method)
     if request.method == 'GET':
         post = helper.get_post(conn, pid)
@@ -355,13 +354,19 @@ def update_post(pid):
         return render_template('update_post.html', post = post, pid=post.get('pid'), logo='wendyworks.png')
     else:
         # Update post details based on the form submission
-        updated_post = request.form
-        print('LINE 333', updated_post)
-        #user = session.get('uid')
-        print('line 329', user)
-        helper.update_post(conn, updated_post, pid)
-        print(helper.update_post(conn, updated_post, pid))
+        
+        action = request.form.get('action')
+        print("Action",action)
+        if action == "UpdatePost":
+            #user = session.get('uid')
+            print('line 329', user)
+            updated_post = request.form
+            helper.update_post(conn, updated_post, pid)
+        else:
+            helper.delete_post(conn, pid)
+            flash("Post deleted successfully")
         return redirect(url_for('profile', uid=user))
+            
 
 
 @app.route('/post/<int:pid>')
