@@ -114,6 +114,15 @@ def update_post(conn, post_obj, pid):
     conn.commit()
     return curs.fetchall()
 
-
+def delete_post(conn, pid):
+    '''
+    Used to delete a specified post 
+    from the db
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                DELETE from post where pid=%s
+                 ''', [pid])
+    conn.commit() 
 
 

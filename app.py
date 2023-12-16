@@ -337,6 +337,52 @@ def update(user):
             return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
 
 
+
+@app.route('/update_post/<int:pid>', methods = ["GET","POST"])
+def update_post(pid):
+    """
+    Allows for user to update post details
+    """
+    conn = dbi.connect() 
+    # Retrieve the post from the database using post_id
+    user = session.get('uid')
+    print(request.method)
+    if request.method == 'GET':
+        post = helper.get_post(conn, pid)
+        print('LINE 332', post)
+        #user = session.get('uid')
+        
+        return render_template('update_post.html', post = post, pid=post.get('pid'), logo='wendyworks.png')
+    else:
+        # Update post details based on the form submission
+        
+        action = request.form.get('action')
+        print("Action",action)
+        if action == "UpdatePost":
+            #user = session.get('uid')
+            print('line 329', user)
+            updated_post = request.form
+            helper.update_post(conn, updated_post, pid)
+        else:
+            helper.delete_post(conn, pid)
+            flash("Post deleted successfully")
+        return redirect(url_for('profile', uid=user))
+            
+
+
+@app.route('/post/<int:pid>')
+def view_post(pid):
+    # Fetch the post from the database based on pid
+    conn = dbi.connect() 
+    post = helper.get_post(conn, pid)
+
+    if post:
+        return render_template('post.html', post=post, logo='wendyworks.png')
+    else:
+        # Handle case where post is not found
+        return redirect(url_for('index'))
+
+
 @app.route('/logout/')
 def logout():
     """
