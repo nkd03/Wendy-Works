@@ -92,6 +92,7 @@ def profile_photo():
      or the photo upload page is shown 
     '''
     user = session.get('uid')
+    print("user", user)
     if request.method == 'GET':
         return render_template('photo_upload.html', current_us=user,logo='wendyworks.png')
     else:
@@ -102,7 +103,6 @@ def profile_photo():
         print("EXT", ext)
         if ext == 'jpeg' or ext =='jpg':
             filename = secure_filename('{}.{}'.format(user, ext))
-
             # Check and delete old photo
             old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
             if os.path.isfile(old_photo_path):
