@@ -100,7 +100,7 @@ def profile_photo():
         user_filename = p.filename
         ext = user_filename.split('.')[-1]
         print("EXT", ext)
-        if ext == 'jpeg' or ext =='png':
+        if ext == 'jpeg' or ext =='jpg':
             filename = secure_filename('{}.{}'.format(user, ext))
 
             # Check and delete old photo

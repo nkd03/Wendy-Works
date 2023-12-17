@@ -261,6 +261,7 @@ li {
 .home_posts {
     display: flex;
     flex-wrap: wrap;
+    max-width: 250;
     justify-content: 50px; 
     padding: 125px; 
 }
@@ -276,7 +277,7 @@ li {
     flex-direction: column;
     justify-content: space-between;
 }
-
+/* going to have to come back to this */
 .post_title {
     font-size: 1.15em;
     text-align: center;
