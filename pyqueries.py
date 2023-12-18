@@ -190,9 +190,14 @@ def deleteUser(conn, user):
                  ''',[user])
     conn.commit()
     curs.execute('''
+                delete from interest where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
                 delete from user where uid = %s
                  ''',[user])
     conn.commit()
+
 
 
 def insert_interest(conn, pid, uid):
