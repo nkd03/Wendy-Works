@@ -64,7 +64,6 @@ def insert_photo(conn, uid, filename):
     '''
     curs = dbi.dict_cursor(conn)
     try:
-        print("Filename", filename)
         curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s) 
                      ON DUPLICATE KEY UPDATE filename=%s''', [uid, filename, filename])
         conn.commit()
@@ -190,9 +189,14 @@ def deleteUser(conn, user):
                  ''',[user])
     conn.commit()
     curs.execute('''
+                delete from interest where uid = %s
+                 ''',[user])
+    conn.commit()
+    curs.execute('''
                 delete from user where uid = %s
                  ''',[user])
     conn.commit()
+
 
 
 def insert_interest(conn, pid, uid):
