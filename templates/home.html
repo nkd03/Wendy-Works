@@ -16,6 +16,9 @@
             <p>Posted Date: {{post.post_date}}</p>
             <p>Current Status: {{ post.status }}</p>
         </div>
+        <form class="interest-form" method="GET" action="{{url_for('insert_interest', pid = post.pid)}}">
+            <input type="submit" name="action" value="I'm interested"></input>
+        </form>  
     </div>
     {% endfor %}
 </div>

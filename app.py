@@ -337,7 +337,6 @@ def update(user):
             return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
 
 
-
 @app.route('/update_post/<int:pid>', methods = ["GET","POST"])
 def update_post(pid):
     """
@@ -367,7 +366,28 @@ def update_post(pid):
             helper.delete_post(conn, pid)
             flash("Post deleted successfully")
         return redirect(url_for('profile', uid=user))
-            
+
+
+@app.route('/interest/<int:pid>', methods = ["GET", "POST"])
+def insert_interest(pid):
+    conn = dbi.connect()
+    if request.method == "GET":
+        uid = session.get("uid")
+        #insert into interest 
+        pyqueries.insert_interest(conn, pid, uid)
+        #get number of interest for pid
+        interest_count = len(pyqueries.get_interest_count(conn,pid))
+        #update interest count in the posts table 
+        pyqueries.update_posts_interest_count(conn,interest_count,pid)
+        flash("Your information has been sent")
+        return redirect(url_for('search'))
+
+
+
+
+
+
+
 
 
 @app.route('/post/<int:pid>')
@@ -375,12 +395,19 @@ def view_post(pid):
     # Fetch the post from the database based on pid
     conn = dbi.connect() 
     post = helper.get_post(conn, pid)
+    all_interested = pyqueries.get_interested(conn,pid)
 
     if post:
-        return render_template('post.html', post=post, logo='wendyworks.png')
+        return render_template('post.html', post=post, all_interested = all_interested ,logo='wendyworks.png')
     else:
         # Handle case where post is not found
         return redirect(url_for('index'))
+
+
+
+
+
+
 
 
 @app.route('/logout/')

@@ -267,7 +267,7 @@ li {
 
 .post {
     flex: 250px; 
-    height: 250px; 
+    height: 400px; 
     box-sizing: border-box;
     background-color: rgb(244, 245, 245);
     border: 2px solid rgb(48, 117, 140);
@@ -298,6 +298,8 @@ li {
     color: rgb(39, 43, 43);
     overflow: auto;
     padding: 5px;
+    
+    
 }
 
 .custom-link {
@@ -318,31 +320,40 @@ li {
 }
 
 .search_result_post{
-    text-align: left; /* Each post takes up one-third of the container with a bit of space between them */
+    text-align: left; 
     margin: auto;
     margin-bottom: 20px;
-    padding: 10px;
-    background-color: rgba(48, 117, 140, 0.125);
+    background-color: rgb(244, 245, 245);
     border: 1px solid black;
     width: calc(30.33% - 10px); 
-    height:auto;
+    height:400px;
+    align-items: center;
 
+}
+
+
+.title{
+    font-size: 1.15em;
+    text-align: center;
+    background-color: rgb(48, 117, 140);
+    color: rgb(248, 252, 255);
+    font-weight: bold;
+    height: 50px; 
+    text-overflow: ellipsis; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
 }
 
 .search_result_text{
-    padding: 25px
-}
-
-.search_result_text .title{
-     font-size: larger;
-     text-align: center;
-     text-decoration: underline;
+    padding: 0 25px 0 25px;
 }
 
 .search_result_text .body{
     border: 1px solid #000000;
     border-radius: 10px;
     padding: 10px;
+    
 }
 
 .search_result_text .contact_info{
@@ -360,8 +371,30 @@ li {
     width: 150px;
     display: flex;
     justify-content: center;
+    align-items: center;
     
 }
+
+.interest-form{
+    background-color: transparent;
+    align-items: center;
+    box-shadow: "";
+}
+
+.interested_people{
+    width: 300px; 
+    margin: 0 auto; /* Center the container */
+    background-color: rgb(247, 247, 247);
+    padding: 30px;
+    font-size: large;
+    border: 10px solid rgb(246, 242, 242);
+}
+
+.interested_people .list_interest{
+    padding: 10px;
+}
+
+
 .pencil {
     display: block; 
     margin: 0 auto; 

@@ -49,20 +49,14 @@ def user_posts(conn, uid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                select pid, title, body, status, categories
+                select pid, title, body, status, categories,
+                 interest_count
                  from post where uid=%s
                  ORDER BY post_date DESC
                  ''',[uid])
     return curs.fetchall()
 
 
-def get_pid(conn):
-    """A quick helper function to get uid using
-      last-insert
-      Using until we fix transactions"""
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''select last_insert_id()''')
-    return curs.fetchone()
 
 def find_requests(conn, key_phrase):
     '''

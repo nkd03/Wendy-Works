@@ -8,17 +8,17 @@
     
     <div class="search_result_post_container">
         {%for request in requests%}  
-        <div class="search_result_post">
-            <div class="search_result_text"> 
+        <div class="search_result_post"> 
                 <p class="title">{{request.title}}</p>
+                <div class="search_result_text">
                 <p class="body"> {{request.body}} </p>
                 <p>Categories: {{request.categories}}</p> 
                 <p>Status: {{request.status}}</p>
                 <p> Post Date: {{request.post_date}}</p>
                 <p class="contact_info">Contact Info: {{request.email}}</p>
-            </div>
+                </div>
             <form class="interest-form" method="GET" action="{{url_for('insert_interest', pid = request.pid)}}">
-                <input type="submit" name="action" value="I'm interested""></input>
+                <input type="submit" name="action" value="I'm interested"></input>
             </form>  
         </div>
         {%endfor%}

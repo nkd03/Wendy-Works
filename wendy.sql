@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS session;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS interest;
 
-
+alter table post add column interest_count float default null; 
 
 CREATE TABLE user (
   `uid` INT AUTO_INCREMENT PRIMARY KEY,

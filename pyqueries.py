@@ -124,7 +124,7 @@ def most_recent(conn, uid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 select user.f_name, post.title, post.body, post.status, post.post_date from user 
+                 select user.f_name, post.title, post.body, post.status, post.post_date, post.pid from user 
                  inner join post where user.uid = post.uid and user.uid <> %s order by post.pid DESC limit 10''',[uid]) 
     return curs.fetchall()
 
@@ -198,8 +198,6 @@ def deleteUser(conn, user):
     conn.commit()
 
 
-
-
 def insert_interest(conn, pid, uid):
     """This function takes a pid and uid to 
     create a registry of people who are interested 
@@ -216,11 +214,31 @@ def get_interested(conn,pid):
      interested in providing for a post """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    SELECT * from interest, user where
+    SELECT distinct * from interest, user where
     interest.pid = (%s) and interest.uid = user.uid
-    ''')
+    ''', [pid])
     return curs.fetchall()
 
 
+def get_interest_count(conn,pid):
+    """This function gets all the instances 
+     of interest for a specific post  """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT * from interest where
+    interest.pid = (%s)
+    ''', [pid])
+    return curs.fetchall()
 
 
+def update_posts_interest_count(conn,count,pid):
+    """this function updates the interest count
+    of the post within the post table """
+    curs=dbi.dict_cursor(conn)
+    curs.execute(
+        ''' 
+        update post set interest_count = %s
+        where pid = %s;
+        ''', [count,pid]
+    )
+    conn.commit()
