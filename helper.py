@@ -49,7 +49,7 @@ def user_posts(conn, uid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                select pid, title, body, status, categories,
+                select pid, title, body, type, status, categories,
                  interest_count
                  from post where uid=%s
                  ORDER BY post_date DESC

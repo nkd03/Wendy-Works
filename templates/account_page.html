@@ -4,6 +4,7 @@
 
     <h1>Welcome {{userdata.f_name }}!</h1>
 
+    <form method ="GET" class="profile_form" action="{{url_for('update', user=usid)}}">
         <div> 
             {% if picture %}
             
@@ -32,6 +33,7 @@
                                 <th>Type</th>
                                 
                                 <th># of People Interested</th>
+                                
                                 <th>Edit</th>
                             </tr> 
                             <tr> 
@@ -42,7 +44,9 @@
                                 <td>{{ post.categories }}</td> 
                                 <td>{{ post.status }}</td>
                                 <td>{{ post.type }}</td>
+                                
                                 <td>{{post.interest_count}}</td>
+                                
                                 <td class="edit-cell">
                                     <img class="pencil" src="https://static.vecteezy.com/system/resources/previews/024/029/499/original/school-item-pencil-with-transparent-background-free-png.png">
                                     <a href="{{ url_for('update_post', pid=post.pid) }}" class="custom-link">Edit</a>

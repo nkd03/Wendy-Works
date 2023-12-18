@@ -184,8 +184,7 @@ def join():
                 pyqueries.insert_other_skills(conn, uid, other_skills)
             flash('Account created, welcome!')
 
-            
-            flash('Account created, welcome!')
+        
             #automatically log-in
             session['uid'] = uid
             return redirect(url_for("profile", uid = uid))
@@ -380,14 +379,7 @@ def insert_interest(pid):
         #update interest count in the posts table 
         pyqueries.update_posts_interest_count(conn,interest_count,pid)
         flash("Your information has been sent")
-        return redirect(url_for('search'))
-
-
-
-
-
-
-
+        return redirect(url_for('view_post', pid=pid))
 
 
 @app.route('/post/<int:pid>', methods=["GET", "POST"])
@@ -398,9 +390,6 @@ def view_post(pid):
     comments = helper.get_comment(conn, pid)
     print('LINE 378', comments)
     all_interested = pyqueries.get_interested(conn,pid)
-    
-    
-
     if post:
         return render_template('post.html', post=post, comments=comments, all_interested = all_interested ,logo='wendyworks.png')
     else:
