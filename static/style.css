@@ -272,26 +272,26 @@ li {
     max-width: 40%;
 }
 
+
 .home_posts {
     display: flex;
     flex-wrap: wrap;
-    max-width: 250;
-    justify-content: 50px; 
-    padding: 25px; 
+    justify-content: space-between; 
 }
 
 .post {
-    flex: 250px; 
-    height: 400px; 
-    box-sizing: border-box;
+    text-align: left; 
+    margin: auto;
+    margin-bottom: 15px;
     background-color: rgb(244, 245, 245);
     border: 2px solid rgb(48, 117, 140);
-    margin: 8px; 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    width: calc(28.33% - 10px); 
+    height:350px;
+    border-radius: 10px;
+    align-items: center;
 }
-/* going to have to come back to this */
+
+
 .post_title {
     font-size: 1.15em;
     text-align: center;
@@ -301,7 +301,7 @@ li {
     margin-bottom: 5px;
     height: 50px; 
     text-overflow: ellipsis; 
-    padding: 8px; 
+    padding: 10px; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
