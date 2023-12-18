@@ -369,18 +369,29 @@ def update_post(pid):
             
 
 
-@app.route('/post/<int:pid>')
+@app.route('/post/<int:pid>', methods=["GET", "POST"])
 def view_post(pid):
     # Fetch the post from the database based on pid
     conn = dbi.connect() 
     post = helper.get_post(conn, pid)
-
+    comments = helper.get_comment(conn, pid)
+    print('LINE 378', comments)
+    
     if post:
-        return render_template('post.html', post=post, logo='wendyworks.png')
+        return render_template('post.html', post=post, comments=comments, logo='wendyworks.png')
     else:
         # Handle case where post is not found
         return redirect(url_for('index'))
 
+@app.route('/add_comment/<int:pid>', methods=['POST'])
+def add_comment(pid):
+    conn = dbi.connect()
+    uid = session.get('uid')
+    print('LINE 389', uid)
+    body = request.form.get('body')
+    helper.add_comment(conn, pid, uid, body)
+    flash("Your comment was successfully posted!")
+    return redirect(url_for('view_post', pid=pid))
 
 @app.route('/logout/')
 def logout():

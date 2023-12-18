@@ -20,7 +20,7 @@
     {%for request in requests%}
 
         <tr> 
-            <td>{{request.pid}}</td>
+            <td><a href="{{ url_for('view_post', pid=request.pid) }}">{{request.pid}}</a></td>
             <td>{{request.title}}</td> 
             <td>{{request.body}}</td> 
             <td>{{request.categories}}</td> 

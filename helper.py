@@ -47,7 +47,7 @@ def user_posts(conn, uid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                select pid, title, body, status, categories
+                select pid, title, body, type, status, categories
                  from post where uid=%s
                  ''',[uid])
     return curs.fetchall()
@@ -121,3 +121,22 @@ def delete_post(conn, pid):
     conn.commit() 
 
 
+def add_comment(conn, pid, uid, body):
+    '''
+    Helper function to insert a created post into the database
+    '''
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                 INSERT INTO replies(pid, uid, body)
+                 VALUES (%s, %s, %s)
+                 ''', [pid, uid, body])
+    conn.commit()
+
+def get_comment(conn, pid):
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+                SELECT * 
+                FROM replies
+                WHERE pid = %s
+                ''', [pid])
+    return curs.fetchall()

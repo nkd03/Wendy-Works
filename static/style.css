@@ -248,6 +248,15 @@ li {
     font-size: large;
     border: 10px solid rgb(246, 242, 242);
 }
+.comment_container{
+    width: 300px; 
+    margin: 0 auto; /* Center the container */
+    background-color: rgb(166, 210, 225);
+    padding: 30px;
+    font-size: large;
+    border: 10px solid rgb(246, 242, 242);
+}
+
 
 .post_detail {
     margin-bottom: 10px; 

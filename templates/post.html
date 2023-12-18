@@ -3,8 +3,6 @@
 {% block main_content %}
 
     
-   
-
     <div class="profile_post_container">
         <div class="post_detail">
             <strong>Title:</strong> {{ post.title }}
@@ -19,4 +17,29 @@
             <strong>Post Status:</strong> {{ post.status }}
         </div>
     </div>
+
+    <div class="comment_container">
+        <h3>Comments</h3>
+        <ul>
+            {% for comment in comments %}
+                <div class="comment_block">
+                    <li>
+                    
+                        <small>Comment by User {{ comment.uid }}</small>
+                        <p>{{ comment.body }}</p>
+                    </li>
+                </div>    
+            {% endfor %}
+        </ul>
+        <form method="POST" action="{{ url_for('add_comment', pid=post.pid) }}">
+            <textarea name="body" required></textarea>
+            <button type="submit">Add Comment</button>
+        </form>
+        
+    </div>
+
+    
+
+   
+
 {% endblock %}

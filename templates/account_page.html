@@ -31,6 +31,7 @@
                                 <th>Body</th>
                                 <th>Category</th> 
                                 <th>Post Status</th>
+                                <th>Type</th>
                             </tr> 
                             <tr> 
                                 <td>
@@ -39,6 +40,7 @@
                                 <td>{{ post.body }}</td>
                                 <td>{{ post.categories }}</td> 
                                 <td>{{ post.status }}</td>
+                                <td>{{ post.type }}</td>
                                 <td class="edit-cell">
                                     <img class="pencil" src="https://static.vecteezy.com/system/resources/previews/024/029/499/original/school-item-pencil-with-transparent-background-free-png.png">
                                     <a href="{{ url_for('update_post', pid=post.pid) }}" class="custom-link">Edit</a>
