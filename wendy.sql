@@ -39,12 +39,12 @@ CREATE TABLE skills (
 engine=InnoDB;
 
 create table picfile (
-    `uid`int NOT NULL, 
-    filename varchar(50),
-    foreign key (`uid`) references user(`uid`) 
-        on delete cascade on update cascade
-)
-engine = InnoDB;
+    -> `uid` int not null, 
+    -> filename varchar(50),
+    -> primary key(`uid`), 
+    -> foreign key (`uid`) references user(`uid`) 
+    ->         on delete cascade on update cascade) 
+    ENGINE = INNODb;
 
 
 CREATE TABLE post (

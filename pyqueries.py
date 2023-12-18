@@ -63,17 +63,14 @@ def insert_photo(conn, uid, filename):
     Inserts a new photo into the database or updates the existing one if the uid already exists.
     '''
     curs = dbi.dict_cursor(conn)
+    try:
+        print("Filename", filename)
+        curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s) 
+                     ON DUPLICATE KEY UPDATE filename=%s''', [uid, filename, filename])
+        conn.commit()
+    except Exception as err: 
+        return ('Error: {}'.format(repr(err)))
 
-    # check if the uid is already in the database
-    curs.execute('''SELECT * FROM picfile WHERE uid = %s''', [uid])
-    if curs.fetchone():
-        # If uid exists, update 
-        curs.execute('''UPDATE picfile SET filename = %s WHERE uid = %s''', [filename, uid])
-    else:
-        # If uid does not exist, insert 
-        curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s)''', [uid, filename])
-
-    conn.commit()
 
 
 def insert_other_skills(conn, uid, other_skills):
