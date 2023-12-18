@@ -64,7 +64,6 @@ def insert_photo(conn, uid, filename):
     '''
     curs = dbi.dict_cursor(conn)
     try:
-        print("Filename", filename)
         curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s) 
                      ON DUPLICATE KEY UPDATE filename=%s''', [uid, filename, filename])
         conn.commit()
