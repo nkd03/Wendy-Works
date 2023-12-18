@@ -6,7 +6,7 @@
   
 
     <div class="profile_post_container">
-        <h5>Post Information</h5>
+        <h1>Post Information</h1>
         <div class="post_detail">
             <strong>Title:</strong> {{ post.title }}
         </div>
@@ -29,11 +29,13 @@
     <div class="interested_people">
     
         <p><strong>Contact Info of Interested Sibs:</strong></p>
-        {% for interested in all_interested %}
+      
         <ul>
+        {% for interested in all_interested %}
         <li><strong>Name:</strong> {{interested.f_name}} <br> <strong>Email:</strong> {{interested.email}}</li> 
-        </ul>
         {% endfor %}
+        </ul>
+      
     
     </div>
     {% endif %}
@@ -43,11 +45,7 @@
         <ul>
             {% for comment in comments %}
                 <div class="comment_block">
-                  
-                    
-                        <p>User {{ comment.uid }}: {{ comment.body }} </p>
-                        
-                    
+                        <p>{{comment.f_name}} (User {{ comment.uid }}): {{ comment.body }} </p>
                 </div>    
             {% endfor %}
         </ul>

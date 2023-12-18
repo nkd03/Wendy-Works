@@ -32,14 +32,14 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 def index():
     """ This is our main page it contains a login form or new users can create an account"""
     if request.method == 'GET': 
-        return render_template('login.html', header ='Welcome to Wendy Works!', logo='wendyworks.png')
+        return render_template('login.html', header ='Welcome to Wendy Works!') #we can remove 
     else:
         action = request.form.get("action")
         if action == 'Login':
             pw = request.form.get("passw")
             user = request.form.get("username")
             if not pw or not user:
-                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required', logo='wendyworks.png')
+                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required')
             else:
                  #will use this in login route
                 session['temporary_username'] = user
@@ -94,7 +94,7 @@ def profile_photo():
     user = session.get('uid')
     print("user", user)
     if request.method == 'GET':
-        return render_template('photo_upload.html', current_us=user,logo='wendyworks.png')
+        return render_template('photo_upload.html', current_us=user)
     else:
         conn = dbi.connect() 
         p = request.files["pic"]
@@ -119,7 +119,7 @@ def profile_photo():
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
     
-    
+
 @app.route('/home/')
 def home():
     '''
@@ -129,7 +129,7 @@ def home():
     conn = dbi.connect()
     uid = session.get('uid')
     recent_posts = pyqueries.most_recent(conn, uid)
-    return render_template("home.html", posts = recent_posts, logo = 'wendyworks.png')
+    return render_template("home.html", posts = recent_posts)
     
 
 
@@ -205,7 +205,7 @@ def search():
     conn = dbi.connect() 
     print(request.method)
     if request.method == 'GET':
-        return render_template('search.html', header ='Search for a post',logo='wendyworks.png')
+        return render_template('search.html', header ='Search for a post')
     else: #method should be post 
         u_input = request.form.get('query')
         u_kind = request.form.get('kind')
@@ -213,11 +213,11 @@ def search():
         print(u_kind)
         if u_kind == 'provision':
             providers = helper.providers(conn, u_input)
-            return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
+            return render_template('providers.html', key_phrase=u_input, providers = providers)
         if u_kind == 'request':
             requests = helper.find_requests(conn, u_input)
             print('LINE 202', requests)
-            return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
+            return render_template('requests.html', key_phrase=u_input, requests = requests)
 
 
 @app.route('/insert/', methods=["GET", "POST"])
@@ -231,7 +231,7 @@ def insert_post():
     conn = dbi.connect()
     
     if request.method == 'GET':
-        return render_template('insert_post.html', logo='wendyworks.png')
+        return render_template('insert_post.html')
     else:
         # Collect relevant form information into variables
         uid = session.get('uid')
@@ -391,7 +391,7 @@ def view_post(pid):
     print('LINE 378', comments)
     all_interested = pyqueries.get_interested(conn,pid)
     if post:
-        return render_template('post.html', post=post, comments=comments, all_interested = all_interested ,logo='wendyworks.png')
+        return render_template('post.html', post=post, comments=comments, all_interested = all_interested)
     else:
         # Handle case where post is not found
         return redirect(url_for('index'))

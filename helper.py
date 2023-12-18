@@ -132,10 +132,13 @@ def add_comment(conn, pid, uid, body):
     conn.commit()
 
 def get_comment(conn, pid):
+    '''
+    Helper function to get a user's comment under a specified post
+    '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                SELECT * 
-                FROM replies
+                SELECT replies.uid, user.f_name, replies.body FROM 
+                 replies inner join user on user.uid = replies.uid
                 WHERE pid = %s
                 ''', [pid])
     return curs.fetchall()

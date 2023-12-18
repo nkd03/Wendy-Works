@@ -14,10 +14,10 @@
             
 {% block nav %}
 <nav class="navbar">
-  <img src="{{url_for('static', filename='images/'+ logo)}}" 
+  <img src="{{url_for('static', filename='images/wendyworks.png')}}" 
   alt="Logo for WendyWorks in blue font">
+  {% if 'uid' in session %}
   <ul>
-    {% if 'uid' in session %}
       <li><a href="{{ url_for('home') }}">Home</a></li>
       <li><a href="{{url_for('search')}}"> Search Posts</a></li>
       <li><a href="{{url_for('insert_post')}}"> New Post</a></li>
