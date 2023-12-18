@@ -163,10 +163,15 @@ label {
     text-align: center;
 }
 
+.profile_form{
+    max-width: 800px;
+    color: rgb(6, 6, 6);
+
+}
 
 .information-box {
     border: 2px solid rgb(45,45,149); 
-    padding: 20px;
+    padding: 30px;
     margin: 10px 0; 
     border-radius: 10px; /* Rounded corners */
     background-color:rgb(166, 210, 225) ; 
