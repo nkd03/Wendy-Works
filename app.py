@@ -92,6 +92,7 @@ def profile_photo():
      or the photo upload page is shown 
     '''
     user = session.get('uid')
+    print("user", user)
     if request.method == 'GET':
         return render_template('photo_upload.html', current_us=user,logo='wendyworks.png')
     else:
@@ -100,9 +101,8 @@ def profile_photo():
         user_filename = p.filename
         ext = user_filename.split('.')[-1]
         print("EXT", ext)
-        if ext == 'jpeg' or ext =='png':
+        if ext == 'jpeg' or ext =='jpg':
             filename = secure_filename('{}.{}'.format(user, ext))
-
             # Check and delete old photo
             old_photo_path = os.path.join(app.config['UPLOADS'], f"{user}.{ext}")
             if os.path.isfile(old_photo_path):
@@ -194,6 +194,8 @@ def join():
             flash('form submission error'+ str(err))
             return redirect( url_for('index') )
       
+
+
 @app.route('/search/', methods = ["GET", "POST"])
 def search():
     """This route gets information from search form 
@@ -256,8 +258,7 @@ def insert_post():
             return redirect(url_for('insert_post'))
         
         helper.insert_post(conn, uid, title, body, categories, type, date)
-        post_id = helper.get_pid(conn)
-        pid = post_id['last_insert_id()']
+      
      
         flash('Your post was inserted successfully')
         return redirect(url_for('profile', uid=uid))
@@ -336,7 +337,6 @@ def update(user):
             return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
 
 
-
 @app.route('/update_post/<int:pid>', methods = ["GET","POST"])
 def update_post(pid):
     """
@@ -366,7 +366,28 @@ def update_post(pid):
             helper.delete_post(conn, pid)
             flash("Post deleted successfully")
         return redirect(url_for('profile', uid=user))
-            
+
+
+@app.route('/interest/<int:pid>', methods = ["GET", "POST"])
+def insert_interest(pid):
+    conn = dbi.connect()
+    if request.method == "GET":
+        uid = session.get("uid")
+        #insert into interest 
+        pyqueries.insert_interest(conn, pid, uid)
+        #get number of interest for pid
+        interest_count = len(pyqueries.get_interest_count(conn,pid))
+        #update interest count in the posts table 
+        pyqueries.update_posts_interest_count(conn,interest_count,pid)
+        flash("Your information has been sent")
+        return redirect(url_for('search'))
+
+
+
+
+
+
+
 
 
 @app.route('/post/<int:pid>', methods=["GET", "POST"])
@@ -376,9 +397,12 @@ def view_post(pid):
     post = helper.get_post(conn, pid)
     comments = helper.get_comment(conn, pid)
     print('LINE 378', comments)
+    all_interested = pyqueries.get_interested(conn,pid)
     
+    
+
     if post:
-        return render_template('post.html', post=post, comments=comments, logo='wendyworks.png')
+        return render_template('post.html', post=post, comments=comments, all_interested = all_interested ,logo='wendyworks.png')
     else:
         # Handle case where post is not found
         return redirect(url_for('index'))
@@ -392,6 +416,12 @@ def add_comment(pid):
     helper.add_comment(conn, pid, uid, body)
     flash("Your comment was successfully posted!")
     return redirect(url_for('view_post', pid=pid))
+
+
+
+
+
+
 
 @app.route('/logout/')
 def logout():

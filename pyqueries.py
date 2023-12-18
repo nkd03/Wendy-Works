@@ -7,7 +7,7 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
     '''
     Takes user account information and inserts in to the user table database 
     '''
-    curs = dbi.dict_cursor(conn)
+    curs = dbi.cursor(conn)
     try:
         curs.execute('''
                  INSERT INTO user(username,email,f_name,l_name,`password`) 
@@ -15,6 +15,10 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
                  ''',
                  [username,email,f_name,l_name,hashed])
         conn.commit() 
+        curs.execute('''select last_insert_id()''')
+        uid = curs.fetchone()
+        print(f'(Printing the UID: {uid[0]}')
+        return uid[0]
     except Exception as err:
         return ('Error: {}'.format(repr(err)))
  
@@ -34,6 +38,7 @@ def insert_skills(conn, uid,skills):
     """This function intends to insert any skills users have checked
     or have added in as other"""
     curs = dbi.dict_cursor(conn)
+    print(uid)
     for skill in skills:
         curs.execute('''
                     INSERT INTO skills(uid,skill) 
@@ -58,17 +63,14 @@ def insert_photo(conn, uid, filename):
     Inserts a new photo into the database or updates the existing one if the uid already exists.
     '''
     curs = dbi.dict_cursor(conn)
+    try:
+        print("Filename", filename)
+        curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s) 
+                     ON DUPLICATE KEY UPDATE filename=%s''', [uid, filename, filename])
+        conn.commit()
+    except Exception as err: 
+        return ('Error: {}'.format(repr(err)))
 
-    # check if the uid is already in the database
-    curs.execute('''SELECT * FROM picfile WHERE uid = %s''', [uid])
-    if curs.fetchone():
-        # If uid exists, update 
-        curs.execute('''UPDATE picfile SET filename = %s WHERE uid = %s''', [filename, uid])
-    else:
-        # If uid does not exist, insert 
-        curs.execute('''INSERT INTO picfile(uid, filename) VALUES (%s, %s)''', [uid, filename])
-
-    conn.commit()
 
 
 def insert_other_skills(conn, uid, other_skills):
@@ -119,7 +121,7 @@ def most_recent(conn, uid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 select user.f_name, post.title, post.body, post.status, post.post_date from user 
+                 select user.f_name, post.title, post.body, post.status, post.post_date, post.pid from user 
                  inner join post where user.uid = post.uid and user.uid <> %s order by post.pid DESC limit 10''',[uid]) 
     return curs.fetchall()
 
@@ -193,6 +195,47 @@ def deleteUser(conn, user):
     conn.commit()
 
 
+def insert_interest(conn, pid, uid):
+    """This function takes a pid and uid to 
+    create a registry of people who are interested 
+    in helping a certain post"""
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    INSERT INTO interest (pid, uid) 
+                 VALUES (%s, %s)'''
+                 , [pid, uid])
+    conn.commit()
+
+def get_interested(conn,pid):
+    """This function gets the users who are 
+     interested in providing for a post """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT distinct * from interest, user where
+    interest.pid = (%s) and interest.uid = user.uid
+    ''', [pid])
+    return curs.fetchall()
 
 
+def get_interest_count(conn,pid):
+    """This function gets all the instances 
+     of interest for a specific post  """
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''
+    SELECT * from interest where
+    interest.pid = (%s)
+    ''', [pid])
+    return curs.fetchall()
 
+
+def update_posts_interest_count(conn,count,pid):
+    """this function updates the interest count
+    of the post within the post table """
+    curs=dbi.dict_cursor(conn)
+    curs.execute(
+        ''' 
+        update post set interest_count = %s
+        where pid = %s;
+        ''', [count,pid]
+    )
+    conn.commit()

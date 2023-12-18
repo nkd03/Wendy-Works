@@ -3,7 +3,10 @@
 {% block main_content %}
 
     
+  
+
     <div class="profile_post_container">
+        <h3>Post Information</h3>
         <div class="post_detail">
             <strong>Title:</strong> {{ post.title }}
         </div>
@@ -16,6 +19,21 @@
         <div class="post_detail">
             <strong>Post Status:</strong> {{ post.status }}
         </div>
+        <div class="post_detail">
+            <img class="hand" src="https://cdn-icons-png.flaticon.com/512/4406/4406307.png">
+            <strong>Interest Count: </strong> {{post.interest_count}}
+        </div>
+    </div>
+
+    <div class="interested_people">
+    {% if all_interested %}
+        <p><strong>Contact Info of Sibs Interested in Helping:</strong></p>
+        {% for interested in all_interested %}
+        <ul>
+        <li><strong>Name:</strong> {{interested.f_name}} <br> <strong>Email:</strong> {{interested.email}}</li> 
+        </ul>
+        {% endfor %}
+
     </div>
 
     <div class="comment_container">
@@ -38,8 +56,5 @@
         
     </div>
 
-    
-
-   
-
+    {% endif %}
 {% endblock %}

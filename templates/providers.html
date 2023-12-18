@@ -4,36 +4,30 @@
 <p>This page will show a list of providers who made a post. This page is ideal for those looking for someone to provide them with a service</p>
 {%if providers%}
 <p>Provider posts matching {{key_phrase}}:</p>
+<body>
 
    
-    <table class="posts"> 
-    <tr>    
-        <th>Post ID</th>  
-        <th>Title</th> 
-        <th>Text</th> 
-        <th>Categories</th> 
-        <th>Status</th>
-        <th>Post Date</th>
-        <th>Contact Info</th>
-    </tr> 
+    
    
-    {%for provider in providers%}
-
-    <tr> 
-        <td><a href="{{ url_for('view_post', pid=provider.pid) }}">{{provider.pid}}</a></td>
-        <td>{{provider.title}}</td> 
-        <td>{{provider.body}}</td> 
-        <td>{{provider.categories}}</td> 
-        <td>{{provider.status}}</td>
-        <td>{{provider.post_date}}</td>
-        <td>{{provider.email}}</td>
-    </tr> 
+    
+    <div class="search_result_post_container">
+    {%for provider in providers%} 
+        <div class="search_result_post">
+            <div class="search_result_text"> 
+                <a href="{{ url_for('view_post', pid=provider.pid) }}"><p class="title">{{provider.title}}</p></a>
+                <p class="contact_info">Contact Info: {{provider.email}}</p>
+                <p class="body"> {{provider.body}} </p>
+                <p>Categories: {{provider.categories}}</p> 
+                <p>Status: {{provider.status}}</p>
+                <p> Post Date: {{provider.post_date}}</p>
+                
+            </div>
+            <form class="interest-form" method="GET" action="{{url_for('insert_interest', pid = provider.pid)}}">
+                <input type="submit" name="action" value="I'm interested"></input>
+            </form>  
+        </div>
     {%endfor%}
 
-
-</table>  
-{%else%}
-<h3> There are no matches for your query. </h3>
 
     
 
