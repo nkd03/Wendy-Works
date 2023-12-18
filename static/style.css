@@ -36,6 +36,11 @@ h4 {
     text-align: center;
 }
 
+h5 {
+    color: aliceblue;
+    font-size: 150%;
+}
+
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
 nav{
     display: flex;
@@ -246,20 +251,21 @@ li {
 }
 
 .profile_post_container {
-    width: 300px; 
-    margin: 0 auto; /* Center the container */
-    background-color: rgb(247, 247, 247);
-    padding: 30px;
+    width: 600px; 
+    margin: 0 auto; 
+    background-color: rgb(48, 117, 140);
+    padding: 20px;
     font-size: large;
-    border: 10px solid rgb(246, 242, 242);
+    border: 10px solid rgb(234, 246, 245);
+    color: aliceblue;
 }
 .comment_container{
-    width: 300px; 
-    margin: 0 auto; /* Center the container */
-    background-color: rgb(166, 210, 225);
+    width: 500px; 
+    margin: 0 auto; 
+    background-color: rgb(81, 126, 156);
     padding: 30px;
     font-size: large;
-    border: 10px solid rgb(246, 242, 242);
+    border: 10px solid rgb(255, 255, 255);
 }
 
 
@@ -398,9 +404,9 @@ li {
 }
 
 .interested_people{
-    width: 300px; 
+    width: 500px; 
     margin: 0 auto; /* Center the container */
-    background-color: rgb(247, 247, 247);
+    background-color: rgb(81, 126, 156);
     padding: 30px;
     font-size: large;
     border: 10px solid rgb(246, 242, 242);
