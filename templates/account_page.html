@@ -48,7 +48,7 @@
                                 <td>{{post.interest_count}}</td>
                                 
                                 <td class="edit-cell">
-                                    <img class="pencil" src="https://static.vecteezy.com/system/resources/previews/024/029/499/original/school-item-pencil-with-transparent-background-free-png.png">
+                                    <img class="pencil" alt="Pencil" src="https://static.vecteezy.com/system/resources/previews/024/029/499/original/school-item-pencil-with-transparent-background-free-png.png">
                                     <a href="{{ url_for('update_post', pid=post.pid) }}" class="custom-link">Edit</a>
                                 </td>
                             </tr> 
@@ -60,7 +60,7 @@
         
            
 
-            <h3 class="your-skills">Your Skills:</h3>
+            <h2 class="your-skills">Your Skills:</h2>
             <div>
             <ul>
                 {% if all_skills %}

@@ -29,12 +29,21 @@ h1 {
 h2, h3 {
     color:rgb(35, 7, 119);
 }
+.information-box h2 {
+    color: aliceblue;
+    font-size: 150%;
+}
 
+.profile_post_container h1 {
+    color: aliceblue;
+    font-size: 150%;
+}
 h4 {
     color: var(--color-header);
     font-size: 175%;
     text-align: center;
 }
+
 
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
 nav{
@@ -165,22 +174,27 @@ label {
 
 .profile_form{
     max-width: 800px;
+    background-color:rgb(166, 210, 225) ; 
     color: rgb(6, 6, 6);
 
 }
 
 .information-box {
-    border: 2px solid rgb(45,45,149); 
+    border: 2px solid rgb(235, 235, 240); 
     padding: 30px;
     margin: 10px 0; 
-    border-radius: 10px; /* Rounded corners */
-    background-color:rgb(166, 210, 225) ; 
+    border-radius: 10px; 
+    background-color: rgb(47, 98, 117);
     max-width: 1000px; 
     margin: auto;
 }
 
+.information-box p {
+    color: azure;
+}
+
 .information-box .button{
-    border: 2px solid rgb(45,45,149); 
+    border: 2px solid rgb(235, 235, 240); 
     width: 145px; 
     height: 50px; 
     background-color: rgb(250, 250, 250);
@@ -195,6 +209,10 @@ label {
     text-align: center; 
     color: rgb(45, 45, 149); 
     margin-bottom: 10px;
+}
+
+.your-skills ul,li {
+    color: azure;
 }
 
 ul {
@@ -246,21 +264,21 @@ li {
 }
 
 .profile_post_container {
-    width: 300px; 
-    margin: 0 auto; /* Center the container */
-    background-color: rgb(247, 247, 247);
-    padding: 30px;
+    width: 600px; 
+    margin: 0 auto; 
+    background-color: rgb(48, 117, 140);
+    padding: 20px;
     font-size: large;
-    border: 10px solid rgb(246, 242, 242);
+    border: 10px solid rgb(234, 246, 245);
+    color: aliceblue;
 }
 .comment_container{
-    width: 300px; 
-    margin: 0 auto; /* Center the container */
-    
-    background-color: rgb(247, 247, 247);
+    width: 500px; 
+    margin: 0 auto; 
+    background-color: rgb(41, 73, 95);
     padding: 30px;
     font-size: large;
-    border: 10px solid rgb(246, 242, 242);
+    border: 10px solid rgb(255, 255, 255);
 }
 
 
@@ -273,26 +291,26 @@ li {
     max-width: 40%;
 }
 
+
 .home_posts {
     display: flex;
     flex-wrap: wrap;
-    max-width: 250;
-    justify-content: 50px; 
-    padding: 25px; 
+    justify-content: space-between; 
 }
 
 .post {
-    flex: 250px; 
-    height: 400px; 
-    box-sizing: border-box;
+    text-align: left; 
+    margin: auto;
+    margin-bottom: 15px;
     background-color: rgb(244, 245, 245);
     border: 2px solid rgb(48, 117, 140);
-    margin: 8px; 
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    width: calc(28.33% - 10px); 
+    height:350px;
+    border-radius: 10px;
+    align-items: center;
 }
-/* going to have to come back to this */
+
+
 .post_title {
     font-size: 1.15em;
     text-align: center;
@@ -302,7 +320,7 @@ li {
     margin-bottom: 5px;
     height: 50px; 
     text-overflow: ellipsis; 
-    padding: 8px; 
+    padding: 10px; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
@@ -399,9 +417,9 @@ li {
 }
 
 .interested_people{
-    width: 300px; 
+    width: 500px; 
     margin: 0 auto; /* Center the container */
-    background-color: rgb(166, 210, 225);
+    background-color: rgb(41, 73, 95);
     padding: 30px;
     font-size: large;
     border: 10px solid rgb(246, 242, 242);
