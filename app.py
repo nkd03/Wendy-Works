@@ -172,30 +172,34 @@ def join():
             print("I got here to line 172", username)
             pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
         #getting last uid
-            row = pyqueries.get_uid(conn)
+            #row = pyqueries.get_uid(conn)
             #print("I got here to line 176", row)
-            uid = row.get("last_insert_id()")
-            
-            
+            #uid = row.get("last_insert_id()")
+            uid = pyqueries.get_uid(conn) 
         #inserting skills 
             pyqueries.insert_skills(conn,uid,skills)
 
             if len(other_skills) > 0:
                 pyqueries.insert_other_skills(conn, uid, other_skills)
             flash('Account created, welcome!')
-
-        
             #automatically log-in
             session['uid'] = uid
             return redirect(url_for("profile", uid = uid))
         except Exception as err:
+            if "Duplicate entry" in str(err):
+                flash("Error: Username already exists. Please choose a different username.")
+            elif "foreign key constraint fails" in str(err) and "skills" in str(err):
+                flash("Error: We could not create your account because that username already exists.")
+            else:
+                flash("Error: {}".format(repr(err)))
+        return redirect( url_for('index') )
             #print("Error",err)
-            flash('form submission error'+ str(err))
-            return redirect( url_for('index') )
+            #flash('form submission error'+ str(err))
+            #return redirect( url_for('index') )
       
 
 
-@app.route('/search/', methods = ["GET", "POST"])
+@app.route('/search/', methods = ["GET"])
 def search():
     """This route gets information from search form 
     to find and display prodvider or requestor posts
@@ -204,20 +208,23 @@ def search():
 
     conn = dbi.connect() 
     print(request.method)
-    if request.method == 'GET':
-        return render_template('search.html', header ='Search for a post',logo='wendyworks.png')
-    else: #method should be post 
-        u_input = request.form.get('query')
-        u_kind = request.form.get('kind')
-        print(u_input)
-        print(u_kind)
+    u_input = request.args.get('query')
+    u_kind = request.args.get('kind')
+    print(f"u_input: {u_input}, u_kind: {u_kind}")
+
+    if request.method == 'GET' and (u_input is not None or u_kind is not None):
+        if u_input is None or u_kind is None:
+            flash("Please be sure to fill out both inputs")
+            return render_template('search.html', header='Search for a post', logo='wendyworks.png')
+
         if u_kind == 'provision':
             providers = helper.providers(conn, u_input)
-            return render_template('providers.html', key_phrase=u_input, providers = providers, logo='wendyworks.png')
-        if u_kind == 'request':
+            return render_template('providers.html', key_phrase=u_input, providers=providers, logo='wendyworks.png')
+        elif u_kind == 'request':
             requests = helper.find_requests(conn, u_input)
-            print('LINE 202', requests)
-            return render_template('requests.html', key_phrase=u_input, requests = requests, logo='wendyworks.png')
+            return render_template('requests.html', key_phrase=u_input, requests=requests, logo='wendyworks.png')
+        
+   
 
 
 @app.route('/insert/', methods=["GET", "POST"])

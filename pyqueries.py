@@ -1,6 +1,7 @@
 
 import cs304dbi as dbi
 import bcrypt
+
 # import cs304dbi_sqlite3 as dbi
 
 def insert_new_user(conn,username,email,f_name,l_name,hashed):
@@ -21,15 +22,16 @@ def insert_new_user(conn,username,email,f_name,l_name,hashed):
         return uid[0]
     except Exception as err:
         return ('Error: {}'.format(repr(err)))
+        
  
 
 
 def get_uid(conn):
     """A quick helper function to get uid using last-insert
     Note: Just using until we fix transactions"""
-    curs = dbi.dict_cursor(conn)
+    curs = dbi.cursor(conn)
     curs.execute('''select last_insert_id()''')
-    return curs.fetchone()
+    return curs.fetchone()[0]
 
 
 
@@ -226,7 +228,7 @@ def get_interest_count(conn,pid):
      of interest for a specific post  """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    SELECT * from interest where
+    SELECT distinct * from interest where
     interest.pid = (%s)
     ''', [pid])
     return curs.fetchall()

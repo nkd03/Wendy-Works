@@ -36,7 +36,7 @@ def get_post(conn, pid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 SELECT * from post 
+                 SELECT pid, uid, title, body, post_date, categories, type, status, interest_count from post 
                  WHERE pid = %s
                  ''', [pid])
     return curs.fetchone()
@@ -66,7 +66,8 @@ def find_requests(conn, key_phrase):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-                 select *
+                 select pid, title, body, categories, status, post_date, 
+                 email, username, f_name, l_name
                  from post, user
                  where body like (%s) and type = 'request' and post.uid = user.uid
                  ORDER BY post_date DESC
