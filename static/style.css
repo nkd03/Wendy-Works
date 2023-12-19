@@ -17,7 +17,7 @@ HTML {
 }
 
 
-   
+  
 h1 {
     text-align: center;
     font-size: 200%;
@@ -408,7 +408,16 @@ li {
     align-items: center;
     
 }
-
+.no_post{
+    color: red;
+    font-weight: bold;
+    text-align: center;
+}
+.match{
+    color: rgb(48, 117, 140);
+    font-weight: bold;
+    text-align: left; 
+}
 .interest-form{
     background-color: transparent;
     align-items: center;

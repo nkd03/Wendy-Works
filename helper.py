@@ -3,7 +3,8 @@ import cs304dbi as dbi
 
 def insert_post(conn, uid, title, body, categories, type, date):
     '''
-    Helper function to insert a created post into the database
+    Helper function to insert a post into the database.
+    Returns the post id. 
     '''
     curs = dbi.cursor(conn)
     curs.execute('''
@@ -18,8 +19,8 @@ def insert_post(conn, uid, title, body, categories, type, date):
 
 def get_user(conn, username):
     '''
-    Helper function find user by username 
-    Returns user
+    Helper function find user by username.
+    Returns user.
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -31,8 +32,8 @@ def get_user(conn, username):
 
 def get_post(conn, pid):
     '''
-    Helper function to get a post given its pid
-    returns post 
+    Helper function to get a post given its pid.
+    Returns post.
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -43,9 +44,9 @@ def get_post(conn, pid):
 
 def user_posts(conn, uid):
     '''
-    gets all posts from a specified user if
-    it is not distinctly closed
-    returns lists of posts by uid 
+    Helper function that gets all posts from a 
+    specific user.
+    Returns lists of posts sorted by date.
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -61,8 +62,8 @@ def user_posts(conn, uid):
 def find_requests(conn, key_phrase):
     '''
     Helper function to find posts including the relevant keyword 
-    for a request
-    returns lists of posts labeled as request by phrase 
+    for a request.
+    Returns list of posts labeled as request.
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -78,10 +79,9 @@ def find_requests(conn, key_phrase):
 
 def providers(conn, key_phrase):
     '''
-    Helper function to find users who can provide a service
-    based on the categories that the "provider" has linked to
-    their account
-    returns lists of posts labeled as provision by phrase
+    Helper function to find posts including the relevant keyword
+    for a provision.
+    Returns list of posts labeled as provision.
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -94,10 +94,8 @@ def providers(conn, key_phrase):
 
 def update_post(conn, post_obj, pid):
     '''
-    Helper function to find users who can provide a service
-    based on the categories that the "provider" has linked to
-    their account
-    returns lists of posts labeled as provision by phrase
+    Helper function to update the post in a table.
+    Returns the updated post. 
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
@@ -111,7 +109,7 @@ def update_post(conn, post_obj, pid):
 
 def delete_post(conn, pid):
     '''
-    Used to delete a specified post 
+    Used to delete a specified post
     from the db
     '''
     curs = dbi.dict_cursor(conn)

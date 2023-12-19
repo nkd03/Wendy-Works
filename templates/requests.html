@@ -2,31 +2,30 @@
 
 {% block main_content %}
 
-<p>This page is displaying all requests for services. This page is for providers looking to give a service</p>
-<p>Request posts matching {{key_phrase}}:</p>
 
 
-<body>
-    
+{%if requests%}
+<p class="match">Request posts matching {{key_phrase}}:</p>
+  
     <div class="search_result_post_container">
         {%for request in requests%}  
         <div class="search_result_post"> 
-            <a href="{{ url_for('view_post', pid=request.pid) }}"><p class="title">{{request.title}}</p></a>
-                <div class="search_result_text">
+            <div class="search_result_text">
+                <a href="{{ url_for('view_post', pid=request.pid) }}"><p class="title">{{request.title}}</p></a>
+                <p class="contact_info">Contact Info: {{request.email}}</p> 
                 <p class="body"> {{request.body}} </p>
                 <p>Categories: {{request.categories}}</p> 
                 <p>Status: {{request.status}}</p>
-                <p> Post Date: {{request.post_date}}</p>
-                <p class="contact_info">Contact Info: {{request.email}}</p>
-                </div>
+                <p> Post Date: {{request.post_date}}</p>    
+            </div>
             <form class="interest-form" method="GET" action="{{url_for('insert_interest', pid = request.pid)}}">
-                <input type="submit" name="action" value="I'm interested"></input>
+                <input type="submit" name="action" value="I'm interested">
             </form>  
         </div>
-        {%endfor%}
     </div>
-  
-    
+        {%endfor%}
+{% else %}
+<p class="no_post">There are currently no posts including your subject.</p>   
 </body>
-
+{%endif%}
 {% endblock %}

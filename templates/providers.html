@@ -1,15 +1,11 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<p>This page will show a list of providers who made a post. This page is ideal for those looking for someone to provide them with a service</p>
-{%if providers%}
-<p>Provider posts matching {{key_phrase}}:</p>
-<body>
 
-   
-    
-   
-    
+
+{%if providers%}
+<p class="match">Provider posts matching {{key_phrase}}:</p>
+ 
     <div class="search_result_post_container">
     {%for provider in providers%} 
         <div class="search_result_post">
@@ -23,14 +19,14 @@
                 
             </div>
             <form class="interest-form" method="GET" action="{{url_for('insert_interest', pid = provider.pid)}}">
-                <input type="submit" name="action" value="I'm interested"></input>
+                <input type="submit" name="action" value="I'm interested">
             </form>  
         </div>
+    </div>
     {%endfor%}
-
-
-    
-
+{% else %}
+<p class="no_post">There are currently no posts including your subject.</p>
+</body>
 {%endif%}
 
 {% endblock %}

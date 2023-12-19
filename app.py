@@ -202,8 +202,10 @@ def join():
 @app.route('/search/', methods = ["GET"])
 def search():
     """This route gets information from search form 
-    to find and display prodvider or requestor posts
-    Return: renders search form or search result page
+    to find and display provider or requestor posts
+    Returns: renders search.html page, either displaying
+    results if there are any or a message saying there
+    aren't any matches.
      """
 
     conn = dbi.connect() 
@@ -223,7 +225,7 @@ def search():
         elif u_kind == 'request':
             requests = helper.find_requests(conn, u_input)
             return render_template('requests.html', key_phrase=u_input, requests=requests, logo='wendyworks.png')
-        
+    return render_template('search.html', header='Search for a post', logo='wendyworks.png')  
    
 
 
@@ -346,7 +348,9 @@ def update(user):
 @app.route('/update_post/<int:pid>', methods = ["GET","POST"])
 def update_post(pid):
     """
-    Allows for user to update post details
+    Allows for user to update a specific post, given a pid. 
+    The user can edit the post title, body, and status.
+    After updating, they will return to their profile page. 
     """
     conn = dbi.connect() 
     # Retrieve the post from the database using post_id
@@ -355,16 +359,11 @@ def update_post(pid):
     if request.method == 'GET':
         post = helper.get_post(conn, pid)
         print('LINE 332', post)
-        #user = session.get('uid')
-        
         return render_template('update_post.html', post = post, pid=post.get('pid'), logo='wendyworks.png')
     else:
-        # Update post details based on the form submission
-        
         action = request.form.get('action')
         print("Action",action)
         if action == "UpdatePost":
-            #user = session.get('uid')
             print('line 329', user)
             updated_post = request.form
             helper.update_post(conn, updated_post, pid)
@@ -376,6 +375,11 @@ def update_post(pid):
 
 @app.route('/interest/<int:pid>', methods = ["GET", "POST"])
 def insert_interest(pid):
+    """
+    Allows for a user to express interest for a specific post, 
+    given the post pid. Once they click on it, they will be
+    directed to the page for that post. 
+    """
     conn = dbi.connect()
     if request.method == "GET":
         uid = session.get("uid")
@@ -391,6 +395,12 @@ def insert_interest(pid):
 
 @app.route('/post/<int:pid>', methods=["GET", "POST"])
 def view_post(pid):
+    """
+    This function takes the user to a specific post's page,
+    given a particular pid. It is implemented for users to be
+    able to comment on a post and see others' comments, as well
+    as those who are interested. 
+    """
     # Fetch the post from the database based on pid
     conn = dbi.connect() 
     post = helper.get_post(conn, pid)
@@ -405,6 +415,10 @@ def view_post(pid):
 
 @app.route('/add_comment/<int:pid>', methods=['POST'])
 def add_comment(pid):
+    """
+    This function allows the user to post comments for 
+    a specific post.
+    """
     conn = dbi.connect()
     uid = session.get('uid')
     print('LINE 389', uid)
