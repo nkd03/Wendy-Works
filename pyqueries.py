@@ -217,7 +217,7 @@ def get_interested(conn,pid):
      interested in providing for a post """
     curs = dbi.dict_cursor(conn)
     curs.execute('''
-    SELECT distinct pid, uid from interest, user where
+    SELECT distinct * from interest, user where
     interest.pid = (%s) and interest.uid = user.uid
     ''', [pid])
     return curs.fetchall()
