@@ -4,7 +4,7 @@
 
     <h1>Welcome {{userdata.f_name }}!</h1>
 
-    <form method ="GET" class="profile_form" action="{{url_for('update', user=usid)}}">
+    <div class="profile_page"> 
         <div> 
             {% if picture %}
             
@@ -70,12 +70,20 @@
                 {%endif%}
                 </ul>
             </div>
-            <button class ="button" type="submit" name="action" value="Update">Update</button>
-            <button class= "button" type="submit" name="action" value="UploadPhoto">Upload Photo</button>
-            <button class= "button" type="submit" name="action" value="Delete">Delete Account</button>
+            <div class="form-container">
+                <form method="GET" action="{{ url_for('update_user', user=usid) }}">
+                    <button class="button" type="submit">Update</button>
+                </form>
+                <form method="GET" action="{{ url_for('upload_photo') }}">
+                    <button class="button" type="submit">Upload Photo</button>
+                </form>
+                <form method="GET" action="{{ url_for('delete_account', user=usid) }}">
+                    <button class="button" type="submit">Delete Account</button>
+                </form>
+            </div>
         </div>
-    </form>
     <div> 
+</div>
 </div>
 
 

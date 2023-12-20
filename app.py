@@ -217,15 +217,15 @@ def search():
     if request.method == 'GET' and (u_input is not None or u_kind is not None):
         if u_input is None or u_kind is None:
             flash("Please be sure to fill out both inputs")
-            return render_template('search.html', header='Search for a post', logo='wendyworks.png')
+            return render_template('search.html', header='Search for a post')
 
         if u_kind == 'provision':
             providers = helper.providers(conn, u_input)
-            return render_template('providers.html', key_phrase=u_input, providers=providers, logo='wendyworks.png')
+            return render_template('providers.html', key_phrase=u_input, providers=providers)
         elif u_kind == 'request':
             requests = helper.find_requests(conn, u_input)
-            return render_template('requests.html', key_phrase=u_input, requests=requests, logo='wendyworks.png')
-    return render_template('search.html', header='Search for a post', logo='wendyworks.png')  
+            return render_template('requests.html', key_phrase=u_input, requests=requests)
+    return render_template('search.html', header='Search for a post')  
    
 
 
@@ -291,13 +291,13 @@ def profile(uid):
             user_photo = pyqueries.get_photo(conn, uid)
             #print("PHOTO", user_photo)
             if user_photo == None:
-                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts, logo='wendyworks.png')
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts)
             else:
                 p_user = user_photo['filename']
                 photo_url = url_for('uploaded_file', filename=p_user)
                 print("PHOTO_URL", photo_url)
                 #photo = send_from_directory(app.config['UPLOADS'],p_user)
-                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts, logo='wendyworks.png') 
+                return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts) 
         else:
             
             return redirect(url_for('update', user = uid))
@@ -307,7 +307,7 @@ def profile(uid):
         return(redirect(url_for('profile', uid= user)))
   
 
-@app.route('/update/<int:user>', methods = ["GET","POST"])
+@app.route('/update/<int:user>', methods = ["POST"])
 def update(user):
     """
     Any changes the user makes to their information 
@@ -342,7 +342,39 @@ def update(user):
             info = pyqueries.get_account_info(conn, user)
             uskills = pyqueries.get_skills(conn, user)
             print("Skills ", uskills)
-            return render_template("update_profile.html", account = info, skills = uskills, user = user, logo='wendyworks.png')
+            return render_template("update_profile.html", account = info, skills = uskills, user = user)
+
+@app.route('/update_user/<int:user>')
+def update_user(user):
+    """
+    Specific change to user's account information 
+    """
+    conn = dbi.connect() 
+    info = pyqueries.get_account_info(conn, user)
+    uskills = pyqueries.get_skills(conn, user)
+    print("Skills ", uskills)
+    return render_template("update_profile.html", account = info, skills = uskills, user = user)
+
+@app.route('/upload_photo/')
+def upload_photo():
+    '''
+    redirects users to the upload profile 
+    photo page
+    '''
+    return redirect(url_for('profile_photo'))
+
+
+@app.route('/delete_account/')
+def delete_account():
+    '''
+    deletes the user's account 
+    '''
+    conn = dbi.connect() 
+    uid = session.get('uid')
+    pyqueries.deleteUser(conn, uid)
+    session.pop('uid', None)
+    flash("We're sorry to see you go! Account successfully deleted")
+    return redirect(url_for('index'))
 
 
 @app.route('/update_post/<int:pid>', methods = ["GET","POST"])
@@ -359,7 +391,7 @@ def update_post(pid):
     if request.method == 'GET':
         post = helper.get_post(conn, pid)
         print('LINE 332', post)
-        return render_template('update_post.html', post = post, pid=post.get('pid'), logo='wendyworks.png')
+        return render_template('update_post.html', post = post, pid=post.get('pid'))
     else:
         action = request.form.get('action')
         print("Action",action)
@@ -371,6 +403,7 @@ def update_post(pid):
             helper.delete_post(conn, pid)
             flash("Post deleted successfully")
         return redirect(url_for('profile', uid=user))
+
 
 
 @app.route('/interest/<int:pid>', methods = ["GET", "POST"])

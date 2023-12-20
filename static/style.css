@@ -172,12 +172,44 @@ label {
     text-align: center;
 }
 
-.profile_form{
-    max-width: 800px;
-    background-color:rgb(166, 210, 225) ; 
-    color: rgb(6, 6, 6);
+.profile_page {
+        background-color: rgb(166, 210, 225);
+        color: rgb(6, 6, 6);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        max-width: 70%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .information-box .form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .information-box form {
+        margin: 0 10px; 
+    }
+    
+    .information-box .button {
+        border: 2px solid rgb(235, 235, 240);
+        width: 145px;
+        height: 50px;
+        background-color: rgb(250, 250, 250);
+        text-align: center;
+        line-height: 45px;
+        font-size: 15px;
+        font-family: serif;
+        border-radius: 8px;
+        cursor: pointer;
+        display: block;
+    }
+    
 
-}
 
 .information-box {
     border: 2px solid rgb(235, 235, 240); 
@@ -193,18 +225,7 @@ label {
     color: azure;
 }
 
-.information-box .button{
-    border: 2px solid rgb(235, 235, 240); 
-    width: 145px; 
-    height: 50px; 
-    background-color: rgb(250, 250, 250);
-    text-align: center;
-    line-height: 25px;
-    font-size: 15px;
-    font-family: serif; 
-    border-radius: 8px;
-    
-}
+
 .your-information {
     text-align: center; 
     color: rgb(45, 45, 149); 
@@ -422,6 +443,7 @@ li {
     background-color: transparent;
     align-items: center;
     box-shadow: "";
+    display: center;
     
 }
 
