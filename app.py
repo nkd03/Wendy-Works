@@ -31,9 +31,85 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/', methods = ['GET', 'POST'])
 def index():
     """ This is our main page it contains a login form or new users can create an account"""
-    return render_template('login.html', header ='Welcome to Wendy Works!') #we can remove 
+    return render_template('login.html', header ='Welcome to Wendy Works!') 
 
-             
+@app.route('/home/')
+def home():
+    '''
+    Used for home page feed, gets 10 most 
+    recent post entries user non-inclusive
+    ''' 
+    conn = dbi.connect()
+    uid = session.get('uid')
+    recent_posts = pyqueries.most_recent(conn, uid)
+    return render_template("home.html", posts = recent_posts)
+    
+
+@app.route('/join/', methods=["GET", "POST"])
+def join():
+    """This route is used when users are creating a new account, the form takes 
+    user skills, and contact information to insert them into the database"""
+    conn = dbi.connect()
+    if request.method == 'GET':
+        return render_template('create.html', header ='Create an Account', logo = 'wendyworks.png')
+    else: #request method is POST
+       
+        try: #getting account information first 
+            username = request.form.get("username") 
+            pass1=request.form.get("pswrd") 
+            pass2=request.form.get("pswrd-repeat")
+        #getting contact information
+            email=request.form.get("email")
+            f_name=request.form.get("f_name")
+            l_name=request.form.get("l_name")
+        #getting checked skills as a list 
+            skills=request.form.getlist("skills")
+            print("Skills", skills)
+        #getting other skills, changing into a list 
+            other_skills = request.form.get("other_skills").split(",")
+
+
+        #checking if passwords match before creating account 
+        #or inserting anything 
+            if pass1 != pass2:
+                flash('passwords do not match')
+                return redirect( url_for('index'))
+            
+            hashed = bcrypt.hashpw(pass1.encode('utf-8'),
+                        bcrypt.gensalt())
+            stored = hashed.decode('utf-8')
+       
+       #if usernam does not exist, continue inserting 
+        #inserting into database
+            print("I got here to line 172", username)
+            pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
+        #getting last uid
+            #row = pyqueries.get_uid(conn)
+            #print("I got here to line 176", row)
+            #uid = row.get("last_insert_id()")
+            uid = pyqueries.get_uid(conn) 
+        #inserting skills 
+            pyqueries.insert_skills(conn,uid,skills)
+
+            if len(other_skills) > 0:
+                pyqueries.insert_other_skills(conn, uid, other_skills)
+            flash('Account created, welcome!')
+            #automatically log-in
+            session['uid'] = uid
+            return redirect(url_for("profile", uid = uid))
+        except Exception as err:
+            if "Duplicate entry" in str(err):
+                flash("Error: Username already exists. Please choose a different username.")
+            elif "foreign key constraint fails" in str(err) and "skills" in str(err):
+                flash("Error: We could not create your account because that username already exists.")
+            else:
+                flash("Error: {}".format(repr(err)))
+        return redirect( url_for('index') )
+            #print("Error",err)
+            #flash('form submission error'+ str(err))
+            #return redirect( url_for('index') )
+      
+            
    
 @app.route('/login/', methods = ["POST"])
 def login(): 
@@ -106,83 +182,7 @@ def profile_photo():
         return redirect(url_for('profile', uid=user))
     
 
-@app.route('/home/')
-def home():
-    '''
-    Used for home page feed, gets 10 most 
-    recent post entries user non-inclusive
-    ''' 
-    conn = dbi.connect()
-    uid = session.get('uid')
-    recent_posts = pyqueries.most_recent(conn, uid)
-    return render_template("home.html", posts = recent_posts)
-    
 
-
-@app.route('/join/', methods=["GET", "POST"])
-def join():
-    """This route is used when users are creating a new account, the form takes 
-    user skills, and contact information to insert them into the database"""
-    conn = dbi.connect()
-    if request.method == 'GET':
-        return render_template('create.html', header ='Create an Account', logo = 'wendyworks.png')
-    else: #request method is POST
-       
-        try: #getting account information first 
-            username = request.form.get("username") 
-            pass1=request.form.get("pswrd") 
-            pass2=request.form.get("pswrd-repeat")
-        #getting contact information
-            email=request.form.get("email")
-            f_name=request.form.get("f_name")
-            l_name=request.form.get("l_name")
-        #getting checked skills as a list 
-            skills=request.form.getlist("skills")
-            print("Skills", skills)
-        #getting other skills, changing into a list 
-            other_skills = request.form.get("other_skills").split(",")
-
-
-        #checking if passwords match before creating account 
-        #or inserting anything 
-            if pass1 != pass2:
-                flash('passwords do not match')
-                return redirect( url_for('index'))
-            
-            hashed = bcrypt.hashpw(pass1.encode('utf-8'),
-                        bcrypt.gensalt())
-            stored = hashed.decode('utf-8')
-       
-       #if usernam does not exist, continue inserting 
-        #inserting into database
-            print("I got here to line 172", username)
-            pyqueries.insert_new_user(conn,username,email,f_name,l_name,stored)
-        #getting last uid
-            #row = pyqueries.get_uid(conn)
-            #print("I got here to line 176", row)
-            #uid = row.get("last_insert_id()")
-            uid = pyqueries.get_uid(conn) 
-        #inserting skills 
-            pyqueries.insert_skills(conn,uid,skills)
-
-            if len(other_skills) > 0:
-                pyqueries.insert_other_skills(conn, uid, other_skills)
-            flash('Account created, welcome!')
-            #automatically log-in
-            session['uid'] = uid
-            return redirect(url_for("profile", uid = uid))
-        except Exception as err:
-            if "Duplicate entry" in str(err):
-                flash("Error: Username already exists. Please choose a different username.")
-            elif "foreign key constraint fails" in str(err) and "skills" in str(err):
-                flash("Error: We could not create your account because that username already exists.")
-            else:
-                flash("Error: {}".format(repr(err)))
-        return redirect( url_for('index') )
-            #print("Error",err)
-            #flash('form submission error'+ str(err))
-            #return redirect( url_for('index') )
-      
 
 
 @app.route('/search/', methods = ["GET"])
@@ -259,7 +259,6 @@ def insert_post():
 
 
 
-
 @app.route('/profile/<int:uid>', methods = ["GET", "POST"])
 def profile(uid):
     """
@@ -315,8 +314,8 @@ def update(user):
     return redirect(url_for('profile', uid = user))
 
 
-@app.route('/update_user/<int:user>')
-def update_user(user):
+@app.route('/user_info/<int:user>')
+def user_info(user):
     """
     Get user's account information 
     to fill the update form with 

@@ -114,6 +114,14 @@ def delete_post(conn, pid):
     '''
     curs = dbi.dict_cursor(conn)
     curs.execute('''
+                DELETE from interest where pid=%s
+                    ''',[pid])
+    conn.commit()
+    curs.execute('''
+                DELETE from replies where pid=%s
+                 ''',[pid])
+    conn.commit()
+    curs.execute('''
                 DELETE from post where pid=%s
                  ''', [pid])
     conn.commit() 

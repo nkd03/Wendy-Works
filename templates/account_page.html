@@ -71,7 +71,7 @@
                 </ul>
             </div>
             <div class="form-container">
-                <form method="GET" action="{{ url_for('update_user', user=usid) }}">
+                <form method="GET" action="{{ url_for('user_info', user=usid) }}">
                     <button class="button" type="submit">Update</button>
                 </form>
                 <form method="GET" action="{{ url_for('upload_photo') }}">
