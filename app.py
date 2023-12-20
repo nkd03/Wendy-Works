@@ -31,53 +31,39 @@ app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 @app.route('/', methods = ['GET', 'POST'])
 def index():
     """ This is our main page it contains a login form or new users can create an account"""
-    if request.method == 'GET': 
-        return render_template('login.html', header ='Welcome to Wendy Works!') #we can remove 
-    else:
-        action = request.form.get("action")
-        if action == 'Login':
-            pw = request.form.get("passw")
-            user = request.form.get("username")
-            if not pw or not user:
-                return render_template('login.html', header ='Welcome to Wendy Works!', message='Fields username and password are required')
-            else:
-                 #will use this in login route
-                session['temporary_username'] = user
-                session['temporary_password'] = pw
-                return redirect(url_for('login'))
-        else:
-            if action == 'Create Account':
-                return redirect(url_for('join'))
+    return render_template('login.html', header ='Welcome to Wendy Works!') #we can remove 
+
+             
    
-@app.route('/login/')
+@app.route('/login/', methods = ["POST"])
 def login(): 
     """This function serves to log users in if they exists ensuring 
     that their credentials are correct or directs users to create an account """
-    print("METHOD",request.method)
-    #removes temp data from session
-    user = session.pop('temporary_username', None)
-    pw = session.pop('temporary_password', None)
-    print("USER", user)
-    conn = dbi.connect()
-    result = pyqueries.login_user(conn, user, pw)
-    print("Result", result)
-    try: 
-        #if the user is in the database
-        if result >=1:
-            #timestamp = datetime.now() #not sure if we need this
-            #ip = str(request.remote_addr) #not sure if we need this
-            session['uid'] = result 
-            # pyqueries.setsession(conn,result, timestamp, ip)
-            return redirect(url_for('home'))
-        #if incorrect password
-        elif result is False:
-            flash('Sorry, your password is incorrect, try again')
-            return redirect(url_for('index'))
-    #if that username is not in the db
-    except Exception as e: 
-        if user != None: 
-            flash(f'Sorry, no account with username: {user} found. Create an account')
-        return(redirect(url_for('index')))
+    action = request.form.get("action")
+    if action == 'Login':
+            pw = request.form.get("passw")
+            user = request.form.get("username")
+            if not pw or not user:
+                return render_template('login.html', header ='Welcome to Wendy Works!',
+                                        message='Fields username and password are required')
+            conn = dbi.connect()
+            result = pyqueries.login_user(conn, user, pw)
+            print("Result", result)
+            try: 
+                #if the user is in the database
+                if result >=1:
+                    session['uid'] = result 
+                    return redirect(url_for('home'))
+                elif result is False:
+                    flash('Sorry, your password is incorrect, try again')
+                    return redirect(url_for('index'))
+            except Exception: 
+                if user != None: 
+                    flash(f'Sorry, no account with username: {user} found. Create an account')
+                return(redirect(url_for('index')))
+    else: 
+         return redirect(url_for('join'))
+
  
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -316,38 +302,25 @@ def update(user):
     Returns: redirects to profile 
     """
     conn = dbi.connect() 
-    if request.method == "POST": 
-        firstnm = request.form.get('fname')
-        lastnm = request.form.get('lname')
-        mail = request.form.get('email')
-        username = request.form.get('username')
-        skills_input = request.form.get('skills')
-        pyqueries.delSkills(conn, user)
-        updated_skills = [skill.strip() for skill in skills_input.split(',')]
-        pyqueries.insert_other_skills(conn, user, updated_skills)
-        #userid stays the same so this is just updating additional info
-        pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
-        return redirect(url_for('profile', uid = user))
-    else: #method is get
-        action = request.args.get('action')
-        if action == 'UploadPhoto':
-            return redirect(url_for('profile_photo'))
-        elif action == 'Delete':
-            uid = session.get('uid')
-            pyqueries.deleteUser(conn, uid)
-            session.pop('uid', None)
-            flash("We're sorry to see you go! Account successfully deleted")
-            return redirect(url_for('index'))
-        else:
-            info = pyqueries.get_account_info(conn, user)
-            uskills = pyqueries.get_skills(conn, user)
-            print("Skills ", uskills)
-            return render_template("update_profile.html", account = info, skills = uskills, user = user)
+    firstnm = request.form.get('fname')
+    lastnm = request.form.get('lname')
+    mail = request.form.get('email')
+    username = request.form.get('username')
+    skills_input = request.form.get('skills')
+    pyqueries.delSkills(conn, user)
+    updated_skills = [skill.strip() for skill in skills_input.split(',')]
+    pyqueries.insert_other_skills(conn, user, updated_skills)
+    #userid stays the same so this is just updating additional info
+    pyqueries.updateUser(conn, user, firstnm, lastnm, mail, username)
+    return redirect(url_for('profile', uid = user))
+
 
 @app.route('/update_user/<int:user>')
 def update_user(user):
     """
-    Specific change to user's account information 
+    Get user's account information 
+    to fill the update form with 
+    data currently in db
     """
     conn = dbi.connect() 
     info = pyqueries.get_account_info(conn, user)
