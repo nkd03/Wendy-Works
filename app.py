@@ -120,8 +120,8 @@ def login():
             pw = request.form.get("passw")
             user = request.form.get("username")
             if not pw or not user:
-                return render_template('login.html', header ='Welcome to Wendy Works!',
-                                        message='Fields username and password are required')
+                flash('Fields username and password are required')
+                return render_template('login.html', header ='Welcome to Wendy Works!')
             conn = dbi.connect()
             result = pyqueries.login_user(conn, user, pw)
             print("Result", result)
@@ -142,7 +142,7 @@ def login():
 
  
 @app.route('/uploads/<filename>')
-def uploaded_file(filename):
+def get_file(filename):
     """Function serves to get uploaded file"""
     return send_from_directory(app.config['UPLOADS'], filename)
 
@@ -181,8 +181,6 @@ def profile_photo():
         # Redirect to the user's profile
         return redirect(url_for('profile', uid=user))
     
-
-
 
 
 @app.route('/search/', methods = ["GET"])
@@ -279,7 +277,7 @@ def profile(uid):
                 return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, posts = u_posts)
             else:
                 p_user = user_photo['filename']
-                photo_url = url_for('uploaded_file', filename=p_user)
+                photo_url = url_for('get_file', filename=p_user)
                 print("PHOTO_URL", photo_url)
                 #photo = send_from_directory(app.config['UPLOADS'],p_user)
                 return render_template("account_page.html", userdata = information, all_skills = skills, usid = uid, picture = photo_url, posts = u_posts) 
