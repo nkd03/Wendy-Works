@@ -20,7 +20,7 @@
             <strong>Post Status:</strong> {{ post.status }}
         </div>
         <div class="post_detail">
-            <img class="hand" src="https://cdn-icons-png.flaticon.com/512/4406/4406307.png">
+            <img class="hand" src="https://cdn-icons-png.flaticon.com/512/4406/4406307.png" alt="Raised hand">
             <strong>Interest Count: </strong> {{post.interest_count}}
         </div>
  
@@ -49,10 +49,14 @@
                 </div>    
             {% endfor %}
         </ul>
-        <form method="POST" action="{{ url_for('add_comment', pid=post.pid) }}">
-            <textarea name="body" required></textarea>
-            <button type="submit">Add Comment</button>
-        </form>
+        <div class="comment_submission">
+            <form method="POST" action="{{ url_for('add_comment', pid=post.pid) }}">
+                <label for="body">Add a Comment</label>
+                <textarea id = "body" name="body" required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        
         
     </div>
 </div>

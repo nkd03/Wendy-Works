@@ -315,7 +315,9 @@ li {
     border: 10px solid rgb(255, 255, 255);
 }
 
-
+.comment_submission{
+    color: black;
+}
 .post_detail {
     margin-bottom: 10px; 
 }

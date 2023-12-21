@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 
 {% block main_content %}
+<h1>Insert a Post on this Page!</h1>
     <form  method=post action="{{url_for('insert_post')}}">
         <fieldset>
         <legend>Make a post</legend>
         <table>
-                <tr><td><label for="title" accesskey="i"> Title your post:</label></td>
+                <tr><td><label for="title"> Title your post:</label></td>
                 <td><input id="title" type="text" name="title"></td></tr>
 
-            <tr><td><label for="body" accesskey="t"> Describe your request or service:</label></td>
+            <tr><td><label for="body"> Describe your request or service:</label></td>
                 <td><textarea id="body" name="body" rows="5" cols="33"></textarea></tr>
                 
             <tr>
-                <td><label accesskey="r">Is this a request or service:</label> <br></td>
+                <td><label>Is this a request or service:</label> <br></td>
                 
                
                 <td>
@@ -27,7 +28,7 @@
                 
                 </td></tr>
             
-            <tr><td><label  accesskey="r"> Check off relevant categories:</label> <br> </td>
+            <tr><td><label> Check off relevant categories:</label> <br> </td>
             
             <td>    
             <label for="clothing">Clothing (sewing, hemming, etc.)</label>
