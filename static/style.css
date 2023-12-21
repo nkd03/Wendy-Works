@@ -16,7 +16,11 @@ HTML {
     font-style: italic;
 }
 
-
+.home_page h2{
+    color: var(--color-header);
+    font-size: 175%;
+    text-align: center;
+}
   
 h1 {
     text-align: center;
